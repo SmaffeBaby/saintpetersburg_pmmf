@@ -13,5 +13,6 @@ import backgroundImage from '~/assets/images/background.png'
       <AppHero />
     </section>
     <AppAbout class="mt-[180px]" />
+    <AppRegistrationForm />
   </main>
 </template>
