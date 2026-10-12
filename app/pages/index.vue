@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import backgroundImage from '~/assets/images/background.webp'
+import backgroundImage from '~/assets/images/background.png'
 </script>
 
 <template>
