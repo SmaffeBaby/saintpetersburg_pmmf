@@ -1,0 +1,32 @@
+logo:
+  src: /images/header-logo.svg
+  alt:
+    ru: Комитет по молодежной политике
+    en: Committee for Youth Policy
+nav:
+  - href: "#topics"
+    label:
+      ru: Тематики
+      en: Topics
+  - href: "#schedule"
+    label:
+      ru: Расписание
+      en: Schedule
+  - href: "#speakers"
+    label:
+      ru: Спикеры
+      en: Speakers
+  - href: "#contacts"
+    label:
+      ru: Контакты
+      en: Contacts
+registration:
+  href: "#registration"
+  label:
+    ru: Регистрация
+    en: Registration
+languages:
+  - code: ru
+    label: RU
+  - code: en
+    label: EN

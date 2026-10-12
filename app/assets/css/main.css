@@ -1,0 +1,28 @@
+@font-face {
+  font-display: swap;
+  font-family: 'Days One';
+  font-style: normal;
+  font-weight: 400;
+  src: url('~/assets/fonts/DaysOne/DaysOne-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  src: url('~/assets/fonts/Montserrat/static/Montserrat-Regular.ttf') format('truetype');
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #3836d6;
+}

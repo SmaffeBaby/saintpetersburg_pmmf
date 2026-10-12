@@ -4,17 +4,23 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev --host 0.0.0.0",
+    "dev": "nuxt dev --host 0.0.0.0 --port 3001",
     "dev:local": "nuxt dev",
     "generate": "nuxt generate",
-    "preview": "nuxt preview",
+    "preview": "NITRO_HOST=0.0.0.0 NITRO_PORT=3001 nuxt preview",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
     "@nuxt/content": "2.13.4",
+    "@nuxtjs/i18n": "^8.5.6",
+    "@pinia/nuxt": "^0.5.5",
     "nuxt": "3.13.2",
+    "pinia": "^2.3.1",
     "vue": "^3.5.11",
     "vue-router": "^4.4.5"
+  },
+  "engines": {
+    "node": ">=18.18.0"
   },
   "overrides": {
     "@nuxt/kit": "3.13.2",
@@ -25,6 +31,10 @@
     "unstorage": "1.12.0",
     "chokidar": "3.6.0",
     "lru-cache": "10.4.3",
-    "smob": "1.5.0"
+    "smob": "1.5.0",
+    "globby": "13.2.2"
+  },
+  "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.14.0"
   }
 }
