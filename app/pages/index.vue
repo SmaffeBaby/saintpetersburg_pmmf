@@ -12,5 +12,6 @@ import backgroundImage from '~/assets/images/background.png'
       <AppHeader />
       <AppHero />
     </section>
+    <AppAbout class="mt-[180px]" />
   </main>
 </template>

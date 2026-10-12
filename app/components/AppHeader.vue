@@ -30,7 +30,7 @@ watch(() => languageStore.locale, (locale) => {
 </script>
 
 <template>
-  <header class="absolute inset-x-0 top-5 z-10 px-4 sm:top-8 sm:px-8 lg:top-10">
+  <header class="fixed inset-x-0 top-5 z-50 px-4 sm:top-8 sm:px-8 lg:top-10">
     <div
       class="mx-auto w-full max-w-[1550px] rounded-[20px] bg-white px-4 py-3 shadow-sm sm:px-5 lg:grid lg:min-h-20 lg:grid-cols-[minmax(272px,1fr)_auto_minmax(272px,1fr)] lg:items-center lg:gap-6 lg:px-[25px]"
     >
