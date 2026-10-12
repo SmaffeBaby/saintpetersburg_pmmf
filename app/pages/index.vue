@@ -10,6 +10,7 @@ import backgroundImage from '~/assets/images/background.png'
     >
       <div class="absolute inset-x-0 bottom-0 h-[490px] bg-gradient-to-b from-brand-blue/0 to-brand-blue" />
       <AppHeader />
+      <AppHero />
     </section>
   </main>
 </template>

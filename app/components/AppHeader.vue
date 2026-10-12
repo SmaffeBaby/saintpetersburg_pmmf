@@ -84,12 +84,7 @@ watch(() => languageStore.locale, (locale) => {
       <div class="hidden shrink-0 items-center justify-end gap-5 lg:flex">
         <AppLanguageSwitcher id="language-switcher" v-model="currentLocale" :languages="languages" />
 
-        <NuxtLink
-          class="inline-flex min-h-[50px] shrink-0 items-center justify-center rounded-[15px] bg-cta-gradient px-4 font-days-one text-sm uppercase leading-none text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-cyan"
-          :to="registrationLink.href"
-        >
-          {{ registrationLink.label }}
-        </NuxtLink>
+        <AppRegistrationButton :href="registrationLink.href" :label="registrationLink.label" />
       </div>
 
       <div
@@ -113,13 +108,7 @@ watch(() => languageStore.locale, (locale) => {
           <div class="flex items-center justify-between gap-4 border-t border-black/10 pt-5">
             <AppLanguageSwitcher id="mobile-language-switcher" v-model="currentLocale" :languages="languages" />
 
-            <NuxtLink
-              class="inline-flex min-h-[46px] shrink-0 items-center justify-center rounded-[15px] bg-cta-gradient px-4 font-days-one text-xs uppercase leading-none text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-cyan"
-              :to="registrationLink.href"
-              @click="closeMenu"
-            >
-              {{ registrationLink.label }}
-            </NuxtLink>
+            <AppRegistrationButton :href="registrationLink.href" :label="registrationLink.label" @click="closeMenu" />
           </div>
         </div>
       </div>
