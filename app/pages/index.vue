@@ -9,12 +9,12 @@ import backgroundImage from '~/assets/images/background.png'
       :style="{ backgroundImage: `url(${backgroundImage})` }"
     >
       <div class="absolute inset-x-0 bottom-0 h-[490px] bg-gradient-to-b from-brand-blue/0 to-brand-blue" />
-      <AppHeader />
-      <AppHero />
+      <AppHeader v-reveal />
+      <AppHero v-reveal />
     </section>
-    <AppAbout class="mt-[180px]" />
-    <AppRegistrationForm />
-    <AlternativeForum />
-    <AppFooter />
+    <AppAbout v-reveal class="mt-[180px]" />
+    <AppRegistrationForm v-reveal />
+    <AlternativeForum v-reveal />
+    <AppFooter v-reveal />
   </main>
 </template>

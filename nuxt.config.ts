@@ -3,6 +3,14 @@ const isDev = process.env.NODE_ENV === 'development'
 
 export default defineNuxtConfig({
   compatibilityDate: '2024-09-03',
+  app: {
+    head: {
+      meta: [
+        { name: 'theme-color', content: '#8F3CF0' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'default' }
+      ]
+    }
+  },
   buildDir: isDev ? '.nuxt-dev' : '.nuxt',
   devtools: { enabled: false },
   experimental: {
