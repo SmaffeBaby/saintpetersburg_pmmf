@@ -14,5 +14,6 @@ import backgroundImage from '~/assets/images/background.png'
     </section>
     <AppAbout class="mt-[180px]" />
     <AppRegistrationForm />
+    <AlternativeForum />
   </main>
 </template>

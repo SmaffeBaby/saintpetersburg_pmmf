@@ -1,0 +1,21 @@
+title:
+  ru: Альтернативная регистрация
+  en: Alternative registration
+description:
+  ru: |-
+    Также регистрация на форум «Мы граждане России» возможна через официальную платформу ФГАИС «Молодежь России».
+
+    Заполните анкету, выберите интересующие треки и станьте частью главного гражданского события года!
+  en: |-
+    Registration for the We Are Citizens of Russia forum is also available through the official FGAIS Youth of Russia platform.
+
+    Fill out the form, choose the tracks you are interested in and become part of the main civic event of the year!
+button:
+  label:
+    ru: Зарегистрироваться
+    en: Register
+  href: https://fadm.gov.ru/
+image:
+  alt:
+    ru: Росмолодежь Форумы
+    en: Rosmolodezh Forums
