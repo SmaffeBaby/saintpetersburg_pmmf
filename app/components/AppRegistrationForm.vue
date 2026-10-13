@@ -129,12 +129,12 @@ const submitForm = async () => {
             <span class="font-montserrat text-xl font-semibold leading-[1.3] text-white sm:text-2xl">
               {{ field.label }}
             </span>
-            <span class="relative block">
+            <span class="relative block w-full min-w-0">
               <input
                 :id="field.id"
                 v-model="form[field.name]"
-                class="h-[72px] w-full rounded-[20px] border-2 border-white bg-transparent px-5 font-montserrat text-xl font-semibold leading-[1.3] text-white outline-none transition-colors placeholder:text-white/50 focus:border-white focus:bg-white/10 sm:text-2xl"
-                :class="isDateField(field.name) ? 'pr-16 [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-0' : ''"
+                class="box-border h-[72px] w-full min-w-0 max-w-full rounded-[20px] border-2 border-white bg-transparent px-5 font-montserrat text-xl font-semibold leading-[1.3] text-white outline-none transition-colors placeholder:text-white/50 focus:border-white focus:bg-white/10 sm:text-2xl"
+                :class="isDateField(field.name) ? 'registration-date-input pr-16 [color-scheme:dark]' : ''"
                 :name="field.name"
                 :type="field.type"
                 :placeholder="field.placeholder"
@@ -143,7 +143,7 @@ const submitForm = async () => {
               >
               <button
                 v-if="isDateField(field.name)"
-                class="absolute right-4 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-[14px] bg-white/15 transition-colors hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                class="absolute right-3 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-[14px] bg-white/15 transition-colors hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:right-4"
                 type="button"
                 aria-label="Открыть календарь"
                 @click="openDatePicker"
@@ -191,3 +191,23 @@ const submitForm = async () => {
     @close="popup.open = false"
   />
 </template>
+
+<style scoped>
+.registration-date-input {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.registration-date-input::-webkit-date-and-time-value {
+  min-width: 0;
+  text-align: left;
+}
+
+.registration-date-input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  opacity: 0;
+}
+</style>
