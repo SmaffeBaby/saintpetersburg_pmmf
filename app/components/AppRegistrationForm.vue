@@ -8,8 +8,8 @@ const getFieldClass = (layout: 'third' | 'half') => layout === 'third'
 </script>
 
 <template>
-  <section id="registration" class="mx-auto w-full max-w-[1614px] overflow-hidden rounded-[40px] bg-[#892AF0] px-4 py-16 text-white sm:px-8 sm:py-20 lg:min-h-[1057px] lg:rounded-[80px] lg:pb-[120px] lg:pt-[120px]">
-    <div class="mx-auto w-full max-w-[1550px]">
+  <section id="registration" class="w-full overflow-hidden rounded-[40px] bg-[#892AF0] py-16 text-white sm:py-20 lg:min-h-[1057px] lg:rounded-[80px] lg:pb-[120px] lg:pt-[120px]">
+    <div class="mx-auto w-full max-w-[1550px] px-4 sm:px-8">
       <h2 class="font-days-one text-[42px] uppercase leading-none text-white sm:text-[56px] lg:text-[70px]">
         {{ title }}
       </h2>

@@ -31,7 +31,7 @@ const titleLines = computed(() => title.value.split('\n'))
       >
 
       <img
-        class="absolute bottom-[-116px] right-[-170px] hidden h-auto w-[420px] select-none lg:block xl:bottom-[-136px] xl:right-[-124px] xl:w-[500px]"
+        class="absolute bottom-[-116px] right-0 hidden h-auto w-[420px] select-none lg:block xl:bottom-[-136px] xl:right-0 xl:w-[500px]"
         :src="birdImage"
         alt=""
         width="572"
