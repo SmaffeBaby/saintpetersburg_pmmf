@@ -5,6 +5,10 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-09-03',
   app: {
     head: {
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/Favicon.svg' },
+        { rel: 'shortcut icon', type: 'image/svg+xml', href: '/Favicon.svg' }
+      ],
       meta: [
         { name: 'theme-color', content: '#8F3CF0' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'default' }
