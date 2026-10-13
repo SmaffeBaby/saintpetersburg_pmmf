@@ -15,8 +15,11 @@ const normalizeValue = (value: unknown) => typeof value === 'string' ? value.tri
 
 const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 
+const normalizeLocale = (value: unknown) => value === 'en' ? 'en' : 'ru'
+
 export default defineEventHandler(async (event) => {
   const body = await readBody<Record<string, unknown>>(event)
+  const locale = normalizeLocale(body.locale)
   const input = fields.reduce((acc, field) => {
     acc[field] = normalizeValue(body[field])
     return acc
@@ -38,10 +41,18 @@ export default defineEventHandler(async (event) => {
   }
 
   const submission = await saveRegistrationSubmission(input)
-  await sendRegistrationEmails(submission)
+  let emailSent = true
+
+  try {
+    await sendRegistrationEmails(submission, locale)
+  } catch (error) {
+    emailSent = false
+    console.error('[registration] Failed to send registration emails', error)
+  }
 
   return {
     ok: true,
-    submissionId: submission.id
+    submissionId: submission.id,
+    emailSent
   }
 })

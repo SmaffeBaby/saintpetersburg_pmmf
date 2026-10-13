@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { agreement, fields, submitLabel, title } = await useRegistrationForm()
+const languageStore = useLanguageStore()
 const isConsentAccepted = ref(false)
 const isSubmitting = ref(false)
 const form = reactive<Record<string, string>>({})
@@ -37,17 +38,47 @@ const showPopup = (title: string, message: string, tone: 'success' | 'error' = '
   popup.open = true
 }
 
+type RegistrationSubmitResponse = {
+  ok: boolean
+  submissionId: string
+  emailSent: boolean
+}
+
+const popupMessages = {
+  ru: {
+    successTitle: 'Заявка отправлена',
+    successMessage: 'Данные отправлены на почту info.crbi@mail.ru. На ваш email также ушло подтверждение об успешной отправке письма.',
+    savedTitle: 'Заявка принята',
+    savedMessage: 'Мы сохранили вашу заявку, но письмо сейчас не отправилось. Организаторы проверят заявку в админ-панели.',
+    errorTitle: 'Не получилось отправить',
+    errorMessage: 'Проверьте заполнение формы и попробуйте ещё раз. Если ошибка повторится, напишите нам напрямую на info.crbi@mail.ru.'
+  },
+  en: {
+    successTitle: 'Application Sent',
+    successMessage: 'Your data has been sent to info.crbi@mail.ru. A confirmation email has also been sent to your inbox.',
+    savedTitle: 'Application Received',
+    savedMessage: 'We saved your application, but the confirmation email could not be sent right now. The organizers will review it in the admin panel.',
+    errorTitle: 'Could Not Send',
+    errorMessage: 'Please check the form and try again. If the issue persists, email us directly at info.crbi@mail.ru.'
+  }
+}
+
 const submitForm = async () => {
   if (!isConsentAccepted.value || isSubmitting.value) {
     return
   }
 
   isSubmitting.value = true
+  const submissionLocale = languageStore.locale
+  const messages = popupMessages[submissionLocale]
 
   try {
-    await $fetch('/api/registration/submit', {
+    const response = await $fetch<RegistrationSubmitResponse>('/api/registration/submit', {
       method: 'POST',
-      body: form
+      body: {
+        ...form,
+        locale: submissionLocale
+      }
     })
 
     fields.value.forEach((field) => {
@@ -55,14 +86,22 @@ const submitForm = async () => {
     })
     isConsentAccepted.value = false
 
+    if (response.emailSent) {
+      showPopup(
+        messages.successTitle,
+        messages.successMessage
+      )
+      return
+    }
+
     showPopup(
-      'Заявка отправлена',
-      'Данные отправлены на почту develop@magnatmedia.com. На ваш email также ушло подтверждение об успешной отправке письма.'
+      messages.savedTitle,
+      messages.savedMessage
     )
   } catch (error) {
     showPopup(
-      'Не получилось отправить',
-      'Проверьте заполнение формы и попробуйте ещё раз. Если ошибка повторится, напишите нам напрямую на develop@magnatmedia.com.',
+      messages.errorTitle,
+      messages.errorMessage,
       'error'
     )
   } finally {
