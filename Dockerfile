@@ -19,6 +19,7 @@ ENV NITRO_HOST=0.0.0.0
 ENV NITRO_PORT=3000
 
 COPY --from=build /app/.output ./.output
+COPY --from=deps /app/node_modules ./node_modules
 
 EXPOSE 3000
 CMD ["node", ".output/server/index.mjs"]

@@ -9,5 +9,16 @@ services:
       NODE_ENV: production
       NITRO_HOST: 0.0.0.0
       NITRO_PORT: 3000
+      NUXT_SMTP_HOST: ${SMTP_HOST:-}
+      NUXT_SMTP_PORT: ${SMTP_PORT:-465}
+      NUXT_SMTP_SECURE: ${SMTP_SECURE:-true}
+      NUXT_SMTP_USER: ${SMTP_USER:-}
+      NUXT_SMTP_PASS: ${SMTP_PASS:-}
+      NUXT_SMTP_FROM: ${SMTP_FROM:-}
+      NUXT_PROJECT_REQUEST_NOTIFY_EMAIL: ${PROJECT_REQUEST_NOTIFY_EMAIL:-}
+      NUXT_ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      NUXT_ADMIN_SESSION_SECRET: ${ADMIN_SESSION_SECRET:-}
     ports:
       - "3001:3000"
+    volumes:
+      - ./data:/app/data

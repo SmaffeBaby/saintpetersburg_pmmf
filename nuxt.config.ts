@@ -13,12 +13,40 @@ export default defineNuxtConfig({
   },
   buildDir: isDev ? '.nuxt-dev' : '.nuxt',
   devtools: { enabled: false },
+  runtimeConfig: {
+    smtpHost: process.env.SMTP_HOST || '',
+    smtpPort: Number(process.env.SMTP_PORT || 465),
+    smtpSecure: process.env.SMTP_SECURE !== 'false',
+    smtpUser: process.env.SMTP_USER || '',
+    smtpPass: process.env.SMTP_PASS || '',
+    smtpFrom: process.env.SMTP_FROM || '',
+    projectRequestNotifyEmail: process.env.PROJECT_REQUEST_NOTIFY_EMAIL || '',
+    adminPassword: process.env.ADMIN_PASSWORD || '',
+    adminSessionSecret: process.env.ADMIN_SESSION_SECRET || ''
+  },
   experimental: {
     appManifest: false
   },
   srcDir: 'app/',
   css: ['~/assets/css/main.css'],
-  modules: ['@nuxt/content', '@nuxtjs/tailwindcss', '@pinia/nuxt', '@nuxtjs/i18n'],
+  modules: ['nuxt-security', '@nuxt/content', '@nuxtjs/tailwindcss', '@pinia/nuxt', '@nuxtjs/i18n'],
+  security: {
+    headers: {
+      contentSecurityPolicy: {
+        'img-src': ['\'self\'', 'data:'],
+        'style-src': ['\'self\'', 'https:', '\'unsafe-inline\''],
+        'script-src': ['\'self\'', 'https:', '\'unsafe-inline\'', '\'strict-dynamic\'', '\'nonce-{{nonce}}\'']
+      }
+    },
+    rateLimiter: {
+      tokensPerInterval: 120,
+      interval: 300000,
+      headers: false,
+      driver: {
+        name: 'lruCache'
+      }
+    }
+  },
   content: {
     sources: {
       rootContent: {

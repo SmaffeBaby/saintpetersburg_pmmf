@@ -75,7 +75,7 @@ jobs:
             -p "$SSH_PORT" \
             -o StrictHostKeyChecking=accept-new \
             "$SSH_USER@$SSH_HOST" \
-            "find '$APP_DIR' -mindepth 1 -maxdepth 1 ! -name '.env' -exec rm -rf {} + && tar -xzf '/tmp/$ARCHIVE_NAME' -C '$APP_DIR' && rm -f '/tmp/$ARCHIVE_NAME' && chmod +x '$APP_DIR/scripts/deploy-production.sh'"
+            "find '$APP_DIR' -mindepth 1 -maxdepth 1 ! -name '.env' ! -name 'data' -exec rm -rf {} + && mkdir -p '$APP_DIR/data' && tar -xzf '/tmp/$ARCHIVE_NAME' -C '$APP_DIR' && rm -f '/tmp/$ARCHIVE_NAME' && chmod +x '$APP_DIR/scripts/deploy-production.sh'"
 
       - name: Rebuild production containers
         run: |

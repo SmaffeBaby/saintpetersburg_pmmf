@@ -6,6 +6,7 @@
 .nitro
 .cache
 coverage
+data
 dist
 logs
 node_modules
