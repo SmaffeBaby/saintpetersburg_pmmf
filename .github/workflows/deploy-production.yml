@@ -1,0 +1,86 @@
+name: Deploy production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to production server
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      APP_DIR: /opt/saint-mmf
+      ARCHIVE_NAME: saint-mmf-production.tar.gz
+      SSH_HOST: ${{ secrets.PRODUCTION_HOST }}
+      SSH_USER: ${{ secrets.PRODUCTION_USER }}
+      SSH_PASSWORD: ${{ secrets.PRODUCTION_PASSWORD }}
+      SSH_PORT: ${{ secrets.PRODUCTION_PORT || '22' }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate production secrets
+        run: |
+          test -n "$SSH_HOST" || { echo "Missing PRODUCTION_HOST secret" >&2; exit 1; }
+          test -n "$SSH_USER" || { echo "Missing PRODUCTION_USER secret" >&2; exit 1; }
+          test -n "$SSH_PASSWORD" || { echo "Missing PRODUCTION_PASSWORD secret" >&2; exit 1; }
+
+      - name: Create deploy archive
+        run: |
+          tar \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.idea' \
+            --exclude='.nuxt' \
+            --exclude='.nuxt-dev' \
+            --exclude='.output' \
+            --exclude='.nitro' \
+            --exclude='.cache' \
+            --exclude='node_modules' \
+            --exclude='coverage' \
+            --exclude='dist' \
+            --exclude='logs' \
+            --exclude='*.log' \
+            -czf "/tmp/$ARCHIVE_NAME" .
+
+      - name: Install SSH password helper
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+
+      - name: Upload release to production
+        run: |
+          sshpass -p "$SSH_PASSWORD" ssh \
+            -p "$SSH_PORT" \
+            -o StrictHostKeyChecking=accept-new \
+            "$SSH_USER@$SSH_HOST" \
+            "mkdir -p '$APP_DIR'"
+
+          sshpass -p "$SSH_PASSWORD" scp \
+            -P "$SSH_PORT" \
+            -o StrictHostKeyChecking=accept-new \
+            "/tmp/$ARCHIVE_NAME" \
+            "$SSH_USER@$SSH_HOST:/tmp/$ARCHIVE_NAME"
+
+          sshpass -p "$SSH_PASSWORD" ssh \
+            -p "$SSH_PORT" \
+            -o StrictHostKeyChecking=accept-new \
+            "$SSH_USER@$SSH_HOST" \
+            "find '$APP_DIR' -mindepth 1 -maxdepth 1 ! -name '.env' -exec rm -rf {} + && tar -xzf '/tmp/$ARCHIVE_NAME' -C '$APP_DIR' && rm -f '/tmp/$ARCHIVE_NAME' && chmod +x '$APP_DIR/scripts/deploy-production.sh'"
+
+      - name: Rebuild production containers
+        run: |
+          sshpass -p "$SSH_PASSWORD" ssh \
+            -p "$SSH_PORT" \
+            -o StrictHostKeyChecking=accept-new \
+            "$SSH_USER@$SSH_HOST" \
+            "APP_DIR='$APP_DIR' '$APP_DIR/scripts/deploy-production.sh'"
