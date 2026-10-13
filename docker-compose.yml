@@ -1,0 +1,13 @@
+services:
+  saint-mmf:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: saint-mmf
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NITRO_HOST: 0.0.0.0
+      NITRO_PORT: 3000
+    ports:
+      - "3001:3000"
