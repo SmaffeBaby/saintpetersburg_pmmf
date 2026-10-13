@@ -16,6 +16,7 @@ const isAuthenticated = ref(false)
 const isLoggingIn = ref(false)
 const loginError = ref('')
 const isLoading = ref(false)
+const deletingId = ref('')
 const submissions = ref<RegistrationSubmission[]>([])
 const filters = reactive({
   search: '',
@@ -115,6 +116,28 @@ const exportUrl = computed(() => {
   return `/api/admin/registrations/export${query ? `?${query}` : ''}`
 })
 
+const deleteSubmission = async (submission: RegistrationSubmission) => {
+  const fullName = [submission.lastName, submission.firstName, submission.middleName].filter(Boolean).join(' ')
+  const confirmed = window.confirm(`Удалить заявку ${fullName || submission.email}?`)
+
+  if (!confirmed || deletingId.value) {
+    return
+  }
+
+  deletingId.value = submission.id
+
+  try {
+    await $fetch(`/api/admin/registrations/${submission.id}`, {
+      method: 'DELETE'
+    })
+    submissions.value = submissions.value.filter((item) => item.id !== submission.id)
+  } catch (error) {
+    window.alert('Не получилось удалить заявку. Обновите страницу и попробуйте ещё раз.')
+  } finally {
+    deletingId.value = ''
+  }
+}
+
 onMounted(async () => {
   try {
     await fetchSubmissions()
@@ -211,7 +234,7 @@ onMounted(async () => {
         </div>
 
         <div class="overflow-x-auto">
-          <table class="min-w-[1040px] w-full border-collapse text-left text-sm">
+          <table class="min-w-[1160px] w-full border-collapse text-left text-sm">
             <thead class="bg-[#F7F2FF] text-xs uppercase text-[#6B6175]">
               <tr>
                 <th class="px-4 py-3">Дата</th>
@@ -220,11 +243,12 @@ onMounted(async () => {
                 <th class="px-4 py-3">Регион</th>
                 <th class="px-4 py-3">Email</th>
                 <th class="px-4 py-3">Телефон</th>
+                <th class="px-4 py-3 text-right">Действия</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="!filteredSubmissions.length">
-                <td class="px-4 py-8 text-center text-[#6B6175]" colspan="6">
+                <td class="px-4 py-8 text-center text-[#6B6175]" colspan="7">
                   Заявок пока нет
                 </td>
               </tr>
@@ -235,6 +259,16 @@ onMounted(async () => {
                 <td class="px-4 py-4">{{ submission.region }}</td>
                 <td class="px-4 py-4">{{ submission.email }}</td>
                 <td class="px-4 py-4">{{ submission.phone }}</td>
+                <td class="px-4 py-4 text-right">
+                  <button
+                    class="inline-flex h-10 items-center justify-center rounded-[12px] border border-[#F1B8B8] px-4 text-xs font-bold uppercase text-[#D62F2F] transition-colors hover:bg-[#FFF2F2] disabled:cursor-not-allowed disabled:opacity-50"
+                    type="button"
+                    :disabled="Boolean(deletingId)"
+                    @click="deleteSubmission(submission)"
+                  >
+                    {{ deletingId === submission.id ? 'Удаляем...' : 'Удалить' }}
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>

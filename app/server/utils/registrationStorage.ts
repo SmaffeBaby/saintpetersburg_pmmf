@@ -51,3 +51,19 @@ export const saveRegistrationSubmission = async (input: RegistrationSubmissionIn
 
   return submission
 }
+
+export const deleteRegistrationSubmission = async (id: string) => {
+  const submissions = await readSubmissionsFile()
+  const nextSubmissions = submissions.filter((submission) => submission.id !== id)
+
+  if (nextSubmissions.length === submissions.length) {
+    return false
+  }
+
+  await mkdir(dirname(storagePath), { recursive: true })
+  const tempPath = `${storagePath}.${process.pid}.tmp`
+  await writeFile(tempPath, `${JSON.stringify(nextSubmissions, null, 2)}\n`, 'utf8')
+  await rename(tempPath, storagePath)
+
+  return true
+}

@@ -66,9 +66,9 @@ const fallbackContent: RegistrationFormContent = {
     {
       id: 'birthDate',
       name: 'birthDate',
-      type: 'text',
+      type: 'date',
       label: { ru: 'Ваша дата рождения', en: 'Your date of birth' },
-      placeholder: { ru: '12.10.2026', en: '10.12.2026' },
+      placeholder: { ru: 'Выберите дату', en: 'Select date' },
       autocomplete: 'bday',
       layout: 'half'
     },

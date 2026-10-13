@@ -22,6 +22,14 @@ const getFieldClass = (layout: 'third' | 'half') => layout === 'third'
   ? 'lg:col-span-4'
   : 'lg:col-span-6'
 
+const isDateField = (fieldName: string) => fieldName === 'birthDate'
+
+const openDatePicker = (event: MouseEvent) => {
+  const input = (event.currentTarget as HTMLButtonElement).previousElementSibling as HTMLInputElement | null
+  input?.showPicker?.()
+  input?.focus()
+}
+
 const showPopup = (title: string, message: string, tone: 'success' | 'error' = 'success') => {
   popup.title = title
   popup.message = message
@@ -82,16 +90,30 @@ const submitForm = async () => {
             <span class="font-montserrat text-xl font-semibold leading-[1.3] text-white sm:text-2xl">
               {{ field.label }}
             </span>
-            <input
-              :id="field.id"
-              v-model="form[field.name]"
-              class="h-[72px] w-full rounded-[20px] border-2 border-white bg-transparent px-5 font-montserrat text-xl font-semibold leading-[1.3] text-white outline-none transition-colors placeholder:text-white/50 focus:border-white focus:bg-white/10 sm:text-2xl"
-              :name="field.name"
-              :type="field.type"
-              :placeholder="field.placeholder"
-              :autocomplete="field.autocomplete"
-              required
-            >
+            <span class="relative block">
+              <input
+                :id="field.id"
+                v-model="form[field.name]"
+                class="h-[72px] w-full rounded-[20px] border-2 border-white bg-transparent px-5 font-montserrat text-xl font-semibold leading-[1.3] text-white outline-none transition-colors placeholder:text-white/50 focus:border-white focus:bg-white/10 sm:text-2xl"
+                :class="isDateField(field.name) ? 'pr-16 [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-0' : ''"
+                :name="field.name"
+                :type="field.type"
+                :placeholder="field.placeholder"
+                :autocomplete="field.autocomplete"
+                required
+              >
+              <button
+                v-if="isDateField(field.name)"
+                class="absolute right-4 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-[14px] bg-white/15 transition-colors hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                type="button"
+                aria-label="Открыть календарь"
+                @click="openDatePicker"
+              >
+                <svg class="size-6" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M7 3V6M17 3V6M4.5 9.5H19.5M6.5 5H17.5C18.6046 5 19.5 5.89543 19.5 7V18C19.5 19.1046 18.6046 20 17.5 20H6.5C5.39543 20 4.5 19.1046 4.5 18V7C4.5 5.89543 5.39543 5 6.5 5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </button>
+            </span>
           </label>
         </div>
 
