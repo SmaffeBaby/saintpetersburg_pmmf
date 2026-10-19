@@ -1,4 +1,17 @@
 {
+  "information-partners": {
+    "title": { "ru": "Информационные партнеры", "en": "Media partners" },
+    "partners": [
+      {
+        "src": "/images/partner-spbtv.svg",
+        "alt": { "ru": "Телеканал Санкт-Петербург", "en": "Saint Petersburg TV" }
+      },
+      {
+        "src": "/images/partner-petersburg-diary.svg",
+        "alt": { "ru": "Петербургский дневник", "en": "Petersburg Diary" }
+      }
+    ]
+  },
   "about": {
     "title": {
       "ru": "О форуме",

@@ -5,7 +5,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: any] }>()
 const labels: Record<string, string> = {
   title: 'Заголовок', date: 'Дата форума', place: 'Место проведения', firstParagraph: 'Первый абзац', secondParagraph: 'Второй абзац',
   description: 'Описание', button: 'Кнопка', label: 'Текст', href: 'Ссылка', image: 'Изображение', alt: 'Описание изображения',
-  logo: 'Логотип', src: 'Путь к изображению', nav: 'Навигация', registration: 'Кнопка регистрации', languages: 'Языки',
+  logo: 'Логотип', partners: 'Партнеры', src: 'Путь к изображению', nav: 'Навигация', registration: 'Кнопка регистрации', languages: 'Языки',
   code: 'Код языка', legal: 'Реквизиты', privacy: 'Политика конфиденциальности', fields: 'Поля формы', agreement: 'Согласие на обработку данных',
   submitLabel: 'Текст кнопки отправки', id: 'Идентификатор', name: 'Имя поля', type: 'Тип поля', placeholder: 'Подсказка', autocomplete: 'Автозаполнение', layout: 'Ширина поля'
 }
@@ -16,7 +16,9 @@ const update = (key: string | number, value: any) => {
   emit('update:modelValue', next)
 }
 const add = () => {
-  const seed = props.modelValue[props.modelValue.length - 1] || { label: { ru: '', en: '' }, href: '/' }
+  const seed = props.modelValue[props.modelValue.length - 1] || (props.path === 'partners'
+    ? { src: '/images/partner-spbtv.svg', alt: { ru: '', en: '' } }
+    : { label: { ru: '', en: '' }, href: '/' })
   emit('update:modelValue', [...props.modelValue, structuredClone(toRaw(seed))])
 }
 const immutable = computed(() => /fields\.\d+\.(id|name|type)$/.test(props.path || ''))
@@ -37,7 +39,7 @@ const fieldId = computed(() => `content-${props.path || 'root'}`)
     <legend class="px-1 text-sm font-semibold">{{ label }}</legend>
     <div v-for="(item, index) in modelValue" :key="index" class="space-y-4 rounded-lg bg-slate-50 p-4">
       <div class="flex items-center justify-between">
-        <p class="text-sm font-medium">{{ item.label?.ru || item.name || item.label || `Элемент ${index + 1}` }}</p>
+        <p class="text-sm font-medium">{{ item.alt?.ru || item.label?.ru || item.name || item.label || `Элемент ${index + 1}` }}</p>
         <UButton v-if="!fixedArray" label="Удалить" color="error" variant="ghost" size="xs" @click="emit('update:modelValue', modelValue.filter((_: any, i: number) => i !== index))" />
       </div>
       <AdminContentFields :model-value="item" :path="`${path}.${index}`" @update:model-value="update(index, $event)" />

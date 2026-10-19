@@ -20,6 +20,13 @@ export const contentSchemas = {
   }).strict(),
   hero: z.object({ title: localized, date: localized, place: localized }).strict(),
   about: z.object({ title: localized, firstParagraph: localized, secondParagraph: localized }).strict(),
+  'information-partners': z.object({
+    title: localized,
+    partners: z.array(z.object({
+      src: z.string().regex(/^\/(?!\/)/).max(2048),
+      alt: localized
+    }).strict()).max(12)
+  }).strict(),
   'registration-form': z.object({
     title: localized, agreement: localized, submitLabel: localized,
     fields: z.array(field).length(7).refine(rows =>
@@ -35,6 +42,7 @@ export const contentSections: { id: ContentSection; label: string; icon: string 
   { id: 'header', label: 'Шапка сайта', icon: 'i-lucide-panel-top' },
   { id: 'hero', label: 'Первый экран', icon: 'i-lucide-layout-template' },
   { id: 'about', label: 'О форуме', icon: 'i-lucide-info' },
+  { id: 'information-partners', label: 'Информационные партнеры', icon: 'i-lucide-handshake' },
   { id: 'registration-form', label: 'Форма регистрации', icon: 'i-lucide-clipboard-list' },
   { id: 'alternative-forum', label: 'Альтернативная регистрация', icon: 'i-lucide-external-link' },
   { id: 'footer', label: 'Подвал', icon: 'i-lucide-panel-bottom' }

@@ -7,7 +7,10 @@
       <AppHero v-reveal />
     </section>
     <AppAbout v-reveal class="mt-[180px]" />
-    <AppRegistrationForm v-reveal />
+    <div class="rounded-[40px] bg-white lg:rounded-[80px]">
+      <AppInformationPartners v-reveal />
+      <AppRegistrationForm v-reveal />
+    </div>
     <AlternativeForum v-reveal />
     <AppFooter v-reveal />
   </main>
