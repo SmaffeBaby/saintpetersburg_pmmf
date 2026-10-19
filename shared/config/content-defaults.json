@@ -50,6 +50,15 @@
     }
   },
   "footer": {
+    "email": "info.crbi@yandex.ru",
+    "address": {
+      "ru": "Санкт-Петербург, Арсенальная наб, 1",
+      "en": "Saint Petersburg, Arsenalnaya Emb, 1"
+    },
+    "contacts": {
+      "ru": "ИНН 7812035151\nОргкомитет Форума:\nКомитет по молодежной политике и взаимодействию с общественными организациями Санкт-Петербурга\n+7 (965) 087-37-68;\nДля СМИ: +7 (921) 741-39-22",
+      "en": "TIN 7812035151\nForum Organizing Committee:\nCommittee for Youth Policy and Interaction with Public Organizations of Saint Petersburg\n+7 (965) 087-37-68;\nMedia enquiries: +7 (921) 741-39-22"
+    },
     "legal": {
       "ru": "ИНН 7812035151, ОГРН 1027810228368, Юр. Адрес: 191144, город Санкт-Петербург, Дегтярный пер., д. 9 стр. 1\nСчет банка плательщика № 40102810945370000005, Счет плательщика № 03221643400000007200, Северо-Западного ГУ Банка России//УФК по г. Санкт-Петербургу",
       "en": "TIN 7812035151, PSRN 1027810228368, Legal address: 9 building 1 Degtyarny lane, Saint Petersburg, 191144\nPayer bank account No. 40102810945370000005, payer account No. 03221643400000007200, North-West Main Branch of the Bank of Russia//Federal Treasury Department for Saint Petersburg"

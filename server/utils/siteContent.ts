@@ -9,6 +9,15 @@ const ensureContent = (section: ContentSection) => {
   if (!initialized.has(section)) {
     db.prepare('INSERT OR IGNORE INTO site_content(section, content, updatedAt) VALUES (?, ?, ?)')
       .run(section, JSON.stringify(contentSchemas[section].parse(defaults[section])), new Date().toISOString())
+    if (section === 'footer') {
+      const row = db.prepare('SELECT content FROM site_content WHERE section = ?').get(section) as { content: string }
+      const stored = JSON.parse(row.content)
+      if (['email', 'address', 'contacts'].some(key => !Object.hasOwn(stored, key))) {
+        const content = contentSchemas.footer.parse({ ...defaults.footer, ...stored })
+        db.prepare('UPDATE site_content SET content = ?, revision = revision + 1, updatedAt = ? WHERE section = ?')
+          .run(JSON.stringify(content), new Date().toISOString(), section)
+      }
+    }
     initialized.add(section)
   }
   return db

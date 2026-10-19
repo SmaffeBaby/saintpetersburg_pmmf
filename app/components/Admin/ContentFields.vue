@@ -6,7 +6,7 @@ const labels: Record<string, string> = {
   title: 'Заголовок', date: 'Дата форума', place: 'Место проведения', firstParagraph: 'Первый абзац', secondParagraph: 'Второй абзац',
   description: 'Описание', button: 'Кнопка', label: 'Текст', href: 'Ссылка', image: 'Изображение', alt: 'Описание изображения',
   logo: 'Логотип', partners: 'Партнеры', src: 'Путь к изображению', nav: 'Навигация', registration: 'Кнопка регистрации', languages: 'Языки',
-  code: 'Код языка', legal: 'Реквизиты', privacy: 'Политика конфиденциальности', fields: 'Поля формы', agreement: 'Согласие на обработку данных',
+  code: 'Код языка', email: 'Электронная почта', address: 'Адрес', contacts: 'Контакты в карточке', legal: 'Реквизиты (сохранены из прежнего подвала)', privacy: 'Политика конфиденциальности', fields: 'Поля формы', agreement: 'Согласие на обработку данных',
   submitLabel: 'Текст кнопки отправки', id: 'Идентификатор', name: 'Имя поля', type: 'Тип поля', placeholder: 'Подсказка', autocomplete: 'Автозаполнение', layout: 'Ширина поля'
 }
 const localized = computed(() => props.modelValue && !Array.isArray(props.modelValue) && typeof props.modelValue === 'object' && 'ru' in props.modelValue && 'en' in props.modelValue)

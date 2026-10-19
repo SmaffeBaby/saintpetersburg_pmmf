@@ -35,7 +35,10 @@ export const contentSchemas = {
     'Все семь полей должны присутствовать с исходными именами и типами')
   }).strict(),
   'alternative-forum': z.object({ title: localized, description: localized, button: link, image: z.object({ alt: localized }).strict() }).strict(),
-  footer: z.object({ legal: localized, privacy: link }).strict()
+  footer: z.object({
+    email: z.email().max(254), address: localized, contacts: localized,
+    legal: localized, privacy: link
+  }).strict()
 }
 export type ContentSection = keyof typeof contentSchemas
 export const contentSections: { id: ContentSection; label: string; icon: string }[] = [
