@@ -3,7 +3,7 @@ defineOptions({ name: 'AdminContentFields' })
 const props = defineProps<{ modelValue: any; path?: string; label?: string }>()
 const emit = defineEmits<{ 'update:modelValue': [value: any] }>()
 const labels: Record<string, string> = {
-  title: 'Заголовок', date: 'Дата форума', place: 'Место проведения', firstParagraph: 'Первый абзац', secondParagraph: 'Второй абзац',
+  title: 'Заголовок', city: 'Город', subtitle: 'Подзаголовок', mapLabel: 'Текст кнопки карты', date: 'Дата и время', place: 'Место проведения', firstParagraph: 'Первый абзац', secondParagraph: 'Второй абзац',
   description: 'Описание', button: 'Кнопка', label: 'Текст', href: 'Ссылка', image: 'Изображение', alt: 'Описание изображения',
   logo: 'Логотип', partners: 'Партнеры', src: 'Путь к изображению', nav: 'Навигация', registration: 'Кнопка регистрации', languages: 'Языки',
   code: 'Код языка', email: 'Электронная почта', address: 'Адрес', contacts: 'Контакты в карточке', legal: 'Реквизиты (сохранены из прежнего подвала)', privacy: 'Политика конфиденциальности', fields: 'Поля формы', agreement: 'Согласие на обработку данных',

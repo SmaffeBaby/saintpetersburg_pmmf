@@ -1,4 +1,20 @@
 {
+  "loft-hall": {
+    "title": { "ru": "LOFT HALL", "en": "LOFT HALL" },
+    "city": { "ru": "Санкт-Петербург", "en": "Saint Petersburg" },
+    "subtitle": { "ru": "Лофт-пространство\n«LOFT HALL»", "en": "Event space\nLOFT HALL" },
+    "description": {
+      "ru": "Форум «Петербургский Международный Молодежный Форум» пройдет на одной из самых современных и знаковых площадок Санкт-Петербурга — в Лофт-пространстве «LOFT HALL»",
+      "en": "The Saint Petersburg International Youth Forum will take place at LOFT HALL, one of Saint Petersburg’s most modern and iconic event venues."
+    },
+    "date": { "ru": "17 ноября, 10:30–18:00", "en": "November 17, 10:30–18:00" },
+    "mapLabel": { "ru": "Смотреть на карте", "en": "View on map" },
+    "registration": { "label": { "ru": "Регистрация", "en": "Register" }, "href": "#registration" },
+    "image": {
+      "src": "/images/loft-hall.png",
+      "alt": { "ru": "Фасад лофт-пространства LOFT HALL в Санкт-Петербурге", "en": "LOFT HALL event venue in Saint Petersburg" }
+    }
+  },
   "information-partners": {
     "title": { "ru": "Информационные партнеры", "en": "Media partners" },
     "partners": [
