@@ -32,23 +32,16 @@ watch(() => languageStore.locale, (locale) => {
 <template>
   <header class="fixed inset-x-0 top-5 z-50 px-4 sm:top-8 sm:px-8 xl:top-10">
     <div
-      class="mx-auto w-full max-w-[1550px] rounded-[20px] bg-white px-4 py-3 shadow-sm sm:px-5 xl:grid xl:min-h-20 xl:grid-cols-[minmax(346px,1fr)_auto_minmax(250px,1fr)] xl:items-center xl:gap-6 xl:px-[15px] xl:py-[10px]"
+      class="mx-auto w-full max-w-[1550px] rounded-[20px] bg-white px-4 py-3 shadow-sm sm:px-5 xl:grid xl:min-h-20 xl:grid-cols-[minmax(200px,1fr)_auto_minmax(250px,1fr)] xl:items-center xl:gap-6 xl:px-[15px] xl:py-[10px]"
     >
       <div class="flex items-center justify-between gap-4 xl:contents">
         <NuxtLink class="flex min-w-0 items-center gap-3 sm:gap-5 xl:justify-self-start" to="/" :aria-label="logo.alt" @click="closeMenu">
           <img
-            class="h-auto min-w-0 w-[210px] sm:w-[240px] xl:h-[60px] xl:w-[272px] xl:object-contain"
+            class="h-auto w-[130px] shrink-0 sm:w-[159px] xl:h-[58px] xl:w-[159px] xl:object-contain"
             :src="logo.src"
             :alt="logo.alt"
-            width="272"
-            height="70"
-          >
-          <img
-            class="h-auto w-9 shrink-0 sm:w-[45px] xl:w-[54px]"
-            src="/images/header-logo-additional.svg"
-            :alt="currentLocale === 'ru' ? 'Всемирный фестиваль молодёжи' : 'World Youth Festival'"
-            width="54"
-            height="60"
+            width="159"
+            height="58"
           >
         </NuxtLink>
 

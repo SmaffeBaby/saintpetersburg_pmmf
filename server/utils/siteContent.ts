@@ -9,6 +9,15 @@ const ensureContent = (section: ContentSection) => {
   if (!initialized.has(section)) {
     db.prepare('INSERT OR IGNORE INTO site_content(section, content, updatedAt) VALUES (?, ?, ?)')
       .run(section, JSON.stringify(contentSchemas[section].parse(defaults[section])), new Date().toISOString())
+    if (section === 'header') {
+      const row = db.prepare('SELECT content FROM site_content WHERE section = ?').get(section) as { content: string }
+      const stored = JSON.parse(row.content)
+      if (stored.logo.src === '/images/header-logo.svg' && stored.logo.alt.ru === 'Комитет по молодежной политике' && stored.logo.alt.en === 'Committee for Youth Policy') {
+        stored.logo.alt = defaults.header.logo.alt
+        db.prepare('UPDATE site_content SET content = ?, revision = revision + 1, updatedAt = ? WHERE section = ?')
+          .run(JSON.stringify(contentSchemas.header.parse(stored)), new Date().toISOString(), section)
+      }
+    }
     if (section === 'footer') {
       const row = db.prepare('SELECT content FROM site_content WHERE section = ?').get(section) as { content: string }
       const stored = JSON.parse(row.content)

@@ -2,42 +2,202 @@
 import heroLogo from '~/assets/images/hero-mmf-logo.png'
 
 const { registrationLink } = await useHeader()
-const { date, place, title } = await useHero()
+const { date, title } = await useHero()
+const words = computed(() => title.value.trim().split(/\s+/))
+const languageStore = useLanguageStore()
+const organizerLogos = computed(() => [
+  { src: '/images/hero-committee.svg', width: 272, height: 70, alt: languageStore.locale === 'ru' ? 'Комитет по молодежной политике и взаимодействию с общественными организациями Санкт-Петербурга' : 'Saint Petersburg Committee for Youth Policy' },
+  { src: '/images/hero-festival.svg', width: 54, height: 60, alt: languageStore.locale === 'ru' ? 'Всемирный фестиваль молодёжи' : 'World Youth Festival' },
+  { src: '/images/hero-university.svg', width: 206, height: 60, alt: languageStore.locale === 'ru' ? 'Санкт-Петербургский государственный университет' : 'Saint Petersburg State University' },
+  { src: '/images/hero-rosmolodezh.svg', width: 200, height: 32, alt: languageStore.locale === 'ru' ? 'Росмолодёжь' : 'Rosmolodezh' }
+])
 </script>
 
 <template>
-  <section class="relative z-[1] mx-auto flex min-h-screen w-full max-w-[1614px] flex-col px-4 pb-8 pt-[128px] sm:px-8 sm:pb-16 sm:pt-[180px] lg:pb-[54px] lg:pt-[244px]">
-    <div class="grid flex-1 gap-6 sm:gap-10 lg:flex-none lg:grid-cols-[520px_360px] lg:gap-[173px] xl:grid-cols-[720px_430px] 2xl:grid-cols-[820px_540px]">
-      <div class="order-2 flex flex-col items-center text-center lg:order-1 lg:items-start lg:text-left">
-        <h1 class="max-w-[760px] font-days-one text-[26px] uppercase leading-[1.24] text-white sm:text-[48px] lg:text-[58px] xl:text-[70px]">
-          {{ title }}
-        </h1>
-
-        <AppRegistrationButton
-          class="mt-7 sm:mt-10 lg:mt-[42px]"
-          variant="hero"
-          :href="registrationLink.href"
-          :label="registrationLink.label"
-        />
+  <section class="hero-scene relative isolate w-full overflow-hidden text-white">
+    <div class="pointer-events-none absolute inset-0 select-none" aria-hidden="true">
+      <div class="hero-landmarks hero-enter-left absolute">
+        <img src="/images/hero-bridge.svg" alt="" width="1198" height="391" class="h-auto w-full" decoding="async">
       </div>
-
-      <div class="order-1 flex justify-center lg:order-2 lg:justify-end">
-        <img
-          class="h-auto w-[min(74vw,290px)] select-none object-contain sm:w-[min(64vw,475px)] lg:w-[360px] xl:w-[430px] 2xl:w-[540px]"
-          :src="heroLogo"
-          alt=""
-          width="475"
-          height="530"
-          loading="eager"
-          decoding="async"
-        >
+      <div class="hero-arch hero-enter-right absolute">
+        <img src="/images/hero-arch.svg" alt="" width="622" height="672" class="h-auto w-full" decoding="async">
+      </div>
+      <div class="hero-white-arch hero-enter-right absolute">
+        <img src="/images/hero-white-arch.png" alt="" width="280" height="284" class="h-auto w-full" decoding="async">
+      </div>
+      <div class="hero-sphinx hero-enter-right absolute">
+        <img src="/images/hero-sphinx.svg" alt="" width="347" height="248" class="h-auto w-full" decoding="async">
       </div>
     </div>
 
-    <p class="mt-7 text-center font-days-one text-[18px] uppercase leading-tight text-white sm:text-[26px] lg:mt-[132px] lg:text-left lg:text-[28px] xl:text-[34px]">
-      <span>{{ date }}</span>
-      <span class="mx-4 sm:mx-7">///</span>
-      <span>{{ place }}</span>
-    </p>
+    <div class="hero-copy relative z-20 mx-auto w-full max-w-[1614px] px-4 sm:px-8">
+      <p class="hero-date font-days-one uppercase leading-tight">{{ date }}</p>
+      <h1 class="hero-title mt-8 font-days-one uppercase lg:mt-[42px]">
+        <template v-for="(word, index) in words" :key="index"><span :class="index < 2 ? 'text-[#DAEF14]' : 'text-white'">{{ word }}</span>{{ ' ' }}</template>
+      </h1>
+      <AppRegistrationButton class="mt-8 lg:mt-[42px]" variant="hero" :href="registrationLink.href" :label="registrationLink.label" />
+    </div>
+
+    <div class="hero-logo hero-enter-right pointer-events-none absolute z-10 select-none" aria-hidden="true">
+      <img :src="heroLogo" alt="" width="475" height="530" class="h-auto w-full" fetchpriority="high" decoding="async">
+    </div>
+
+    <div class="hero-gradient pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[257px]" aria-hidden="true" />
+
+    <div class="hero-organizers hero-enter-ribbon relative z-30 ml-auto mt-16 bg-white">
+      <ul class="m-0 grid list-none grid-cols-2 items-center gap-x-6 gap-y-5 p-0 sm:flex sm:justify-between sm:gap-6">
+        <li v-for="organizer in organizerLogos" :key="organizer.src" class="min-w-0">
+          <img :src="organizer.src" :alt="organizer.alt" :width="organizer.width" :height="organizer.height" class="hero-organizer-image mx-auto h-auto max-h-[60px] max-w-full object-contain" decoding="async">
+        </li>
+      </ul>
+    </div>
   </section>
 </template>
+
+<style scoped>
+.hero-scene {
+  padding-top: 160px;
+  padding-bottom: 24px;
+}
+
+.hero-date {
+  font-size: clamp(20px, 2vw, 30px);
+}
+
+.hero-title {
+  max-width: 900px;
+  font-size: clamp(22px, 5vw, 56px);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.hero-logo {
+  position: relative;
+  top: auto;
+  right: auto;
+  width: min(65vw, 340px);
+  margin: 56px auto 0;
+}
+
+.hero-landmarks {
+  bottom: 0;
+  left: -160px;
+  width: 780px;
+}
+
+.hero-arch {
+  top: 55%;
+  right: -140px;
+  width: 340px;
+}
+
+.hero-white-arch {
+  right: 16px;
+  bottom: 100px;
+  width: 140px;
+}
+
+.hero-sphinx {
+  right: 90px;
+  bottom: 100px;
+  width: 210px;
+}
+
+.hero-gradient {
+  background: linear-gradient(to bottom, rgb(140 100 216 / 0), #8C64D8);
+}
+
+.hero-organizers {
+  width: calc(100% - 16px);
+  border-radius: 20px 0 0 20px;
+  padding: 24px;
+}
+
+.hero-organizers li:first-child { flex: 0 1 272px; }
+.hero-organizers li:nth-child(2) { flex: 0 1 54px; }
+.hero-organizers li:nth-child(3) { flex: 0 1 206px; }
+.hero-organizers li:nth-child(4) { flex: 0 1 200px; }
+
+@media (min-width: 640px) {
+  .hero-copy { padding-top: 20px; }
+  .hero-organizers {
+    width: calc(100% - 32px);
+    padding: 24px 32px 24px 64px;
+    clip-path: polygon(48px 0, 100% 0, 100% 100%, 0 100%);
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-scene {
+    min-height: clamp(820px, 51.05vw, 980px);
+    padding-top: 210px;
+    padding-bottom: 150px;
+  }
+  .hero-copy { padding-top: 0; }
+  .hero-title {
+    width: 60%;
+    font-size: clamp(38px, 3.65vw, 70px);
+  }
+  .hero-logo {
+    position: absolute;
+    top: 200px;
+    right: max(32px, calc((100% - 1550px) / 2 + 95px));
+    width: min(24.74vw, 475px);
+    margin: 0;
+  }
+  .hero-landmarks {
+    left: 0;
+    width: min(62.4vw, 1198px);
+  }
+  .hero-arch {
+    top: 310px;
+    right: max(-180px, -9.4vw);
+    width: min(32.4vw, 622px);
+  }
+  .hero-white-arch {
+    right: max(48px, calc((100% - 1920px) / 2 + 85px));
+    bottom: 0;
+    width: min(14.6vw, 280px);
+  }
+  .hero-sphinx {
+    right: max(260px, calc((100% - 1920px) / 2 + 425px));
+    bottom: 40px;
+    width: min(18.1vw, 347px);
+  }
+  .hero-organizers {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 64%;
+    min-height: 100px;
+    margin: 0;
+    padding: 20px max(48px, calc((100vw - 1550px) / 2)) 20px 90px;
+    clip-path: polygon(70px 0, 100% 0, 100% 100%, 0 100%);
+  }
+  .hero-organizer-image { max-height: 70px; }
+}
+
+@keyframes hero-slide-left {
+  from { opacity: 0; transform: translateX(-180px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes hero-slide-right {
+  from { opacity: 0; transform: translateX(180px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes hero-slide-ribbon {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-enter-left { animation: hero-slide-left 1.5s cubic-bezier(.16, 1, .3, 1) .15s both; }
+  .hero-enter-right { animation: hero-slide-right 1.5s cubic-bezier(.16, 1, .3, 1) .25s both; }
+  .hero-logo { animation-delay: .4s; }
+  .hero-sphinx { animation-delay: .35s; }
+  .hero-white-arch { animation-delay: .45s; }
+  .hero-enter-ribbon { animation: hero-slide-ribbon 1.4s cubic-bezier(.16, 1, .3, 1) .55s both; }
+}
+</style>

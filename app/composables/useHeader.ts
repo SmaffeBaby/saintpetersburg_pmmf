@@ -40,8 +40,8 @@ export const useHeader = async () => {
     logo: {
       src: '/images/header-logo.svg',
       alt: {
-        ru: 'Логотип',
-        en: 'Logo'
+        ru: 'Петербургский международный молодежный форум',
+        en: 'Saint Petersburg International Youth Forum'
       }
     },
     nav: [],
