@@ -1,4 +1,12 @@
 {
+  "schedule": {
+    "title": { "ru": "Расписание", "en": "Schedule" },
+    "description": {
+      "ru": "Ознакомиться с программой форума\nвы можете по ссылке",
+      "en": "Follow the link to explore\nthe forum program"
+    },
+    "button": { "label": { "ru": "Расписание", "en": "Schedule" }, "href": "" }
+  },
   "loft-hall": {
     "title": { "ru": "LOFT HALL", "en": "LOFT HALL" },
     "city": { "ru": "Санкт-Петербург", "en": "Saint Petersburg" },

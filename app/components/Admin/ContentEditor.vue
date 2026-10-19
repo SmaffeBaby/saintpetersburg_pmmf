@@ -65,6 +65,9 @@ onBeforeRouteUpdate(() => !dirty.value || window.confirm('Покинуть ре�
     <UAlert v-if="error" color="error" :description="error" role="alert" />
     <UAlert v-if="success" color="success" :description="success" role="status" />
     <p v-if="loading" role="status" class="py-12 text-center text-slate-500">Загружаем раздел…</p>
-    <UCard v-else-if="content"><AdminContentFields v-model="content" /></UCard>
+    <UCard v-else-if="content">
+      <p v-if="section === 'schedule'" class="mb-6 text-sm text-slate-500">В поле «Кнопка → Ссылка» укажите адрес страницы или файла расписания. Пока ссылка пустая, кнопка на сайте неактивна.</p>
+      <AdminContentFields v-model="content" />
+    </UCard>
   </div>
 </template>
