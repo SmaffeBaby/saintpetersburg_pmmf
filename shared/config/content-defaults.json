@@ -1,4 +1,11 @@
 {
+  "program": {
+    "title": { "ru": "Программа", "en": "Program" },
+    "description": {
+      "ru": "программа форума находится\nв разработке",
+      "en": "The forum program is currently\nunder development"
+    }
+  },
   "schedule": {
     "title": { "ru": "Расписание", "en": "Schedule" },
     "description": {

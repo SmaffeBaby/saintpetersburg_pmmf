@@ -29,6 +29,7 @@ export const contentSchemas = {
     title: localized, description: localized,
     button: z.object({ label: localized, href: safeHref.or(z.literal('')) }).strict()
   }).strict(),
+  program: z.object({ title: localized, description: localized }).strict(),
   'information-partners': z.object({
     title: localized,
     partners: z.array(z.object({
@@ -56,6 +57,7 @@ export const contentSections: { id: ContentSection; label: string; icon: string 
   { id: 'about', label: 'О форуме', icon: 'i-lucide-info' },
   { id: 'loft-hall', label: 'LoftHall / Площадка', icon: 'i-lucide-map-pin' },
   { id: 'schedule', label: 'Расписание', icon: 'i-lucide-calendar-days' },
+  { id: 'program', label: 'Программа', icon: 'i-lucide-list' },
   { id: 'information-partners', label: 'Информационные партнеры', icon: 'i-lucide-handshake' },
   { id: 'registration-form', label: 'Форма регистрации', icon: 'i-lucide-clipboard-list' },
   { id: 'alternative-forum', label: 'Альтернативная регистрация', icon: 'i-lucide-external-link' },
