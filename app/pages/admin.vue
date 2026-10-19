@@ -1,279 +1,70 @@
 <script setup lang="ts">
-interface RegistrationSubmission {
-  id: string
-  createdAt: string
-  lastName: string
-  firstName: string
-  middleName: string
-  birthDate: string
-  region: string
-  email: string
-  phone: string
-}
-
+import { contentSections, isContentSection, type ContentSection } from '../../shared/config/content'
+const route = useRoute()
+const authenticated = ref(false)
+const checking = ref(true)
 const password = ref('')
-const isAuthenticated = ref(false)
-const isLoggingIn = ref(false)
-const loginError = ref('')
-const isLoading = ref(false)
-const deletingId = ref('')
-const submissions = ref<RegistrationSubmission[]>([])
-const filters = reactive({
-  search: '',
-  region: '',
-  dateFrom: '',
-  dateTo: ''
-})
-
-useHead({
-  title: 'PMMF Admin'
-})
-
-const formatDate = (value: string) => new Intl.DateTimeFormat('ru-RU', {
-  dateStyle: 'medium',
-  timeStyle: 'short'
-}).format(new Date(value))
-
-const fetchSubmissions = async () => {
-  isLoading.value = true
-  try {
-    const response = await $fetch<{ items: RegistrationSubmission[] }>('/api/admin/registrations')
-    submissions.value = response.items
-    isAuthenticated.value = true
-  } finally {
-    isLoading.value = false
-  }
-}
-
+const loggingIn = ref(false)
+const error = ref('')
+const section = computed(() => typeof route.query.section === 'string' && isContentSection(route.query.section) ? route.query.section as ContentSection : 'registrations')
+const title = computed(() => contentSections.find(item => item.id === section.value)?.label || 'Заявки')
+const navigation = computed(() => [
+  { label: 'Заявки', icon: 'i-lucide-inbox', to: '/admin', exactQuery: true, active: section.value === 'registrations' },
+  ...contentSections.map(item => ({ label: item.label, icon: item.icon, to: { path: '/admin', query: { section: item.id } }, exactQuery: true, active: section.value === item.id }))
+])
+useHead({ title: 'PMMF / Управление сайтом', meta: [{ name: 'robots', content: 'noindex, nofollow' }] })
 const login = async () => {
-  if (!password.value || isLoggingIn.value) {
-    return
-  }
-
-  isLoggingIn.value = true
-  loginError.value = ''
-
+  loggingIn.value = true
+  error.value = ''
   try {
-    await $fetch('/api/admin/login', {
-      method: 'POST',
-      body: {
-        password: password.value
-      }
-    })
+    await $fetch('/api/admin/login', { method: 'POST', body: { password: password.value } })
     password.value = ''
-    await fetchSubmissions()
-  } catch (error) {
-    loginError.value = 'Неверный пароль или админка ещё не настроена.'
-  } finally {
-    isLoggingIn.value = false
-  }
+    authenticated.value = true
+  } catch { error.value = 'Не удалось войти. Проверьте пароль и настройки доступа.' }
+  finally { loggingIn.value = false }
 }
-
-const filteredSubmissions = computed(() => submissions.value.filter((submission) => {
-  const search = filters.search.trim().toLowerCase()
-  const region = filters.region.trim().toLowerCase()
-
-  if (search) {
-    const haystack = [
-      submission.lastName,
-      submission.firstName,
-      submission.middleName,
-      submission.email,
-      submission.phone,
-      submission.region
-    ].join(' ').toLowerCase()
-
-    if (!haystack.includes(search)) {
-      return false
-    }
-  }
-
-  if (region && !submission.region.toLowerCase().includes(region)) {
-    return false
-  }
-
-  if (filters.dateFrom && submission.createdAt < `${filters.dateFrom}T00:00:00.000Z`) {
-    return false
-  }
-
-  if (filters.dateTo && submission.createdAt > `${filters.dateTo}T23:59:59.999Z`) {
-    return false
-  }
-
-  return true
-}))
-
-const exportUrl = computed(() => {
-  const params = new URLSearchParams()
-
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value) {
-      params.set(key, value)
-    }
-  })
-
-  const query = params.toString()
-  return `/api/admin/registrations/export${query ? `?${query}` : ''}`
-})
-
-const deleteSubmission = async (submission: RegistrationSubmission) => {
-  const fullName = [submission.lastName, submission.firstName, submission.middleName].filter(Boolean).join(' ')
-  const confirmed = window.confirm(`Удалить заявку ${fullName || submission.email}?`)
-
-  if (!confirmed || deletingId.value) {
-    return
-  }
-
-  deletingId.value = submission.id
-
-  try {
-    await $fetch(`/api/admin/registrations/${submission.id}`, {
-      method: 'DELETE'
-    })
-    submissions.value = submissions.value.filter((item) => item.id !== submission.id)
-  } catch (error) {
-    window.alert('Не получилось удалить заявку. Обновите страницу и попробуйте ещё раз.')
-  } finally {
-    deletingId.value = ''
-  }
+const logout = async () => {
+  try { await $fetch('/api/admin/logout', { method: 'POST' }); authenticated.value = false }
+  catch { error.value = 'Не удалось выйти. Попробуйте ещё раз.' }
 }
-
 onMounted(async () => {
-  try {
-    await fetchSubmissions()
-  } catch (error) {
-    isAuthenticated.value = false
-  }
+  try { await $fetch('/api/admin/session'); authenticated.value = true }
+  catch { authenticated.value = false }
+  finally { checking.value = false }
 })
 </script>
 
 <template>
-  <main class="min-h-screen bg-[#F7F2FF] px-4 py-6 font-montserrat text-[#22172F] sm:px-6 lg:px-10">
-    <section v-if="!isAuthenticated" class="mx-auto flex min-h-[calc(100vh-48px)] w-full max-w-[520px] flex-col justify-center">
-      <div class="rounded-[28px] bg-white p-6 shadow-xl sm:p-8">
-        <p class="font-days-one text-sm uppercase tracking-normal text-[#892AF0]">
-          PMMF Admin
-        </p>
-        <h1 class="mt-4 font-days-one text-[34px] uppercase leading-none text-[#22172F] sm:text-[46px]">
-          Вход
-        </h1>
-
-        <form class="mt-8" @submit.prevent="login">
-          <label class="block">
-            <span class="text-sm font-semibold text-[#6B6175]">Пароль администратора</span>
-            <input
-              v-model="password"
-              class="mt-2 h-14 w-full rounded-[18px] border border-[#D8C6EC] bg-white px-4 text-lg font-semibold outline-none transition-colors focus:border-[#892AF0]"
-              type="password"
-              autocomplete="current-password"
-              required
-            >
-          </label>
-
-          <p v-if="loginError" class="mt-4 text-sm font-semibold text-[#E23939]">
-            {{ loginError }}
-          </p>
-
-          <button
-            class="mt-6 flex h-14 w-full items-center justify-center rounded-[18px] bg-[#892AF0] px-5 font-days-one text-sm uppercase text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-            type="submit"
-            :disabled="isLoggingIn"
-          >
-            {{ isLoggingIn ? 'Проверяем...' : 'Войти' }}
-          </button>
+  <div class="admin-shell min-h-screen bg-white font-montserrat text-slate-900">
+    <div v-if="checking" role="status" class="flex min-h-screen items-center justify-center text-slate-500">Проверяем доступ…</div>
+    <main v-else-if="!authenticated" class="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+      <UCard class="w-full max-w-md">
+        <template #header><p class="text-xs font-semibold uppercase tracking-widest text-violet-600">PMMF / admin</p><h1 class="mt-2 text-2xl font-semibold">Управление сайтом</h1></template>
+        <form class="space-y-5" @submit.prevent="login">
+          <UFormField label="Пароль администратора" name="password"><UInput v-model="password" type="password" autocomplete="current-password" required class="w-full" size="lg" /></UFormField>
+          <UAlert v-if="error" color="error" :description="error" />
+          <UButton type="submit" label="Войти" :loading="loggingIn" block size="lg" />
         </form>
-      </div>
-    </section>
-
-    <section v-else class="mx-auto w-full max-w-[1500px]">
-      <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p class="font-days-one text-sm uppercase text-[#892AF0]">
-            PMMF Admin
-          </p>
-          <h1 class="mt-3 font-days-one text-[34px] uppercase leading-none text-[#22172F] sm:text-[52px]">
-            Заявки
-          </h1>
-        </div>
-
-        <a
-          class="flex h-12 items-center justify-center rounded-[16px] bg-[#892AF0] px-5 font-days-one text-xs uppercase text-white transition-opacity hover:opacity-90"
-          :href="exportUrl"
-        >
-          Скачать Excel
-        </a>
-      </div>
-
-      <div class="mt-8 grid gap-3 rounded-[24px] bg-white p-4 shadow-lg sm:grid-cols-2 lg:grid-cols-4 lg:p-5">
-        <label class="block">
-          <span class="text-xs font-bold uppercase text-[#6B6175]">Поиск</span>
-          <input v-model="filters.search" class="mt-2 h-12 w-full rounded-[14px] border border-[#D8C6EC] px-3 outline-none focus:border-[#892AF0]" type="search">
-        </label>
-        <label class="block">
-          <span class="text-xs font-bold uppercase text-[#6B6175]">Регион</span>
-          <input v-model="filters.region" class="mt-2 h-12 w-full rounded-[14px] border border-[#D8C6EC] px-3 outline-none focus:border-[#892AF0]" type="search">
-        </label>
-        <label class="block">
-          <span class="text-xs font-bold uppercase text-[#6B6175]">С даты</span>
-          <input v-model="filters.dateFrom" class="mt-2 h-12 w-full rounded-[14px] border border-[#D8C6EC] px-3 outline-none focus:border-[#892AF0]" type="date">
-        </label>
-        <label class="block">
-          <span class="text-xs font-bold uppercase text-[#6B6175]">По дату</span>
-          <input v-model="filters.dateTo" class="mt-2 h-12 w-full rounded-[14px] border border-[#D8C6EC] px-3 outline-none focus:border-[#892AF0]" type="date">
-        </label>
-      </div>
-
-      <div class="mt-5 overflow-hidden rounded-[24px] bg-white shadow-lg">
-        <div class="flex items-center justify-between border-b border-[#EEE5F8] px-4 py-4 sm:px-5">
-          <p class="text-sm font-bold uppercase text-[#6B6175]">
-            Найдено: {{ filteredSubmissions.length }}
-          </p>
-          <button class="text-sm font-bold text-[#892AF0]" type="button" @click="fetchSubmissions">
-            {{ isLoading ? 'Обновляем...' : 'Обновить' }}
-          </button>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="min-w-[1160px] w-full border-collapse text-left text-sm">
-            <thead class="bg-[#F7F2FF] text-xs uppercase text-[#6B6175]">
-              <tr>
-                <th class="px-4 py-3">Дата</th>
-                <th class="px-4 py-3">ФИО</th>
-                <th class="px-4 py-3">Дата рождения</th>
-                <th class="px-4 py-3">Регион</th>
-                <th class="px-4 py-3">Email</th>
-                <th class="px-4 py-3">Телефон</th>
-                <th class="px-4 py-3 text-right">Действия</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-if="!filteredSubmissions.length">
-                <td class="px-4 py-8 text-center text-[#6B6175]" colspan="7">
-                  Заявок пока нет
-                </td>
-              </tr>
-              <tr v-for="submission in filteredSubmissions" :key="submission.id" class="border-t border-[#EEE5F8]">
-                <td class="px-4 py-4 font-semibold">{{ formatDate(submission.createdAt) }}</td>
-                <td class="px-4 py-4 font-semibold">{{ submission.lastName }} {{ submission.firstName }} {{ submission.middleName }}</td>
-                <td class="px-4 py-4">{{ submission.birthDate }}</td>
-                <td class="px-4 py-4">{{ submission.region }}</td>
-                <td class="px-4 py-4">{{ submission.email }}</td>
-                <td class="px-4 py-4">{{ submission.phone }}</td>
-                <td class="px-4 py-4 text-right">
-                  <button
-                    class="inline-flex h-10 items-center justify-center rounded-[12px] border border-[#F1B8B8] px-4 text-xs font-bold uppercase text-[#D62F2F] transition-colors hover:bg-[#FFF2F2] disabled:cursor-not-allowed disabled:opacity-50"
-                    type="button"
-                    :disabled="Boolean(deletingId)"
-                    @click="deleteSubmission(submission)"
-                  >
-                    {{ deletingId === submission.id ? 'Удаляем...' : 'Удалить' }}
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-  </main>
+      </UCard>
+    </main>
+    <UDashboardGroup v-else>
+      <UDashboardSidebar id="pmmf-admin" collapsible class="bg-slate-50/70" :ui="{ footer: 'border-t border-default' }">
+        <template #header="{ collapsed }"><NuxtLink to="/admin" class="flex items-center gap-2 py-3 font-semibold"><span class="flex size-8 items-center justify-center rounded-lg bg-violet-600 text-white">М</span><span v-if="!collapsed">PMMF <span class="font-normal text-slate-400">/ admin</span></span></NuxtLink></template>
+        <template #default="{ collapsed }"><p v-if="!collapsed" class="mb-2 mt-4 px-3 text-xs uppercase tracking-wider text-slate-400">Управление сайтом</p><UNavigationMenu :collapsed="collapsed" :items="navigation" orientation="vertical" tooltip /></template>
+        <template #footer="{ collapsed }"><div class="w-full py-2"><UButton :label="collapsed ? undefined : 'Выйти'" icon="i-lucide-log-out" aria-label="Выйти" color="neutral" variant="ghost" block @click="logout" /></div></template>
+      </UDashboardSidebar>
+      <UDashboardPanel :id="section">
+        <template #header><UDashboardNavbar :title="title"><template #leading><UDashboardSidebarCollapse /></template><template #right><UButton to="/" target="_blank" icon="i-lucide-external-link" label="Открыть сайт" color="neutral" variant="outline" size="sm" /></template></UDashboardNavbar></template>
+        <template #body>
+          <UAlert v-if="error" color="error" :description="error" />
+          <AdminRegistrations v-if="section === 'registrations'" @unauthorized="authenticated = false" />
+          <AdminContentEditor v-else :key="section" :section="section" @unauthorized="authenticated = false" />
+        </template>
+      </UDashboardPanel>
+    </UDashboardGroup>
+  </div>
 </template>
+
+<style>
+.admin-shell { color-scheme: light; }
+</style>

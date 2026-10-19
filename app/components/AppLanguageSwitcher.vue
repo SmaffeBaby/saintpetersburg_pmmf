@@ -21,7 +21,7 @@ const isOpen = ref(false)
 const switcherRef = ref<HTMLElement | null>(null)
 
 const currentLanguage = computed(() => (
-  props.languages.find((language) => language.code === props.modelValue) || props.languages[0]
+  props.languages.find((language) => language.code === props.modelValue) || props.languages[0] || { code: props.modelValue, label: props.modelValue.toUpperCase() }
 ))
 
 const toggleMenu = () => {

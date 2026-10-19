@@ -18,7 +18,22 @@ services:
       NUXT_PROJECT_REQUEST_NOTIFY_EMAIL: ${PROJECT_REQUEST_NOTIFY_EMAIL:-}
       NUXT_ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
       NUXT_ADMIN_SESSION_SECRET: ${ADMIN_SESSION_SECRET:-}
+      NUXT_DATABASE_PATH: /app/data/saint-mmf.sqlite
+      NUXT_REDIS_URL: redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
     ports:
       - "3001:3000"
     volumes:
       - ./data:/app/data
+
+  redis:
+    image: redis:8-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "64mb", "--maxmemory-policy", "allkeys-lru"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5

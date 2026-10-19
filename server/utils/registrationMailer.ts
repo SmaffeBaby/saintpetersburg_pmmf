@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer'
-import type { RegistrationSubmission } from './registrationStorage'
+import type { RegistrationSubmission } from '../../shared/types/registration'
 
 type RegistrationLocale = 'ru' | 'en'
 type RegistrationField = keyof Omit<RegistrationSubmission, 'id' | 'createdAt'>

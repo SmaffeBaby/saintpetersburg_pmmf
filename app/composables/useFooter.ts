@@ -27,7 +27,7 @@ const fallbackContent: FooterContent = {
 
 export const useFooter = async () => {
   const languageStore = useLanguageStore()
-  const { data } = await useAsyncData('footer-content', () => queryContent<FooterContent>('/settings/footer').findOne())
+  const { data } = await useAsyncData('footer-content', () => $fetch<FooterContent>('/api/content/footer'))
 
   const content = computed<FooterContent>(() => data.value || fallbackContent)
   const legal = computed(() => getLocalizedText(content.value.legal, languageStore.locale))

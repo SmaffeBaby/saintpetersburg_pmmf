@@ -11,7 +11,7 @@ const getLocalizedText = (value: LocalizedText, locale: AppLocale) => value[loca
 
 export const useHero = async () => {
   const languageStore = useLanguageStore()
-  const { data } = await useAsyncData('hero-content', () => queryContent<HeroContent>('/settings/hero').findOne())
+  const { data } = await useAsyncData('hero-content', () => $fetch<HeroContent>('/api/content/hero'))
 
   const heroContent = computed<HeroContent>(() => data.value || {
     title: {

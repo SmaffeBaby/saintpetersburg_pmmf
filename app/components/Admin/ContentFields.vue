@@ -1,0 +1,55 @@
+<script setup lang="ts">
+defineOptions({ name: 'AdminContentFields' })
+const props = defineProps<{ modelValue: any; path?: string; label?: string }>()
+const emit = defineEmits<{ 'update:modelValue': [value: any] }>()
+const labels: Record<string, string> = {
+  title: 'Заголовок', date: 'Дата форума', place: 'Место проведения', firstParagraph: 'Первый абзац', secondParagraph: 'Второй абзац',
+  description: 'Описание', button: 'Кнопка', label: 'Текст', href: 'Ссылка', image: 'Изображение', alt: 'Описание изображения',
+  logo: 'Логотип', src: 'Путь к изображению', nav: 'Навигация', registration: 'Кнопка регистрации', languages: 'Языки',
+  code: 'Код языка', legal: 'Реквизиты', privacy: 'Политика конфиденциальности', fields: 'Поля формы', agreement: 'Согласие на обработку данных',
+  submitLabel: 'Текст кнопки отправки', id: 'Идентификатор', name: 'Имя поля', type: 'Тип поля', placeholder: 'Подсказка', autocomplete: 'Автозаполнение', layout: 'Ширина поля'
+}
+const localized = computed(() => props.modelValue && !Array.isArray(props.modelValue) && typeof props.modelValue === 'object' && 'ru' in props.modelValue && 'en' in props.modelValue)
+const update = (key: string | number, value: any) => {
+  const next = Array.isArray(props.modelValue) ? [...props.modelValue] : { ...props.modelValue }
+  next[key] = value
+  emit('update:modelValue', next)
+}
+const add = () => {
+  const seed = props.modelValue[props.modelValue.length - 1] || { label: { ru: '', en: '' }, href: '/' }
+  emit('update:modelValue', [...props.modelValue, structuredClone(toRaw(seed))])
+}
+const immutable = computed(() => /fields\.\d+\.(id|name|type)$/.test(props.path || ''))
+const fixedArray = computed(() => ['fields', 'languages'].includes(props.path || ''))
+const fieldId = computed(() => `content-${props.path || 'root'}`)
+</script>
+
+<template>
+  <fieldset v-if="localized" class="space-y-3">
+    <legend class="mb-2 text-sm font-semibold text-slate-800">{{ label }}</legend>
+    <div class="grid gap-3 xl:grid-cols-2">
+      <UFormField v-for="locale in ['ru', 'en']" :key="locale" :label="locale === 'ru' ? 'Русский' : 'English'" :name="`${path}.${locale}`">
+        <UTextarea :model-value="modelValue[locale]" autoresize :rows="2" class="w-full" @update:model-value="update(locale, $event)" />
+      </UFormField>
+    </div>
+  </fieldset>
+  <fieldset v-else-if="Array.isArray(modelValue)" class="space-y-4 rounded-xl border border-slate-200 p-4">
+    <legend class="px-1 text-sm font-semibold">{{ label }}</legend>
+    <div v-for="(item, index) in modelValue" :key="index" class="space-y-4 rounded-lg bg-slate-50 p-4">
+      <div class="flex items-center justify-between">
+        <p class="text-sm font-medium">{{ item.label?.ru || item.name || item.label || `Элемент ${index + 1}` }}</p>
+        <UButton v-if="!fixedArray" label="Удалить" color="error" variant="ghost" size="xs" @click="emit('update:modelValue', modelValue.filter((_: any, i: number) => i !== index))" />
+      </div>
+      <AdminContentFields :model-value="item" :path="`${path}.${index}`" @update:model-value="update(index, $event)" />
+    </div>
+    <UButton v-if="!fixedArray && modelValue.length < 12" label="Добавить пункт" icon="i-lucide-plus" variant="soft" @click="add" />
+  </fieldset>
+  <div v-else-if="modelValue && typeof modelValue === 'object'" class="space-y-6">
+    <p v-if="label" class="border-b border-slate-200 pb-2 text-base font-semibold">{{ label }}</p>
+    <AdminContentFields v-for="(value, key) in modelValue" :key="key" :label="labels[String(key)] || String(key)" :model-value="value" :path="path ? `${path}.${String(key)}` : String(key)" @update:model-value="update(String(key), $event)" />
+  </div>
+  <UFormField v-else :label="label" :name="path">
+    <USelect v-if="path?.endsWith('.layout')" :model-value="modelValue" :items="[{label: 'Треть строки', value: 'third'}, {label: 'Половина строки', value: 'half'}]" class="w-full" @update:model-value="emit('update:modelValue', $event)" />
+    <UInput v-else :id="fieldId" :model-value="modelValue" :disabled="immutable" class="w-full" @update:model-value="emit('update:modelValue', $event)" />
+  </UFormField>
+</template>

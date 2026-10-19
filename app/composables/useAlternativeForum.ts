@@ -41,7 +41,7 @@ const fallbackContent: AlternativeForumContent = {
 
 export const useAlternativeForum = async () => {
   const languageStore = useLanguageStore()
-  const { data } = await useAsyncData('alternative-forum-content', () => queryContent<AlternativeForumContent>('/settings/alternative-forum').findOne())
+  const { data } = await useAsyncData('alternative-forum-content', () => $fetch<AlternativeForumContent>('/api/content/alternative-forum'))
 
   const content = computed<AlternativeForumContent>(() => data.value || fallbackContent)
 

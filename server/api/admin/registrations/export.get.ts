@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx'
 import { requireAdminSession } from '../../../utils/adminAuth'
-import { listRegistrationSubmissions, type RegistrationSubmission } from '../../../utils/registrationStorage'
+import { listRegistrationSubmissions } from '../../../utils/registrationStorage'
+import type { RegistrationSubmission } from '../../../../shared/types/registration'
 
 const matchesQuery = (submission: RegistrationSubmission, query: Record<string, any>) => {
   const search = String(query.search || '').trim().toLowerCase()

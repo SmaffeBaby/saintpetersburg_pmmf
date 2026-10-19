@@ -11,7 +11,7 @@ const getLocalizedText = (value: LocalizedText, locale: AppLocale) => value[loca
 
 export const useAbout = async () => {
   const languageStore = useLanguageStore()
-  const { data } = await useAsyncData('about-content', () => queryContent<AboutContent>('/settings/about').findOne())
+  const { data } = await useAsyncData('about-content', () => $fetch<AboutContent>('/api/content/about'))
 
   const aboutContent = computed<AboutContent>(() => data.value || {
     title: {

@@ -1,8 +1,10 @@
+import tailwindcss from '@tailwindcss/vite'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 const isDev = process.env.NODE_ENV === 'development'
 
 export default defineNuxtConfig({
-  compatibilityDate: '2024-09-03',
+  compatibilityDate: '2026-10-15',
   app: {
     head: {
       link: [
@@ -26,14 +28,28 @@ export default defineNuxtConfig({
     smtpFrom: process.env.SMTP_FROM || '',
     projectRequestNotifyEmail: process.env.PROJECT_REQUEST_NOTIFY_EMAIL || '',
     adminPassword: process.env.ADMIN_PASSWORD || '',
-    adminSessionSecret: process.env.ADMIN_SESSION_SECRET || ''
+    adminSessionSecret: process.env.ADMIN_SESSION_SECRET || '',
+    databasePath: process.env.DATABASE_PATH || './data/saint-mmf.sqlite',
+    redisUrl: process.env.REDIS_URL || ''
   },
   experimental: {
     appManifest: false
   },
   srcDir: 'app/',
+  serverDir: 'server/',
+  nitro: { rollupConfig: { external: ['node:sqlite'] } },
+  ui: { fonts: false, colorMode: false },
+  icon: { serverBundle: { collections: ['lucide'] } },
+  vite: { plugins: [tailwindcss()] },
+  routeRules: {
+    '/admin': { ssr: false },
+    '/api/admin/**': { headers: { 'cache-control': 'no-store' } },
+    '/_nuxt/**': { security: { rateLimiter: false } },
+    '/images/**': { security: { rateLimiter: false } },
+    '/api/admin/login': { security: { rateLimiter: { tokensPerInterval: 10, interval: 300000 } } }
+  },
   css: ['~/assets/css/main.css'],
-  modules: ['nuxt-security', '@nuxt/content', '@nuxtjs/tailwindcss', '@pinia/nuxt', '@nuxtjs/i18n'],
+  modules: ['nuxt-security', '@nuxt/ui', '@pinia/nuxt', '@nuxtjs/i18n'],
   security: {
     headers: {
       contentSecurityPolicy: {
@@ -55,19 +71,6 @@ export default defineNuxtConfig({
       }
     }
   },
-  content: {
-    sources: {
-      rootContent: {
-        driver: 'fs',
-        name: 'root-content',
-        prefix: '/',
-        base: './content'
-      }
-    }
-  },
-  tailwindcss: {
-    cssPath: '~/assets/css/main.css'
-  },
   i18n: {
     defaultLocale: 'ru',
     detectBrowserLanguage: false,
@@ -76,6 +79,6 @@ export default defineNuxtConfig({
       { code: 'en', name: 'EN', language: 'en-US' }
     ],
     strategy: 'no_prefix',
-    vueI18n: './i18n.config.ts'
+    vueI18n: '../i18n.config.ts'
   }
 })

@@ -34,7 +34,7 @@ const getLocalizedText = (value: LocalizedText, locale: AppLocale) => value[loca
 
 export const useHeader = async () => {
   const languageStore = useLanguageStore()
-  const { data } = await useAsyncData('header-content', () => queryContent<HeaderContent>('/settings/header').findOne())
+  const { data } = await useAsyncData('header-content', () => $fetch<HeaderContent>('/api/content/header'))
 
   const headerContent = computed<HeaderContent>(() => data.value || {
     logo: {

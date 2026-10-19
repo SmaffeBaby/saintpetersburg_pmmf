@@ -112,7 +112,7 @@ const fallbackContent: RegistrationFormContent = {
 
 export const useRegistrationForm = async () => {
   const languageStore = useLanguageStore()
-  const { data } = await useAsyncData('registration-form-content', () => queryContent<RegistrationFormContent>('/settings/registration-form').findOne())
+  const { data } = await useAsyncData('registration-form-content', () => $fetch<RegistrationFormContent>('/api/content/registration-form'))
 
   const formContent = computed<RegistrationFormContent>(() => data.value || fallbackContent)
 

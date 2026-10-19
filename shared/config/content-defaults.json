@@ -1,0 +1,243 @@
+{
+  "about": {
+    "title": {
+      "ru": "О форуме",
+      "en": "About\nthe forum"
+    },
+    "firstParagraph": {
+      "ru": "Петербургский международный молодежный форум станет уникальной платформой для обсуждения актуальных вопросов, волнующих молодое поколение, сосредоточит внимание на важнейших темах, касающихся как индивидуальных интересов, так и глобальных вызовов, стоящих перед обществом.",
+      "en": "The St. Petersburg International Youth Forum will serve as a unique platform for discussing pressing issues of concern to the younger generation, focusing on key topics that address both individual interests and the global challenges facing society."
+    },
+    "secondParagraph": {
+      "ru": "Участники смогут обменяться мнениями, представить свои идеи и инициативы, а также наладить полезные контакты с единомышленниками и экспертами в различных областях.",
+      "en": "Participants will be able to exchange views, present their ideas and initiatives, and establish valuable connections with like-minded individuals and experts across various fields."
+    }
+  },
+  "alternative-forum": {
+    "title": {
+      "ru": "Альтернативная регистрация",
+      "en": "Alternative registration"
+    },
+    "description": {
+      "ru": "Также регистрация на форум «Мы граждане России» возможна через официальную платформу ФГАИС «Молодежь России».",
+      "en": "Registration for the \"We Are Citizens of Russia\" forum is also available via the official \"Youth of Russia\" (Molodezh Rossii) platform."
+    },
+    "button": {
+      "label": {
+        "ru": "Зарегистрироваться",
+        "en": "Register"
+      },
+      "href": "https://myrosmol.ru/events/1d729462-dd09-43e6-a3bf-957cefe88896"
+    },
+    "image": {
+      "alt": {
+        "ru": "Росмолодежь Форумы",
+        "en": "Rosmolodezh Forums"
+      }
+    }
+  },
+  "footer": {
+    "legal": {
+      "ru": "ИНН 7812035151, ОГРН 1027810228368, Юр. Адрес: 191144, город Санкт-Петербург, Дегтярный пер., д. 9 стр. 1\nСчет банка плательщика № 40102810945370000005, Счет плательщика № 03221643400000007200, Северо-Западного ГУ Банка России//УФК по г. Санкт-Петербургу",
+      "en": "TIN 7812035151, PSRN 1027810228368, Legal address: 9 building 1 Degtyarny lane, Saint Petersburg, 191144\nPayer bank account No. 40102810945370000005, payer account No. 03221643400000007200, North-West Main Branch of the Bank of Russia//Federal Treasury Department for Saint Petersburg"
+    },
+    "privacy": {
+      "label": {
+        "ru": "Политика конфиденциальности",
+        "en": "Privacy policy"
+      },
+      "href": "/privacy-policy"
+    }
+  },
+  "header": {
+    "logo": {
+      "src": "/images/header-logo.svg",
+      "alt": {
+        "ru": "Комитет по молодежной политике",
+        "en": "Committee for Youth Policy"
+      }
+    },
+    "nav": [
+      {
+        "href": "#topics",
+        "label": {
+          "ru": "Тематики",
+          "en": "Topics"
+        }
+      },
+      {
+        "href": "#schedule",
+        "label": {
+          "ru": "Расписание",
+          "en": "Schedule"
+        }
+      },
+      {
+        "href": "#speakers",
+        "label": {
+          "ru": "Спикеры",
+          "en": "Speakers"
+        }
+      },
+      {
+        "href": "#contacts",
+        "label": {
+          "ru": "Контакты",
+          "en": "Contacts"
+        }
+      }
+    ],
+    "registration": {
+      "href": "#registration",
+      "label": {
+        "ru": "Регистрация",
+        "en": "Registration"
+      }
+    },
+    "languages": [
+      {
+        "code": "ru",
+        "label": "RU"
+      },
+      {
+        "code": "en",
+        "label": "EN"
+      }
+    ]
+  },
+  "hero": {
+    "title": {
+      "ru": "Петербургский международный молодежный форум",
+      "en": "Saint Petersburg International Youth Forum"
+    },
+    "date": {
+      "ru": "17 ноября / 2026",
+      "en": "November 17 / 2026"
+    },
+    "place": {
+      "ru": "Санкт‑Петербург, Арсенальная наб, 1",
+      "en": "Saint Petersburg, Arsenalnaya Emb, 1"
+    }
+  },
+  "registration-form": {
+    "title": {
+      "ru": "Регистрация",
+      "en": "Registration"
+    },
+    "fields": [
+      {
+        "id": "lastName",
+        "name": "lastName",
+        "type": "text",
+        "label": {
+          "ru": "Фамилия",
+          "en": "Last name"
+        },
+        "placeholder": {
+          "ru": "Фамилия",
+          "en": "Last name"
+        },
+        "autocomplete": "family-name",
+        "layout": "third"
+      },
+      {
+        "id": "firstName",
+        "name": "firstName",
+        "type": "text",
+        "label": {
+          "ru": "Имя",
+          "en": "First name"
+        },
+        "placeholder": {
+          "ru": "Имя",
+          "en": "First name"
+        },
+        "autocomplete": "given-name",
+        "layout": "third"
+      },
+      {
+        "id": "middleName",
+        "name": "middleName",
+        "type": "text",
+        "label": {
+          "ru": "Отчество",
+          "en": "Middle name"
+        },
+        "placeholder": {
+          "ru": "Отчество",
+          "en": "Middle name"
+        },
+        "autocomplete": "additional-name",
+        "layout": "third"
+      },
+      {
+        "id": "birthDate",
+        "name": "birthDate",
+        "type": "date",
+        "label": {
+          "ru": "Ваша дата рождения",
+          "en": "Your date of birth"
+        },
+        "placeholder": {
+          "ru": "Выберите дату",
+          "en": "Select date"
+        },
+        "autocomplete": "bday",
+        "layout": "half"
+      },
+      {
+        "id": "region",
+        "name": "region",
+        "type": "text",
+        "label": {
+          "ru": "Ваш регион",
+          "en": "Your region"
+        },
+        "placeholder": {
+          "ru": "Ваш регион",
+          "en": "Your region"
+        },
+        "autocomplete": "address-level1",
+        "layout": "half"
+      },
+      {
+        "id": "email",
+        "name": "email",
+        "type": "email",
+        "label": {
+          "ru": "Email",
+          "en": "Email"
+        },
+        "placeholder": {
+          "ru": "your@mail.com",
+          "en": "your@mail.com"
+        },
+        "autocomplete": "email",
+        "layout": "half"
+      },
+      {
+        "id": "phone",
+        "name": "phone",
+        "type": "tel",
+        "label": {
+          "ru": "Номер телефона",
+          "en": "Phone number"
+        },
+        "placeholder": {
+          "ru": "+7",
+          "en": "+7"
+        },
+        "autocomplete": "tel",
+        "layout": "half"
+      }
+    ],
+    "agreement": {
+      "ru": "Я даю согласие на обработку персональных данных",
+      "en": "I consent to the processing of personal data"
+    },
+    "submitLabel": {
+      "ru": "Зарегистрироваться",
+      "en": "Register"
+    }
+  }
+}

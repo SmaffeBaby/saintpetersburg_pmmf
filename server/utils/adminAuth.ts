@@ -1,4 +1,4 @@
-import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
+import { createHmac, timingSafeEqual } from 'node:crypto'
 import { getCookie, getRequestProtocol, setCookie, createError, type H3Event } from 'h3'
 
 const cookieName = 'saint_mmf_admin'
@@ -6,7 +6,8 @@ const ttlMs = 1000 * 60 * 60 * 8
 
 const getSecret = () => {
   const config = useRuntimeConfig()
-  return config.adminSessionSecret || config.adminPassword || randomBytes(32).toString('hex')
+  if (!config.adminSessionSecret) throw createError({ statusCode: 503, statusMessage: 'Admin session secret is not configured' })
+  return config.adminSessionSecret
 }
 
 const sign = (value: string) => createHmac('sha256', getSecret()).update(value).digest('hex')
@@ -33,7 +34,7 @@ export const requireAdminSession = (event: H3Event) => {
   }
 
   const [payload, signature] = token.split('.')
-  if (!payload || !signature || Number(payload) < Date.now()) {
+  if (!payload || !/^\d+$/.test(payload) || !signature || !Number.isSafeInteger(Number(payload)) || Number(payload) <= Date.now()) {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
 
