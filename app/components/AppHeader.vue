@@ -30,23 +30,30 @@ watch(() => languageStore.locale, (locale) => {
 </script>
 
 <template>
-  <header class="fixed inset-x-0 top-5 z-50 px-4 sm:top-8 sm:px-8 lg:top-10">
+  <header class="fixed inset-x-0 top-5 z-50 px-4 sm:top-8 sm:px-8 xl:top-10">
     <div
-      class="mx-auto w-full max-w-[1550px] rounded-[20px] bg-white px-4 py-3 shadow-sm sm:px-5 lg:grid lg:min-h-20 lg:grid-cols-[minmax(272px,1fr)_auto_minmax(272px,1fr)] lg:items-center lg:gap-6 lg:px-[25px]"
+      class="mx-auto w-full max-w-[1550px] rounded-[20px] bg-white px-4 py-3 shadow-sm sm:px-5 xl:grid xl:min-h-20 xl:grid-cols-[minmax(346px,1fr)_auto_minmax(250px,1fr)] xl:items-center xl:gap-6 xl:px-[15px] xl:py-[10px]"
     >
-      <div class="flex items-center justify-between gap-4 lg:contents">
-        <NuxtLink class="shrink-0 lg:justify-self-start" to="/" :aria-label="logo.alt" @click="closeMenu">
+      <div class="flex items-center justify-between gap-4 xl:contents">
+        <NuxtLink class="flex min-w-0 items-center gap-3 sm:gap-5 xl:justify-self-start" to="/" :aria-label="logo.alt" @click="closeMenu">
           <img
-            class="h-auto w-[210px] max-w-[58vw] sm:w-[240px] lg:w-[272px]"
+            class="h-auto min-w-0 w-[210px] sm:w-[240px] xl:h-[60px] xl:w-[272px] xl:object-contain"
             :src="logo.src"
             :alt="logo.alt"
             width="272"
             height="70"
           >
+          <img
+            class="h-auto w-9 shrink-0 sm:w-[45px] xl:w-[54px]"
+            src="/images/header-logo-additional.svg"
+            :alt="currentLocale === 'ru' ? 'Всемирный фестиваль молодёжи' : 'World Youth Festival'"
+            width="54"
+            height="60"
+          >
         </NuxtLink>
 
         <button
-          class="inline-flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-brand-blue text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-cyan lg:hidden"
+          class="inline-flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-[#8B63D9] text-white transition-colors duration-200 hover:bg-[#892AF0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-cyan xl:hidden"
           type="button"
           :aria-expanded="isMenuOpen"
           aria-controls="mobile-header-menu"
@@ -70,18 +77,18 @@ watch(() => languageStore.locale, (locale) => {
         </button>
       </div>
 
-      <nav class="hidden items-center justify-center gap-5 font-montserrat text-sm uppercase leading-none text-black lg:flex">
+      <nav class="hidden items-center justify-center gap-5 font-montserrat text-sm uppercase leading-none text-black xl:flex">
         <NuxtLink
           v-for="item in navItems"
           :key="item.href"
-          class="transition-opacity hover:text-[#892AF0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue"
+          class="transition-colors duration-200 hover:text-[#892AF0] focus-visible:text-[#892AF0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue"
           :to="item.href"
         >
           {{ item.label }}
         </NuxtLink>
       </nav>
 
-      <div class="hidden shrink-0 items-center justify-end gap-5 lg:flex">
+      <div class="hidden shrink-0 items-center justify-end gap-5 xl:flex">
         <AppLanguageSwitcher id="language-switcher" v-model="currentLocale" :languages="languages" />
 
         <AppRegistrationButton :href="registrationLink.href" :label="registrationLink.label" />
@@ -89,7 +96,8 @@ watch(() => languageStore.locale, (locale) => {
 
       <div
         id="mobile-header-menu"
-        class="transition-[max-height,opacity] duration-300 lg:hidden"
+        :inert="!isMenuOpen"
+        class="transition-[max-height,opacity] duration-300 xl:hidden"
         :class="isMenuOpen ? 'max-h-[420px] overflow-visible opacity-100' : 'max-h-0 overflow-hidden opacity-0'"
       >
         <div class="flex flex-col gap-5 pb-2 pt-5">
@@ -97,7 +105,7 @@ watch(() => languageStore.locale, (locale) => {
             <NuxtLink
               v-for="item in navItems"
               :key="item.href"
-              class="transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue"
+              class="transition-colors duration-200 hover:text-[#892AF0] focus-visible:text-[#892AF0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue"
               :to="item.href"
               @click="closeMenu"
             >

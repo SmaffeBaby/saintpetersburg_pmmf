@@ -19,13 +19,13 @@
 @tailwind utilities;
 
 html {
-  background: #3836d6;
+  background: #8C64D8;
   scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  background: #3836d6;
+  background: #8C64D8;
 }
 
 .reveal-on-scroll {

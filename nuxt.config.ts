@@ -10,7 +10,7 @@ export default defineNuxtConfig({
         { rel: 'shortcut icon', type: 'image/svg+xml', href: '/Favicon.svg' }
       ],
       meta: [
-        { name: 'theme-color', content: '#8F3CF0' },
+        { name: 'theme-color', content: '#8C64D8' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'default' }
       ]
     }
