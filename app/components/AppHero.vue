@@ -14,16 +14,16 @@ const organizerLogos = computed(() => [
 </script>
 
 <template>
-  <section class="hero-scene relative isolate w-full overflow-hidden text-white">
+  <section v-hover-parallax="24" class="hero-scene relative isolate w-full overflow-hidden text-white">
     <div class="pointer-events-none absolute inset-0 select-none" aria-hidden="true">
       <div class="hero-landmarks hero-enter-left absolute">
         <img src="/images/hero-bridge.svg" alt="" width="1198" height="391" class="h-auto w-full" decoding="async">
       </div>
       <div class="hero-arch hero-enter-right absolute">
-        <img src="/images/hero-arch.svg" alt="" width="622" height="672" class="h-auto w-full" decoding="async">
+        <img data-hover-parallax="32" data-parallax-pin-bottom src="/images/hero-arch.svg" alt="" width="622" height="672" class="h-auto w-full" decoding="async">
       </div>
       <div class="hero-white-arch hero-enter-right absolute">
-        <img src="/images/hero-white-arch.png" alt="" width="280" height="284" class="h-auto w-full" decoding="async">
+        <img data-hover-parallax="-22" data-parallax-pin-bottom src="/images/hero-white-arch.png" alt="" width="280" height="284" class="h-auto w-full" decoding="async">
       </div>
       <div class="hero-sphinx hero-enter-right absolute">
         <img src="/images/hero-sphinx.svg" alt="" width="347" height="248" class="h-auto w-full" decoding="async">
@@ -39,7 +39,7 @@ const organizerLogos = computed(() => [
     </div>
 
     <div class="hero-logo hero-enter-right pointer-events-none absolute z-10 select-none" aria-hidden="true">
-      <img :src="heroLogo" alt="" width="475" height="530" class="h-auto w-full" fetchpriority="high" decoding="async">
+      <img data-hover-parallax :src="heroLogo" alt="" width="475" height="530" class="h-auto w-full" fetchpriority="high" decoding="async">
     </div>
 
     <div class="hero-gradient pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[257px]" aria-hidden="true" />

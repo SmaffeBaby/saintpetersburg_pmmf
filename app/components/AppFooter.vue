@@ -3,11 +3,11 @@ const { email, address, contacts, privacyLink } = await useFooter()
 </script>
 
 <template>
-  <footer id="contacts" class="relative isolate w-full overflow-hidden border-t border-white/10 text-white">
+  <footer v-hover-parallax="28" id="contacts" class="relative isolate w-full overflow-hidden border-t border-white/10 text-white">
     <div class="pointer-events-none absolute inset-0 -z-10 select-none" aria-hidden="true">
-      <img src="/images/footer-left.svg" alt="" width="356" height="370" class="footer-arch-left absolute hidden h-auto sm:block" loading="lazy" decoding="async">
-      <img src="/images/footer-right.svg" alt="" width="702" height="764" class="footer-arch-right absolute h-auto" loading="lazy" decoding="async">
-      <img src="/images/footer-white.svg" alt="" width="311" height="321" class="footer-arch-white absolute hidden h-auto lg:block" loading="lazy" decoding="async">
+      <img data-hover-parallax="24" data-parallax-pin-bottom src="/images/footer-left.svg" alt="" width="356" height="370" class="footer-arch-left absolute hidden h-auto sm:block" loading="lazy" decoding="async">
+      <img data-hover-parallax="36" data-parallax-pin-bottom src="/images/footer-right.svg" alt="" width="702" height="764" class="footer-arch-right absolute h-auto" loading="lazy" decoding="async">
+      <img data-hover-parallax="-22" data-parallax-pin-bottom src="/images/footer-white.svg" alt="" width="311" height="321" class="footer-arch-white absolute hidden h-auto lg:block" loading="lazy" decoding="async">
     </div>
 
     <div class="mx-auto w-full max-w-[1614px] px-4 pb-16 pt-20 sm:px-8 sm:pb-24 lg:pb-[100px] lg:pt-[240px]">

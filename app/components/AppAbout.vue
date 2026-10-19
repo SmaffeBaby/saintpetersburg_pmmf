@@ -3,11 +3,11 @@ const { firstParagraph, secondParagraph, title } = await useAbout()
 </script>
 
 <template>
-  <section id="about" aria-labelledby="about-title" class="about-section relative isolate w-full overflow-hidden text-white">
+  <section v-hover-parallax="28" id="about" aria-labelledby="about-title" class="about-section relative isolate w-full overflow-hidden text-white">
     <div class="pointer-events-none absolute inset-0 -z-10 select-none" aria-hidden="true">
       <img src="/images/about-skyline.svg" alt="" width="1091" height="595" class="about-skyline absolute h-auto" loading="lazy" decoding="async">
-      <img src="/images/about-yellow-arch.svg" alt="" width="413" height="672" class="about-yellow-arch absolute h-auto" loading="lazy" decoding="async">
-      <img src="/images/about-white-arch.svg" alt="" width="280" height="284" class="about-white-arch absolute hidden h-auto sm:block" loading="lazy" decoding="async">
+      <img data-hover-parallax="32" data-parallax-pin-bottom src="/images/about-yellow-arch.svg" alt="" width="413" height="672" class="about-yellow-arch absolute h-auto" loading="lazy" decoding="async">
+      <img data-hover-parallax="-22" data-parallax-pin-bottom src="/images/about-white-arch.svg" alt="" width="280" height="284" class="about-white-arch absolute hidden h-auto sm:block" loading="lazy" decoding="async">
       <img src="/images/about-horseman.svg" alt="" width="411" height="386" class="about-horseman absolute h-auto" loading="lazy" decoding="async">
     </div>
 

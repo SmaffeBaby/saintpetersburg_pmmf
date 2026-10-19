@@ -14,8 +14,8 @@ const rays = Array.from({ length: 17 }, (_, index) => {
       <svg class="absolute inset-0 h-full w-full text-white/15" viewBox="0 0 1920 1200" fill="none" preserveAspectRatio="none">
         <line v-for="(ray, index) in rays" :key="index" x1="960" y1="1050" :x2="ray.x" :y2="ray.y" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke" />
       </svg>
-      <img src="/images/schedule-horseman.svg" alt="" width="538" height="639" class="schedule-horseman absolute h-auto" loading="lazy" decoding="async">
-      <img src="/images/schedule-cathedral.svg" alt="" width="534" height="670" class="schedule-cathedral absolute h-auto" loading="lazy" decoding="async">
+      <img v-scroll-parallax="-140" src="/images/schedule-horseman.svg" alt="" width="538" height="639" class="schedule-horseman absolute h-auto" loading="lazy" decoding="async">
+      <img v-scroll-parallax="160" src="/images/schedule-cathedral.svg" alt="" width="534" height="670" class="schedule-cathedral absolute h-auto" loading="lazy" decoding="async">
     </div>
 
     <div class="relative mx-auto w-full max-w-[760px] px-4 sm:px-8">
