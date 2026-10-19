@@ -44,7 +44,7 @@ const organizerLogos = computed(() => [
 
     <div class="hero-gradient pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[257px]" aria-hidden="true" />
 
-    <div class="hero-organizers hero-enter-ribbon relative z-30 ml-auto mt-16 bg-white">
+    <div class="hero-organizers hero-enter-ribbon relative z-30 ml-auto mt-16">
       <ul class="m-0 grid list-none grid-cols-2 items-center gap-x-6 gap-y-5 p-0 sm:flex sm:justify-between sm:gap-6">
         <li v-for="organizer in organizerLogos" :key="organizer.src" class="min-w-0">
           <img :src="organizer.src" :alt="organizer.alt" :width="organizer.width" :height="organizer.height" class="hero-organizer-image mx-auto h-auto max-h-[60px] max-w-full object-contain" decoding="async">
@@ -111,6 +111,7 @@ const organizerLogos = computed(() => [
   width: calc(100% - 16px);
   border-radius: 20px 0 0 20px;
   padding: 24px;
+  background: white;
 }
 
 .hero-organizers li:first-child { flex: 0 1 272px; }
@@ -123,7 +124,18 @@ const organizerLogos = computed(() => [
   .hero-organizers {
     width: calc(100% - 32px);
     padding: 24px 32px 24px 64px;
-    clip-path: polygon(48px 0, 100% 0, 100% 100%, 0 100%);
+    background: transparent;
+    border-radius: 0;
+  }
+  .hero-organizers::before {
+    content: '';
+    position: absolute;
+    inset: 0 -100px 0 0;
+    z-index: -1;
+    border-radius: 30px 0 0 20px;
+    background: white;
+    transform: skewX(-26deg);
+    transform-origin: bottom left;
   }
 }
 
@@ -172,7 +184,9 @@ const organizerLogos = computed(() => [
     min-height: 100px;
     margin: 0;
     padding: 20px max(48px, calc((100vw - 1550px) / 2)) 20px 90px;
-    clip-path: polygon(70px 0, 100% 0, 100% 100%, 0 100%);
+  }
+  .hero-organizers::before {
+    transform: skewX(-35deg);
   }
   .hero-organizer-image { max-height: 70px; }
 }

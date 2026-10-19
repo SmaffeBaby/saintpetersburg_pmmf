@@ -36,7 +36,7 @@ const { email, address, contacts, privacyLink } = await useFooter()
 
 <style scoped>
 .footer-arch-left {
-  bottom: 30px;
+  bottom: 0;
   left: -214px;
   width: 356px;
 }
@@ -49,24 +49,26 @@ const { email, address, contacts, privacyLink } = await useFooter()
 
 .footer-arch-white {
   right: 36px;
-  bottom: 100px;
+  bottom: 0;
   width: 311px;
 }
 
 @media (min-width: 1024px) {
   .footer-arch-left {
-    left: max(-11.15vw, -214px);
-    width: min(18.55vw, 356px);
+    left: -11.15%;
+    width: 18.55%;
   }
 
   .footer-arch-right {
-    top: 105px;
-    right: max(-13.55vw, -260px);
-    width: min(36.57vw, 702px);
+    top: auto;
+    bottom: 0;
+    right: -13.55%;
+    width: 36.57%;
   }
 
   .footer-arch-white {
-    width: min(16.2vw, 311px);
+    right: 1.875%;
+    width: 16.2%;
   }
 }
 </style>
