@@ -28,6 +28,13 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Validate deployment files
+        run: |
+          for file in Dockerfile .npmrc package.json package-lock.json nuxt.config.ts docker-compose.yml scripts/deploy-production.sh; do
+            test -f "$file" || { echo "Missing deployment file: $file" >&2; exit 1; }
+          done
+          bash -n scripts/deploy-production.sh
+
       - name: Validate production secrets
         run: |
           test -n "$SSH_HOST" || { echo "Missing PRODUCTION_HOST secret" >&2; exit 1; }
