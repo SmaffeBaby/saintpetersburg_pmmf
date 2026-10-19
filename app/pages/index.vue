@@ -10,6 +10,7 @@
     <AppLoftHall v-reveal class="relative z-10" />
     <AppSchedule v-reveal />
     <AppProgram v-reveal />
+    <AppSpeakers v-reveal />
     <div class="rounded-[40px] bg-white lg:rounded-[80px]">
       <AppInformationPartners v-reveal />
       <AppRegistrationForm v-reveal />

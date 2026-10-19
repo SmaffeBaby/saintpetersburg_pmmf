@@ -1,4 +1,114 @@
 {
+  "speakers": {
+    "title": {
+      "ru": "Наши спикеры",
+      "en": "Our speakers"
+    },
+    "speakers": [
+      {
+        "fullName": {
+          "ru": "Григорий Гуров",
+          "en": "Grigory Gurov"
+        },
+        "role": {
+          "ru": "Руководитель Федерального агентства по делам молодежи (Росмолодежь)",
+          "en": "Head of the Federal Agency for Youth Affairs (Rosmolodezh)"
+        },
+        "image": {
+          "src": "/images/speaker-gurov.png",
+          "alt": {
+            "ru": "Григорий Гуров",
+            "en": "Grigory Gurov"
+          }
+        }
+      },
+      {
+        "fullName": {
+          "ru": "Роман Елистратов",
+          "en": "Roman Elistratov"
+        },
+        "role": {
+          "ru": "Сооснователь Кинокомпании «Тромедиа», российский теле- и кинопродюсер, член Правления АПКиТ",
+          "en": "Co-founder of Tromedia, Russian television and film producer, member of the APKIT Board"
+        },
+        "image": {
+          "src": "/images/speaker-elistratov.png",
+          "alt": {
+            "ru": "Роман Елистратов",
+            "en": "Roman Elistratov"
+          }
+        }
+      },
+      {
+        "fullName": {
+          "ru": "Наталья Чечина",
+          "en": "Natalya Chechina"
+        },
+        "role": {
+          "ru": "Вице-губернатор Санкт-Петербурга",
+          "en": "Vice Governor of Saint Petersburg"
+        },
+        "image": {
+          "src": "/images/speaker-chechina.png",
+          "alt": {
+            "ru": "Наталья Чечина",
+            "en": "Natalya Chechina"
+          }
+        }
+      },
+      {
+        "fullName": {
+          "ru": "Никита Соколов",
+          "en": "Nikita Sokolov"
+        },
+        "role": {
+          "ru": "Профориентолог, карьерный наставник; Эксперт проекта «ПрофРазвитие» Президентской платформы «Россия — страна возможностей», Лектор Российского общества «Знание»; Координатор содружества профориентологов в Санкт-Петербурге",
+          "en": "Career guidance specialist and mentor; expert for the ProfRazvitie project of the Russia — Land of Opportunity presidential platform; lecturer at the Russian Znanie Society; coordinator of the career guidance community in Saint Petersburg"
+        },
+        "image": {
+          "src": "/images/speaker-sokolov.png",
+          "alt": {
+            "ru": "Никита Соколов",
+            "en": "Nikita Sokolov"
+          }
+        }
+      },
+      {
+        "fullName": {
+          "ru": "Александр Журавский",
+          "en": "Alexander Zhuravsky"
+        },
+        "role": {
+          "ru": "Кандидат исторических наук, кандидат богословия",
+          "en": "Candidate of Historical Sciences and Candidate of Theology"
+        },
+        "image": {
+          "src": "/images/speaker-zhuravsky.png",
+          "alt": {
+            "ru": "Александр Журавский",
+            "en": "Alexander Zhuravsky"
+          }
+        }
+      },
+      {
+        "fullName": {
+          "ru": "Екатерина Сидорова",
+          "en": "Ekaterina Sidorova"
+        },
+        "role": {
+          "ru": "Руководитель отдела устойчивого развития биотехнологической компании BIOCAD",
+          "en": "Head of Sustainability at the biotechnology company BIOCAD"
+        },
+        "image": {
+          "src": "/images/speaker-sidorova.png",
+          "alt": {
+            "ru": "Екатерина Сидорова",
+            "en": "Ekaterina Sidorova"
+          }
+        }
+      }
+    ]
+  },
   "program": {
     "title": { "ru": "Программа", "en": "Program" },
     "description": {

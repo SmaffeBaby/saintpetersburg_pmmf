@@ -4,7 +4,7 @@ const props = defineProps<{ modelValue: any; path?: string; label?: string }>()
 const emit = defineEmits<{ 'update:modelValue': [value: any] }>()
 const labels: Record<string, string> = {
   title: 'Заголовок', city: 'Город', subtitle: 'Подзаголовок', mapLabel: 'Текст кнопки карты', date: 'Дата и время', place: 'Место проведения', firstParagraph: 'Первый абзац', secondParagraph: 'Второй абзац',
-  description: 'Описание', button: 'Кнопка', label: 'Текст', href: 'Ссылка', image: 'Изображение', alt: 'Описание изображения',
+  description: 'Описание', speakers: 'Спикеры', fullName: 'Имя спикера', role: 'Должность и описание', button: 'Кнопка', label: 'Текст', href: 'Ссылка', image: 'Изображение', alt: 'Описание изображения',
   logo: 'Логотип', partners: 'Партнеры', src: 'Путь к изображению', nav: 'Навигация', registration: 'Кнопка регистрации', languages: 'Языки',
   code: 'Код языка', email: 'Электронная почта', address: 'Адрес', contacts: 'Контакты в карточке', legal: 'Реквизиты (сохранены из прежнего подвала)', privacy: 'Политика конфиденциальности', fields: 'Поля формы', agreement: 'Согласие на обработку данных',
   submitLabel: 'Текст кнопки отправки', id: 'Идентификатор', name: 'Имя поля', type: 'Тип поля', placeholder: 'Подсказка', autocomplete: 'Автозаполнение', layout: 'Ширина поля'
@@ -16,6 +16,13 @@ const update = (key: string | number, value: any) => {
   emit('update:modelValue', next)
 }
 const add = () => {
+  if (props.path === 'speakers') {
+    emit('update:modelValue', [...props.modelValue, {
+      fullName: { ru: '', en: '' }, role: { ru: '', en: '' },
+      image: { src: '/images/speaker-gurov.png', alt: { ru: '', en: '' } }
+    }])
+    return
+  }
   const seed = props.modelValue[props.modelValue.length - 1] || (props.path === 'partners'
     ? { src: '/images/partner-spbtv.svg', alt: { ru: '', en: '' } }
     : { label: { ru: '', en: '' }, href: '/' })
@@ -39,7 +46,7 @@ const fieldId = computed(() => `content-${props.path || 'root'}`)
     <legend class="px-1 text-sm font-semibold">{{ label }}</legend>
     <div v-for="(item, index) in modelValue" :key="index" class="space-y-4 rounded-lg bg-slate-50 p-4">
       <div class="flex items-center justify-between">
-        <p class="text-sm font-medium">{{ item.alt?.ru || item.label?.ru || item.name || item.label || `Элемент ${index + 1}` }}</p>
+        <p class="text-sm font-medium">{{ item.fullName?.ru || item.alt?.ru || item.label?.ru || item.name || item.label || `Элемент ${index + 1}` }}</p>
         <UButton v-if="!fixedArray" label="Удалить" color="error" variant="ghost" size="xs" @click="emit('update:modelValue', modelValue.filter((_: any, i: number) => i !== index))" />
       </div>
       <AdminContentFields :model-value="item" :path="`${path}.${index}`" @update:model-value="update(index, $event)" />

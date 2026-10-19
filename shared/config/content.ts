@@ -30,6 +30,13 @@ export const contentSchemas = {
     button: z.object({ label: localized, href: safeHref.or(z.literal('')) }).strict()
   }).strict(),
   program: z.object({ title: localized, description: localized }).strict(),
+  speakers: z.object({
+    title: localized,
+    speakers: z.array(z.object({
+      fullName: localized, role: localized,
+      image: z.object({ src: z.string().regex(/^\/(?!\/)/).max(2048), alt: localized }).strict()
+    }).strict()).max(12)
+  }).strict(),
   'information-partners': z.object({
     title: localized,
     partners: z.array(z.object({
@@ -58,6 +65,7 @@ export const contentSections: { id: ContentSection; label: string; icon: string 
   { id: 'loft-hall', label: 'LoftHall / Площадка', icon: 'i-lucide-map-pin' },
   { id: 'schedule', label: 'Расписание', icon: 'i-lucide-calendar-days' },
   { id: 'program', label: 'Программа', icon: 'i-lucide-list' },
+  { id: 'speakers', label: 'Наши спикеры', icon: 'i-lucide-users' },
   { id: 'information-partners', label: 'Информационные партнеры', icon: 'i-lucide-handshake' },
   { id: 'registration-form', label: 'Форма регистрации', icon: 'i-lucide-clipboard-list' },
   { id: 'alternative-forum', label: 'Альтернативная регистрация', icon: 'i-lucide-external-link' },
