@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { isLinkVisible } = useSiteVisibility()
 withDefaults(defineProps<{
   href: string
   label: string
@@ -10,6 +11,7 @@ withDefaults(defineProps<{
 
 <template>
   <NuxtLink
+    v-if="isLinkVisible(href)"
     class="inline-flex shrink-0 items-center justify-center rounded-[15px] font-days-one uppercase leading-none transition-[background-color,opacity] duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-cyan"
     :class="variant === 'hero'
       ? 'min-h-[50px] min-w-[158px] bg-white hover:opacity-90 px-5 text-[13px] text-[#892AF0] shadow-[0_18px_42px_rgba(16,13,96,0.18)] sm:min-h-[58px] sm:min-w-[170px] sm:text-sm lg:min-h-[58px] lg:min-w-[160px]'

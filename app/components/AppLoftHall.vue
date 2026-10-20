@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { isLinkVisible } = useSiteVisibility()
 const { title, city, subtitle, description, date, mapLabel, registration, image } = await useLoftHall()
 </script>
 
@@ -21,7 +22,7 @@ const { title, city, subtitle, description, date, mapLabel, registration, image 
               <button type="button" class="min-h-[58px] rounded-[20px] border-2 border-[#8C64D8] bg-[#8C64D8] px-5 py-4 font-days-one text-xs uppercase leading-tight text-white transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#8C64D8] sm:text-sm">
                 {{ mapLabel }}
               </button>
-              <NuxtLink :to="registration.href" class="inline-flex min-h-[58px] items-center justify-center rounded-[20px] border-2 border-[#8C64D8] px-5 py-4 font-days-one text-xs uppercase leading-tight transition-colors hover:bg-[#8C64D8]/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#8C64D8] sm:text-sm">
+              <NuxtLink v-if="isLinkVisible(registration.href)" :to="registration.href" class="inline-flex min-h-[58px] items-center justify-center rounded-[20px] border-2 border-[#8C64D8] px-5 py-4 font-days-one text-xs uppercase leading-tight transition-colors hover:bg-[#8C64D8]/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#8C64D8] sm:text-sm">
                 {{ registration.label }}
               </NuxtLink>
             </div>

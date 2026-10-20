@@ -10,6 +10,13 @@ const saving = ref(false)
 const error = ref('')
 const success = ref('')
 const dirty = computed(() => content.value !== null && JSON.stringify(content.value) !== saved.value)
+const contentFields = computed({
+  get: () => {
+    const { visible, ...fields } = content.value || {}
+    return fields
+  },
+  set: (fields) => { content.value = { ...fields, visible: content.value.visible } }
+})
 const load = async () => {
   if (dirty.value && !window.confirm('Отменить несохранённые изменения?')) return
   loading.value = true
@@ -41,6 +48,7 @@ const save = async () => {
     saved.value = JSON.stringify(result.content)
     success.value = 'Сохранено. Изменения уже доступны на сайте.'
     clearNuxtData(`${props.section}-content`)
+    clearNuxtData('site-visibility')
   } catch (e: any) {
     if (e.statusCode === 401) emit('unauthorized')
     error.value = e.statusCode === 409 ? 'Раздел изменён в другой вкладке. Скопируйте свои правки и загрузите актуальную версию.' : 'Не удалось сохранить. Проверьте поля и попробуйте ещё раз.'
@@ -66,8 +74,12 @@ onBeforeRouteUpdate(() => !dirty.value || window.confirm('Покинуть ре�
     <UAlert v-if="success" color="success" :description="success" role="status" />
     <p v-if="loading" role="status" class="py-12 text-center text-slate-500">Загружаем раздел…</p>
     <UCard v-else-if="content">
+      <div class="mb-6 space-y-2 border-b border-slate-200 pb-6">
+        <USwitch v-model="content.visible" label="Показывать на сайте" :disabled="saving" />
+        <p class="text-sm text-slate-500">{{ content.visible ? 'Компонент виден на сайте.' : 'Компонент скрыт на сайте. Его содержимое сохранено.' }} Нажмите «Сохранить», чтобы применить изменения для обоих языков.</p>
+      </div>
       <p v-if="section === 'schedule'" class="mb-6 text-sm text-slate-500">В поле «Кнопка → Ссылка» укажите адрес страницы или файла расписания. Пока ссылка пустая, кнопка на сайте неактивна.</p>
-      <AdminContentFields v-model="content" />
+      <AdminContentFields v-model="contentFields" />
     </UCard>
   </div>
 </template>

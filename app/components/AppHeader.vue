@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { AppLocale } from '~/stores/language'
 
-const { locale: i18nLocale, setLocale: setI18nLocale } = useI18n()
 const languageStore = useLanguageStore()
 const { languages, logo, navItems, registrationLink } = await useHeader()
 const isMenuOpen = ref(false)
@@ -17,16 +16,6 @@ const currentLocale = computed<AppLocale>({
 const closeMenu = () => {
   isMenuOpen.value = false
 }
-
-onMounted(() => {
-  languageStore.initLocale()
-  setI18nLocale(languageStore.locale)
-})
-
-watch(() => languageStore.locale, (locale) => {
-  setI18nLocale(locale)
-  i18nLocale.value = locale
-})
 </script>
 
 <template>

@@ -11,26 +11,32 @@ const field = z.object({
   autocomplete: z.string().max(80).optional(), layout: z.enum(['third', 'half'])
 }).strict()
 
+const visibility = { visible: z.boolean().default(true) }
+
 export const contentSchemas = {
   header: z.object({
+    ...visibility,
     logo: z.object({ src: z.string().regex(/^\/(?!\/)/).max(2048), alt: localized }).strict(),
     nav: z.array(link).max(12), registration: link,
     languages: z.array(z.object({ code: z.enum(['ru', 'en']), label: z.string().min(1).max(20) }).strict()).min(1).max(2)
       .refine(rows => new Set(rows.map(row => row.code)).size === rows.length)
   }).strict(),
-  hero: z.object({ title: localized, date: localized, place: localized }).strict(),
-  about: z.object({ title: localized, firstParagraph: localized, secondParagraph: localized }).strict(),
+  hero: z.object({ ...visibility, title: localized, date: localized, place: localized }).strict(),
+  about: z.object({ ...visibility, title: localized, firstParagraph: localized, secondParagraph: localized }).strict(),
   'loft-hall': z.object({
+    ...visibility,
     title: localized, city: localized, subtitle: localized, description: localized, date: localized,
     mapLabel: localized, registration: link,
     image: z.object({ src: z.string().regex(/^\/(?!\/)/).max(2048), alt: localized }).strict()
   }).strict(),
   schedule: z.object({
+    ...visibility,
     title: localized, description: localized,
     button: z.object({ label: localized, href: safeHref.or(z.literal('')) }).strict()
   }).strict(),
-  program: z.object({ title: localized, description: localized }).strict(),
+  program: z.object({ ...visibility, title: localized, description: localized }).strict(),
   speakers: z.object({
+    ...visibility,
     title: localized,
     speakers: z.array(z.object({
       fullName: localized, role: localized,
@@ -38,6 +44,7 @@ export const contentSchemas = {
     }).strict()).max(12)
   }).strict(),
   'information-partners': z.object({
+    ...visibility,
     title: localized,
     partners: z.array(z.object({
       src: z.string().regex(/^\/(?!\/)/).max(2048),
@@ -45,19 +52,23 @@ export const contentSchemas = {
     }).strict()).max(12)
   }).strict(),
   'registration-form': z.object({
+    ...visibility,
     title: localized, agreement: localized, submitLabel: localized,
     fields: z.array(field).length(7).refine(rows =>
       fieldNames.every(name => rows.filter(row => row.name === name && row.id === name).length === 1)
       && rows.every(row => row.type === (row.name === 'birthDate' ? 'date' : row.name === 'email' ? 'email' : row.name === 'phone' ? 'tel' : 'text')),
     'Все семь полей должны присутствовать с исходными именами и типами')
   }).strict(),
-  'alternative-forum': z.object({ title: localized, description: localized, button: link, image: z.object({ alt: localized }).strict() }).strict(),
+  'alternative-forum': z.object({ ...visibility, title: localized, description: localized, button: link, image: z.object({ alt: localized }).strict() }).strict(),
   footer: z.object({
+    ...visibility,
     email: z.email().max(254), address: localized, contacts: localized,
     legal: localized, privacy: link
   }).strict()
 }
 export type ContentSection = keyof typeof contentSchemas
+export type SectionVisibility = Record<ContentSection, boolean>
+
 export const contentSections: { id: ContentSection; label: string; icon: string }[] = [
   { id: 'header', label: 'Шапка сайта', icon: 'i-lucide-panel-top' },
   { id: 'hero', label: 'Первый экран', icon: 'i-lucide-layout-template' },

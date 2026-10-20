@@ -32,9 +32,10 @@ const ensureContent = (section: ContentSection) => {
   return db
 }
 export const getContentRecord = (section: ContentSection) => {
-  return ensureContent(section).prepare('SELECT * FROM site_content WHERE section = ?').get(section) as {
+  const row = ensureContent(section).prepare('SELECT * FROM site_content WHERE section = ?').get(section) as {
     section: string; content: string; revision: number; updatedAt: string
   }
+  return { ...row, content: JSON.stringify(contentSchemas[section].parse(JSON.parse(row.content))) }
 }
 export const getPublicContent = async (section: ContentSection) => {
   const db = ensureContent(section)
