@@ -53,6 +53,7 @@ export default defineNuxtConfig({
   security: {
     headers: {
       contentSecurityPolicy: {
+        'frame-src': ['\'self\'', 'https://yandex.ru'],
         'img-src': ['\'self\'', 'data:'],
         'style-src': ['\'self\'', 'https:', '\'unsafe-inline\''],
         'script-src': ['\'self\'', 'https:', '\'unsafe-inline\'', '\'strict-dynamic\'', '\'nonce-{{nonce}}\''],
