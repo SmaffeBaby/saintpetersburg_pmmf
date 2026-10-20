@@ -30,6 +30,14 @@ const add = () => {
 }
 const immutable = computed(() => /fields\.\d+\.(id|name|type)$/.test(props.path || ''))
 const fixedArray = computed(() => ['fields', 'languages'].includes(props.path || ''))
+const reorderable = computed(() => props.path === 'speakers')
+const move = (index: number, offset: number) => {
+  const target = index + offset
+  if (!reorderable.value || target < 0 || target >= props.modelValue.length) return
+  const next = [...props.modelValue]
+  ;[next[index], next[target]] = [next[target], next[index]]
+  emit('update:modelValue', next)
+}
 const fieldId = computed(() => `content-${props.path || 'root'}`)
 </script>
 
@@ -44,10 +52,17 @@ const fieldId = computed(() => `content-${props.path || 'root'}`)
   </fieldset>
   <fieldset v-else-if="Array.isArray(modelValue)" class="space-y-4 rounded-xl border border-slate-200 p-4">
     <legend class="px-1 text-sm font-semibold">{{ label }}</legend>
+    <p v-if="reorderable" class="text-sm text-slate-500">Меняйте порядок кнопками «Выше» и «Ниже». Нажмите «Сохранить», чтобы применить его на сайте.</p>
     <div v-for="(item, index) in modelValue" :key="index" class="space-y-4 rounded-lg bg-slate-50 p-4">
-      <div class="flex items-center justify-between">
-        <p class="text-sm font-medium">{{ item.fullName?.ru || item.alt?.ru || item.label?.ru || item.name || item.label || `Элемент ${index + 1}` }}</p>
-        <UButton v-if="!fixedArray" label="Удалить" color="error" variant="ghost" size="xs" @click="emit('update:modelValue', modelValue.filter((_: any, i: number) => i !== index))" />
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <p class="min-w-0 break-words text-sm font-medium"><span v-if="reorderable" class="mr-2 text-slate-500">{{ index + 1 }}.</span>{{ item.fullName?.ru || item.alt?.ru || item.label?.ru || item.name || item.label || `Элемент ${index + 1}` }}</p>
+        <div class="flex flex-wrap items-center gap-1">
+          <template v-if="reorderable">
+            <UButton label="Выше" icon="i-lucide-arrow-up" :aria-label="`Переместить выше: ${item.fullName?.ru || `Спикер ${index + 1}`}`" color="neutral" variant="outline" size="xs" :disabled="index === 0" @click="move(index, -1)" />
+            <UButton label="Ниже" icon="i-lucide-arrow-down" :aria-label="`Переместить ниже: ${item.fullName?.ru || `Спикер ${index + 1}`}`" color="neutral" variant="outline" size="xs" :disabled="index === modelValue.length - 1" @click="move(index, 1)" />
+          </template>
+          <UButton v-if="!fixedArray" label="Удалить" color="error" variant="ghost" size="xs" @click="emit('update:modelValue', modelValue.filter((_: any, i: number) => i !== index))" />
+        </div>
       </div>
       <AdminContentFields :model-value="item" :path="`${path}.${index}`" @update:model-value="update(index, $event)" />
     </div>
