@@ -14,80 +14,94 @@ jobs:
   deploy:
     name: Deploy to production server
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     env:
       APP_DIR: /opt/saint-mmf
-      ARCHIVE_NAME: saint-mmf-production.tar.gz
+      ARCHIVE_NAME: saint-mmf-production.tar
       SSH_HOST: ${{ secrets.PRODUCTION_HOST }}
       SSH_USER: ${{ secrets.PRODUCTION_USER }}
-      SSH_PASSWORD: ${{ secrets.PRODUCTION_PASSWORD }}
+      SSHPASS: ${{ secrets.PRODUCTION_PASSWORD }}
       SSH_PORT: ${{ secrets.PRODUCTION_PORT || '22' }}
+      IMAGE_TAG: ${{ github.sha }}
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Validate deployment files
+      - name: Validate deployment files and secrets
         run: |
-          for file in Dockerfile .npmrc package.json package-lock.json nuxt.config.ts docker-compose.yml scripts/deploy-production.sh; do
+          for file in Dockerfile .npmrc package.json package-lock.json nuxt.config.ts docker-compose.yml docker-compose.production.yml scripts/deploy-production.sh; do
             test -f "$file" || { echo "Missing deployment file: $file" >&2; exit 1; }
           done
           bash -n scripts/deploy-production.sh
-
-      - name: Validate production secrets
-        run: |
           test -n "$SSH_HOST" || { echo "Missing PRODUCTION_HOST secret" >&2; exit 1; }
           test -n "$SSH_USER" || { echo "Missing PRODUCTION_USER secret" >&2; exit 1; }
-          test -n "$SSH_PASSWORD" || { echo "Missing PRODUCTION_PASSWORD secret" >&2; exit 1; }
-
-      - name: Create deploy archive
-        run: |
-          tar \
-            --exclude='.git' \
-            --exclude='.github' \
-            --exclude='.idea' \
-            --exclude='.nuxt' \
-            --exclude='.nuxt-dev' \
-            --exclude='.output' \
-            --exclude='.nitro' \
-            --exclude='.cache' \
-            --exclude='node_modules' \
-            --exclude='coverage' \
-            --exclude='dist' \
-            --exclude='logs' \
-            --exclude='*.log' \
-            -czf "/tmp/$ARCHIVE_NAME" .
+          test -n "$SSHPASS" || { echo "Missing PRODUCTION_PASSWORD secret" >&2; exit 1; }
 
       - name: Install SSH password helper
         run: |
           sudo apt-get update
           sudo apt-get install -y sshpass
 
+      - name: Detect production architecture
+        id: production
+        run: |
+          architecture=$(sshpass -e ssh -p "$SSH_PORT" \
+            -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 \
+            -o ServerAliveInterval=15 -o ServerAliveCountMax=4 \
+            "$SSH_USER@$SSH_HOST" uname -m)
+          case "$architecture" in
+            x86_64) platform=linux/amd64 ;;
+            aarch64|arm64) platform=linux/arm64 ;;
+            *) echo "Unsupported production architecture: $architecture" >&2; exit 1 ;;
+          esac
+          echo "platform=$platform" >> "$GITHUB_OUTPUT"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Compile on the runner, without competing with the production app for RAM.
+      - name: Build production image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: ${{ steps.production.outputs.platform }}
+          tags: saint-mmf-production:${{ github.sha }}
+          outputs: type=docker,dest=/tmp/saint-mmf-image.tar
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Create deploy archive
+        run: |
+          mkdir -p /tmp/saint-mmf-release/scripts
+          gzip -1 /tmp/saint-mmf-image.tar
+          mv /tmp/saint-mmf-image.tar.gz /tmp/saint-mmf-release/image.tar.gz
+          cp docker-compose.yml docker-compose.production.yml /tmp/saint-mmf-release/
+          cp scripts/deploy-production.sh /tmp/saint-mmf-release/scripts/
+          printf 'IMAGE_TAG=%s\n' "$IMAGE_TAG" > /tmp/saint-mmf-release/release.env
+          tar -cf "/tmp/$ARCHIVE_NAME" -C /tmp/saint-mmf-release .
+
       - name: Upload release to production
         run: |
-          sshpass -p "$SSH_PASSWORD" ssh \
-            -p "$SSH_PORT" \
-            -o StrictHostKeyChecking=accept-new \
+          sshpass -e scp -P "$SSH_PORT" \
+            -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 \
+            -o ServerAliveInterval=15 -o ServerAliveCountMax=4 \
+            "/tmp/$ARCHIVE_NAME" "$SSH_USER@$SSH_HOST:/tmp/$ARCHIVE_NAME"
+
+          sshpass -e ssh -p "$SSH_PORT" \
+            -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 \
+            -o ServerAliveInterval=15 -o ServerAliveCountMax=4 \
             "$SSH_USER@$SSH_HOST" \
-            "mkdir -p '$APP_DIR'"
+            "mkdir -p '$APP_DIR/data' && tar -xf '/tmp/$ARCHIVE_NAME' -C '$APP_DIR' && rm -f '/tmp/$ARCHIVE_NAME' && chmod +x '$APP_DIR/scripts/deploy-production.sh'"
 
-          sshpass -p "$SSH_PASSWORD" scp \
-            -P "$SSH_PORT" \
-            -o StrictHostKeyChecking=accept-new \
-            "/tmp/$ARCHIVE_NAME" \
-            "$SSH_USER@$SSH_HOST:/tmp/$ARCHIVE_NAME"
-
-          sshpass -p "$SSH_PASSWORD" ssh \
-            -p "$SSH_PORT" \
-            -o StrictHostKeyChecking=accept-new \
-            "$SSH_USER@$SSH_HOST" \
-            "find '$APP_DIR' -mindepth 1 -maxdepth 1 ! -name '.env' ! -name 'data' -exec rm -rf {} + && mkdir -p '$APP_DIR/data' && tar -xzf '/tmp/$ARCHIVE_NAME' -C '$APP_DIR' && rm -f '/tmp/$ARCHIVE_NAME' && chmod +x '$APP_DIR/scripts/deploy-production.sh'"
-
-      - name: Rebuild production containers
+      - name: Start production containers and check health
         run: |
-          sshpass -p "$SSH_PASSWORD" ssh \
-            -p "$SSH_PORT" \
-            -o StrictHostKeyChecking=accept-new \
+          sshpass -e ssh -p "$SSH_PORT" \
+            -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 \
+            -o ServerAliveInterval=15 -o ServerAliveCountMax=4 \
             "$SSH_USER@$SSH_HOST" \
             "APP_DIR='$APP_DIR' '$APP_DIR/scripts/deploy-production.sh'"

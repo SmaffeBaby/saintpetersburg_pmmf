@@ -1,0 +1,3 @@
+services:
+  saint-mmf:
+    image: saint-mmf-production:${IMAGE_TAG:?Set IMAGE_TAG to the release commit}
