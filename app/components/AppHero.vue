@@ -80,6 +80,7 @@ const organizerLogos = computed(() => [
 }
 
 .hero-landmarks {
+  display: none;
   bottom: 0;
   left: -160px;
   width: 780px;
@@ -87,17 +88,18 @@ const organizerLogos = computed(() => [
 
 .hero-arch {
   top: 55%;
-  right: -140px;
+  left: calc(50% + min(32.5vw, 170px) + 16px);
   width: 340px;
 }
 
 .hero-white-arch {
-  right: 16px;
-  bottom: 100px;
+  left: 16px;
+  bottom: 140px;
   width: 140px;
 }
 
 .hero-sphinx {
+  display: none;
   right: 90px;
   bottom: 100px;
   width: 210px;
@@ -158,20 +160,24 @@ const organizerLogos = computed(() => [
     margin: 0;
   }
   .hero-landmarks {
+    display: block;
     left: 0;
     width: min(62.4vw, 1198px);
   }
   .hero-arch {
     top: 310px;
+    left: auto;
     right: max(-180px, -9.4vw);
     width: min(32.4vw, 622px);
   }
   .hero-white-arch {
+    left: auto;
     right: max(48px, calc((100% - 1920px) / 2 + 85px));
     bottom: 0;
     width: min(14.6vw, 280px);
   }
   .hero-sphinx {
+    display: block;
     right: max(260px, calc((100% - 1920px) / 2 + 425px));
     bottom: 40px;
     width: min(18.1vw, 347px);
