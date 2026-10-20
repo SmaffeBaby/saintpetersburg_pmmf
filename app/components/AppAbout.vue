@@ -23,32 +23,34 @@ const { firstParagraph, secondParagraph, title } = await useAbout()
 
 <style scoped>
 .about-section {
-  padding-bottom: 240px;
+  padding-bottom: clamp(240px, 62vw, 340px);
 }
 
 .about-skyline {
-  bottom: -20px;
-  left: 0;
-  width: 740px;
+  bottom: 0;
+  left: calc(50% + 48px);
+  width: min(calc(100% - 32px), 560px);
   max-width: none;
+  transform: translateX(-50%);
 }
 
 .about-yellow-arch {
-  bottom: -170px;
+  bottom: 0;
   left: 0;
-  width: 230px;
+  width: clamp(115px, 28vw, 180px);
 }
 
 .about-white-arch {
-  bottom: -100px;
-  right: 27%;
-  width: 200px;
+  bottom: 0;
+  right: 35%;
+  width: clamp(80px, 18vw, 140px);
 }
 
 .about-horseman {
-  right: -20px;
-  bottom: -10px;
-  width: 220px;
+  display: none;
+  right: 16px;
+  bottom: 0;
+  width: clamp(120px, 34vw, 210px);
 }
 
 @media (min-width: 1024px) {
@@ -65,11 +67,14 @@ const { firstParagraph, secondParagraph, title } = await useAbout()
 
   .about-skyline {
     bottom: -20px;
+    left: 0;
     width: min(65vw, 1250px);
+    transform: none;
   }
 
   .about-yellow-arch {
     bottom: max(-15.625vw, -300px);
+    left: 0;
     width: min(21.52vw, 413px);
   }
 
@@ -80,6 +85,7 @@ const { firstParagraph, secondParagraph, title } = await useAbout()
   }
 
   .about-horseman {
+    display: block;
     right: 32px;
     bottom: -20px;
     width: min(21.41vw, 411px);
