@@ -1,5 +1,10 @@
 <script setup lang="ts">
 const { email, address, contacts, privacyLink } = await useFooter()
+const addressLines = computed(() => address.value
+  .replace(/,\s*/, ',\n')
+  .split(/\r?\n/)
+  .map(line => line.trim())
+  .filter(Boolean))
 </script>
 
 <template>
@@ -14,8 +19,8 @@ const { email, address, contacts, privacyLink } = await useFooter()
       <a :href="`mailto:${email}`" class="inline-block max-w-full break-words font-days-one text-[clamp(22px,5vw,70px)] uppercase leading-[1.15] text-[#DAEF14] transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
         {{ email }}
       </a>
-      <p class="mt-6 font-days-one text-base uppercase leading-[1.35] text-white/50 sm:text-xl lg:mt-8 lg:text-[30px]">
-        {{ address }}
+      <p class="mt-6 break-words font-days-one text-[clamp(11px,3.8vw,16px)] uppercase leading-[1.35] text-white/50 sm:text-xl lg:mt-8 lg:text-[30px]">
+        <span v-for="(line, index) in addressLines" :key="index" class="block">{{ line }}</span>
       </p>
       <div class="mt-10 rounded-[28px] bg-[#9875DC] px-6 py-8 sm:rounded-[40px] sm:p-10 lg:mt-[50px] lg:rounded-[60px] lg:px-[64px] lg:py-[60px]">
         <p class="whitespace-pre-line break-words font-montserrat text-base leading-[1.25] text-white sm:text-xl lg:text-2xl">

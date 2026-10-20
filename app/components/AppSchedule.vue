@@ -32,6 +32,7 @@ const rays = Array.from({ length: 17 }, (_, index) => {
 <style scoped>
 .schedule-section {
   min-height: 680px;
+  margin-bottom: 64px;
   padding-top: 150px;
   padding-bottom: 280px;
   scroll-margin-top: 130px;
@@ -75,6 +76,7 @@ const rays = Array.from({ length: 17 }, (_, index) => {
 @media (min-width: 1024px) {
   .schedule-section {
     min-height: 1200px;
+    margin-bottom: 0;
     margin-top: -150px;
     padding-top: 460px;
     padding-bottom: 400px;

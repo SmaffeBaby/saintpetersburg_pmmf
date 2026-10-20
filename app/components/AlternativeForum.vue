@@ -7,8 +7,8 @@ const descriptionParagraphs = computed(() => description.value.split('\n\n'))
 
 <template>
   <section class="mx-auto w-full max-w-[1614px] overflow-hidden px-4 pb-24 pt-[88px] text-white sm:px-8 sm:pb-32 lg:pt-[120px] xl:pb-[240px]">
-    <div class="mx-auto w-full max-w-[1550px]">
-      <h2 class="max-w-full break-words font-days-one text-[clamp(30px,8.5vw,70px)] uppercase leading-none text-white sm:text-[52px] lg:text-[70px]">
+    <div class="alternative-content mx-auto w-full max-w-[1550px]">
+      <h2 class="max-w-full break-words font-days-one text-[clamp(16px,8.2cqw,70px)] uppercase leading-none text-white">
         {{ title }}
       </h2>
 
@@ -43,3 +43,9 @@ const descriptionParagraphs = computed(() => description.value.split('\n\n'))
     </div>
   </section>
 </template>
+
+<style scoped>
+.alternative-content {
+  container-type: inline-size;
+}
+</style>
