@@ -3,6 +3,7 @@ defineOptions({ name: 'AdminContentFields' })
 const props = defineProps<{ modelValue: any; path?: string; label?: string }>()
 const emit = defineEmits<{ 'update:modelValue': [value: any] }>()
 const labels: Record<string, string> = {
+  successTitle: 'Заголовок успешной отправки', successMessage: 'Текст успешной отправки', savedTitle: 'Заголовок при ошибке почты', savedMessage: 'Текст при ошибке почты', errorTitle: 'Заголовок ошибки отправки', errorMessage: 'Текст ошибки отправки', submitterEmail: 'Письмо участнику', organizerEmail: 'Письмо организаторам', subject: 'Тема письма', message: 'Текст письма',
   title: 'Заголовок', city: 'Город', subtitle: 'Подзаголовок', mapLabel: 'Текст кнопки карты', date: 'Дата и время', place: 'Место проведения', firstParagraph: 'Первый абзац', secondParagraph: 'Второй абзац',
   description: 'Описание', speakers: 'Спикеры', fullName: 'Имя спикера', role: 'Должность и описание', button: 'Кнопка', label: 'Текст', href: 'Ссылка', image: 'Изображение', alt: 'Описание изображения',
   logo: 'Логотип', partners: 'Партнеры', src: 'Путь к изображению', nav: 'Навигация', registration: 'Кнопка регистрации', languages: 'Языки',
@@ -74,6 +75,7 @@ const fieldId = computed(() => `content-${props.path || 'root'}`)
   </div>
   <UFormField v-else :label="label" :name="path">
     <USelect v-if="path?.endsWith('.layout')" :model-value="modelValue" :items="[{label: 'Треть строки', value: 'third'}, {label: 'Половина строки', value: 'half'}]" class="w-full" @update:model-value="emit('update:modelValue', $event)" />
+    <AdminImageUpload v-else-if="path?.endsWith('.src')" :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)" />
     <UInput v-else :id="fieldId" :model-value="modelValue" :disabled="immutable" class="w-full" @update:model-value="emit('update:modelValue', $event)" />
   </UFormField>
 </template>

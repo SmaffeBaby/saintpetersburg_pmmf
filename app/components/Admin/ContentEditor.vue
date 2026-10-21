@@ -15,7 +15,7 @@ const contentFields = computed({
     const { visible, ...fields } = content.value || {}
     return fields
   },
-  set: (fields) => { content.value = { ...fields, visible: content.value.visible } }
+  set: (fields) => { content.value = props.section === 'registration-messages' ? fields : { ...fields, visible: content.value.visible } }
 })
 const load = async () => {
   if (dirty.value && !window.confirm('Отменить несохранённые изменения?')) return
@@ -74,11 +74,12 @@ onBeforeRouteUpdate(() => !dirty.value || window.confirm('Покинуть ре�
     <UAlert v-if="success" color="success" :description="success" role="status" />
     <p v-if="loading" role="status" class="py-12 text-center text-slate-500">Загружаем раздел…</p>
     <UCard v-else-if="content">
-      <div class="mb-6 space-y-2 border-b border-slate-200 pb-6">
+      <div v-if="section !== 'registration-messages'" class="mb-6 space-y-2 border-b border-slate-200 pb-6">
         <USwitch v-model="content.visible" label="Показывать на сайте" :disabled="saving" />
         <p class="text-sm text-slate-500">{{ content.visible ? 'Компонент виден на сайте.' : 'Компонент скрыт на сайте. Его содержимое сохранено.' }} Нажмите «Сохранить», чтобы применить изменения для обоих языков.</p>
       </div>
       <p v-if="section === 'schedule'" class="mb-6 text-sm text-slate-500">В поле «Кнопка → Ссылка» укажите адрес страницы или файла расписания. Пока ссылка пустая, кнопка на сайте неактивна.</p>
+      <p v-if="section === 'registration-messages'" class="mb-6 text-sm text-slate-500">Редактируйте уведомления после отправки формы и темы, заголовки и тексты обоих писем. Таблица с данными заявки добавляется автоматически. В письмах доступны подстановки: <span v-pre>{{lastName}}, {{firstName}}, {{middleName}}, {{birthDate}}, {{region}}, {{email}}, {{phone}}, {{createdAt}}</span>.</p>
       <AdminContentFields v-model="contentFields" />
     </UCard>
   </div>

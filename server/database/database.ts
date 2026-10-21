@@ -25,6 +25,9 @@ export const openDatabase = (path: string) => {
         birthDate TEXT NOT NULL, region TEXT NOT NULL, email TEXT NOT NULL, phone TEXT NOT NULL
       ) STRICT;
       CREATE INDEX IF NOT EXISTS registrations_created_at ON registrations(createdAt DESC);
+      CREATE TABLE IF NOT EXISTS media (
+        id TEXT PRIMARY KEY, mimeType TEXT NOT NULL, data BLOB NOT NULL, createdAt TEXT NOT NULL
+      ) STRICT;
       CREATE TABLE IF NOT EXISTS site_content (
         section TEXT PRIMARY KEY, content TEXT NOT NULL,
         revision INTEGER NOT NULL DEFAULT 1, updatedAt TEXT NOT NULL

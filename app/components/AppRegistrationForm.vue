@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import defaultContent from '#shared/config/content-defaults.json'
 const { agreement, fields, submitLabel, title } = await useRegistrationForm()
 const languageStore = useLanguageStore()
 const isConsentAccepted = ref(false)
@@ -44,24 +45,9 @@ type RegistrationSubmitResponse = {
   emailSent: boolean
 }
 
-const popupMessages = {
-  ru: {
-    successTitle: 'Заявка отправлена',
-    successMessage: 'Данные отправлены на почту info.crbi@mail.ru. На ваш email также ушло подтверждение об успешной отправке письма.',
-    savedTitle: 'Заявка принята',
-    savedMessage: 'Мы сохранили вашу заявку, но письмо сейчас не отправилось. Организаторы проверят заявку в админ-панели.',
-    errorTitle: 'Не получилось отправить',
-    errorMessage: 'Проверьте заполнение формы и попробуйте ещё раз. Если ошибка повторится, напишите нам напрямую на info.crbi@mail.ru.'
-  },
-  en: {
-    successTitle: 'Application Sent',
-    successMessage: 'Your data has been sent to info.crbi@mail.ru. A confirmation email has also been sent to your inbox.',
-    savedTitle: 'Application Received',
-    savedMessage: 'We saved your application, but the confirmation email could not be sent right now. The organizers will review it in the admin panel.',
-    errorTitle: 'Could Not Send',
-    errorMessage: 'Please check the form and try again. If the issue persists, email us directly at info.crbi@mail.ru.'
-  }
-}
+const { data: messageContent } = await useAsyncData('registration-messages-content', () =>
+  $fetch<typeof defaultContent['registration-messages']>('/api/content/registration-messages'))
+const popupMessages = computed(() => messageContent.value || defaultContent['registration-messages'])
 
 const submitForm = async () => {
   if (!isConsentAccepted.value || isSubmitting.value) {
@@ -70,7 +56,14 @@ const submitForm = async () => {
 
   isSubmitting.value = true
   const submissionLocale = languageStore.locale
-  const messages = popupMessages[submissionLocale]
+  const messages = {
+    successTitle: popupMessages.value.successTitle[submissionLocale],
+    successMessage: popupMessages.value.successMessage[submissionLocale],
+    savedTitle: popupMessages.value.savedTitle[submissionLocale],
+    savedMessage: popupMessages.value.savedMessage[submissionLocale],
+    errorTitle: popupMessages.value.errorTitle[submissionLocale],
+    errorMessage: popupMessages.value.errorMessage[submissionLocale]
+  }
 
   try {
     const response = await $fetch<RegistrationSubmitResponse>('/api/registration/submit', {

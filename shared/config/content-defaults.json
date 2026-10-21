@@ -402,5 +402,59 @@
       "ru": "Зарегистрироваться",
       "en": "Register"
     }
+  },
+  "registration-messages": {
+    "successTitle": {
+      "ru": "Заявка отправлена",
+      "en": "Application Sent"
+    },
+    "successMessage": {
+      "ru": "Подтверждение о получении направлено на Ваш почтовый адрес, указанный при регистрации",
+      "en": "A confirmation of receipt has been sent to the email address you provided during registration."
+    },
+    "savedTitle": {
+      "ru": "Заявка принята",
+      "en": "Application Received"
+    },
+    "savedMessage": {
+      "ru": "Мы сохранили вашу заявку, но письмо сейчас не отправилось. Организаторы проверят заявку в админ-панели.",
+      "en": "We saved your application, but the confirmation email could not be sent right now. The organizers will review it in the admin panel."
+    },
+    "errorTitle": {
+      "ru": "Не получилось отправить",
+      "en": "Could Not Send"
+    },
+    "errorMessage": {
+      "ru": "Проверьте заполнение формы и попробуйте ещё раз.",
+      "en": "Please check the form and try again."
+    },
+    "submitterEmail": {
+      "subject": {
+        "ru": "Ваша заявка на PMMF отправлена",
+        "en": "Your PMMF application has been sent"
+      },
+      "title": {
+        "ru": "Спасибо за регистрацию!",
+        "en": "Thank you for registering!"
+      },
+      "message": {
+        "ru": "Мы получили вашу заявку. До встречи на Форуме 17.11.2026",
+        "en": "We have received your application. See you at the Forum on 17.11.2026"
+      }
+    },
+    "organizerEmail": {
+      "subject": {
+        "ru": "Новая регистрация PMMF: {{lastName}} {{firstName}}",
+        "en": "New PMMF registration: {{lastName}} {{firstName}}"
+      },
+      "title": {
+        "ru": "Новая заявка на регистрацию",
+        "en": "New registration application"
+      },
+      "message": {
+        "ru": "Дата отправки: {{createdAt}}",
+        "en": "Submitted: {{createdAt}}"
+      }
+    }
   }
 }

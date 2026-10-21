@@ -1,4 +1,7 @@
 import nodemailer from 'nodemailer'
+import { getContentRecord } from './siteContent'
+import { renderEmailTemplate } from '../../shared/utils/registrationMessages'
+import { contentSchemas } from '../../shared/config/content'
 import type { RegistrationSubmission } from '../../shared/types/registration'
 
 type RegistrationLocale = 'ru' | 'en'
@@ -28,23 +31,6 @@ const labels: Record<RegistrationLocale, Record<RegistrationField, string>> = {
     region: 'Region',
     email: 'Email',
     phone: 'Phone'
-  }
-}
-
-const submitterEmailContent: Record<RegistrationLocale, {
-  subject: string
-  title: string
-  message: (notifyEmail: string) => string
-}> = {
-  ru: {
-    subject: 'Ваша заявка на PMMF отправлена',
-    title: 'Спасибо за регистрацию!',
-    message: (notifyEmail) => `Мы получили вашу заявку и отправили данные организаторам на ${escapeHtml(notifyEmail)}.`
-  },
-  en: {
-    subject: 'Your PMMF application has been sent',
-    title: 'Thank you for registering!',
-    message: (notifyEmail) => `We have received your application and sent the details to the organizers at ${escapeHtml(notifyEmail)}.`
   }
 }
 
@@ -85,7 +71,9 @@ export const sendRegistrationEmails = async (submission: RegistrationSubmission,
   const transporter = createTransporter()
   const from = String(config.smtpFrom || config.smtpUser).trim()
   const notifyEmail = String(config.projectRequestNotifyEmail || config.smtpUser).trim()
-  const submitterContent = submitterEmailContent[locale]
+  const messages = contentSchemas['registration-messages'].parse(JSON.parse(getContentRecord('registration-messages').content))
+  const submitterContent = renderEmailTemplate(messages.submitterEmail, submission, locale)
+  const organizerContent = renderEmailTemplate(messages.organizerEmail, submission, 'ru')
 
   const adminTable = `
     <table style="border-collapse:collapse;width:100%;max-width:680px;background:#ffffff;border-radius:16px;overflow:hidden;">
@@ -102,11 +90,12 @@ export const sendRegistrationEmails = async (submission: RegistrationSubmission,
     from,
     to: notifyEmail,
     replyTo: submission.email,
-    subject: `Новая регистрация PMMF: ${submission.lastName} ${submission.firstName}`,
+    subject: organizerContent.subject,
+    text: organizerContent.text,
     html: `
       <div style="font-family:Arial,sans-serif;background:#f7f2ff;padding:24px;">
-        <h1 style="margin:0 0 16px;color:#892af0;">Новая заявка на регистрацию</h1>
-        <p style="color:#4b4059;">Дата отправки: ${new Date(submission.createdAt).toLocaleString('ru-RU')}</p>
+        <h1 style="margin:0 0 16px;color:#892af0;">${organizerContent.title}</h1>
+        <p style="color:#4b4059;">${organizerContent.message}</p>
         ${adminTable}
       </div>
     `
@@ -116,11 +105,12 @@ export const sendRegistrationEmails = async (submission: RegistrationSubmission,
     from,
     to: submission.email,
     subject: submitterContent.subject,
+    text: submitterContent.text,
     html: `
       <div style="font-family:Arial,sans-serif;background:#f7f2ff;padding:24px;">
         <h1 style="margin:0 0 16px;color:#892af0;">${submitterContent.title}</h1>
         <p style="color:#4b4059;font-size:16px;line-height:1.5;">
-          ${submitterContent.message(notifyEmail)}
+          ${submitterContent.message}
         </p>
         ${submitterTable}
       </div>

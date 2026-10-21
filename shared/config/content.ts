@@ -11,6 +11,8 @@ const field = z.object({
   autocomplete: z.string().max(80).optional(), layout: z.enum(['third', 'half'])
 }).strict()
 
+const emailTemplate = z.object({ subject: localized, title: localized, message: localized }).strict()
+
 const visibility = { visible: z.boolean().default(true) }
 
 export const contentSchemas = {
@@ -51,6 +53,12 @@ export const contentSchemas = {
       alt: localized
     }).strict()).max(12)
   }).strict(),
+  'registration-messages': z.object({
+    successTitle: localized, successMessage: localized,
+    savedTitle: localized, savedMessage: localized,
+    errorTitle: localized, errorMessage: localized,
+    submitterEmail: emailTemplate, organizerEmail: emailTemplate
+  }).strict(),
   'registration-form': z.object({
     ...visibility,
     title: localized, agreement: localized, submitLabel: localized,
@@ -78,6 +86,7 @@ export const contentSections: { id: ContentSection; label: string; icon: string 
   { id: 'program', label: 'Программа', icon: 'i-lucide-list' },
   { id: 'speakers', label: 'Наши спикеры', icon: 'i-lucide-users' },
   { id: 'information-partners', label: 'Информационные партнеры', icon: 'i-lucide-handshake' },
+  { id: 'registration-messages', label: 'Уведомления и письма', icon: 'i-lucide-mail' },
   { id: 'registration-form', label: 'Форма регистрации', icon: 'i-lucide-clipboard-list' },
   { id: 'alternative-forum', label: 'Альтернативная регистрация', icon: 'i-lucide-external-link' },
   { id: 'footer', label: 'Подвал', icon: 'i-lucide-panel-bottom' }
