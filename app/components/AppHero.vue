@@ -37,7 +37,7 @@ const words = computed(() => title.value.trim().split(/\s+/))
 
     <div class="hero-organizers hero-enter-ribbon relative z-30 ml-auto mt-16">
       <ul class="m-0 grid list-none grid-cols-2 items-center gap-x-6 gap-y-5 p-0 sm:flex sm:justify-between sm:gap-6">
-        <li v-for="organizer in organizerLogos" :key="organizer.src" class="min-w-0">
+        <li v-for="organizer in organizerLogos" :key="organizer.src" class="min-w-0" :style="{ flex: `0 1 ${organizer.width}px` }">
           <img :src="organizer.src" :alt="organizer.alt" :width="organizer.width" :height="organizer.height" class="hero-organizer-image mx-auto h-auto max-h-[60px] max-w-full object-contain" decoding="async">
         </li>
       </ul>
@@ -106,11 +106,6 @@ const words = computed(() => title.value.trim().split(/\s+/))
   padding: 24px;
   background: white;
 }
-
-.hero-organizers li:first-child { flex: 0 1 272px; }
-.hero-organizers li:nth-child(2) { flex: 0 1 54px; }
-.hero-organizers li:nth-child(3) { flex: 0 1 206px; }
-.hero-organizers li:nth-child(4) { flex: 0 1 200px; }
 
 @media (min-width: 640px) {
   .hero-copy { padding-top: 20px; }
