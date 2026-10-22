@@ -42,6 +42,7 @@ const mapUrl = 'https://yandex.ru/map-widget/v1/?ll=30.367114%2C59.955446&mode=s
             :src="mapUrl"
             :title="mapTitle"
             class="venue-map-frame block w-full border-0"
+            credentialless
             allowfullscreen
           />
           <a
