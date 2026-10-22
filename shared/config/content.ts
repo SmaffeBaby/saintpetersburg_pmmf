@@ -1,7 +1,11 @@
 import { z } from 'zod'
+import defaults from './content-defaults.json'
 
 const text = z.string().max(20000)
 const localized = z.object({ ru: text, en: text }).strict()
+const imagePath = z.string().regex(/^\/(?!\/)/).max(2048)
+const optionalImagePath = imagePath.or(z.literal(''))
+const localizedImage = z.object({ src: imagePath, srcEn: optionalImagePath.default(''), alt: localized }).strict()
 const safeHref = z.string().max(2048).refine(value => /^(https?:\/\/|\/(?!\/)|#[\w-])/.test(value), 'Укажите http(s), локальный путь или якорь')
 const link = z.object({ label: localized, href: safeHref }).strict()
 const fieldNames = ['lastName', 'firstName', 'middleName', 'birthDate', 'region', 'email', 'phone'] as const
@@ -18,12 +22,18 @@ const visibility = { visible: z.boolean().default(true) }
 export const contentSchemas = {
   header: z.object({
     ...visibility,
-    logo: z.object({ src: z.string().regex(/^\/(?!\/)/).max(2048), alt: localized }).strict(),
+    logo: localizedImage.extend({ srcEn: optionalImagePath.default(defaults.header.logo.srcEn) }),
     nav: z.array(link).max(12), registration: link,
     languages: z.array(z.object({ code: z.enum(['ru', 'en']), label: z.string().min(1).max(20) }).strict()).min(1).max(2)
       .refine(rows => new Set(rows.map(row => row.code)).size === rows.length)
   }).strict(),
-  hero: z.object({ ...visibility, title: localized, date: localized, place: localized }).strict(),
+  hero: z.object({
+    ...visibility, title: localized, date: localized, place: localized,
+    logo: z.object({ src: optionalImagePath, srcEn: optionalImagePath }).strict().default(defaults.hero.logo),
+    organizers: z.array(localizedImage.extend({
+      width: z.number().int().min(1).max(2000), height: z.number().int().min(1).max(2000)
+    })).max(12).default(defaults.hero.organizers)
+  }).strict(),
   about: z.object({ ...visibility, title: localized, firstParagraph: localized, secondParagraph: localized }).strict(),
   'loft-hall': z.object({
     ...visibility,
@@ -48,10 +58,7 @@ export const contentSchemas = {
   'information-partners': z.object({
     ...visibility,
     title: localized,
-    partners: z.array(z.object({
-      src: z.string().regex(/^\/(?!\/)/).max(2048),
-      alt: localized
-    }).strict()).max(12)
+    partners: z.array(localizedImage).max(12)
   }).strict(),
   'registration-messages': z.object({
     successTitle: localized, successMessage: localized,

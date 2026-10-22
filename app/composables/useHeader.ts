@@ -1,4 +1,5 @@
 import type { AppLocale } from '~/stores/language'
+import { localizedImageSource } from '#shared/utils/localizedImage'
 
 export interface LocalizedText {
   ru: string
@@ -23,6 +24,7 @@ export interface HeaderLanguage {
 export interface HeaderContent {
   logo: {
     src: string
+    srcEn?: string
     alt: LocalizedText
   }
   nav: HeaderContentLink[]
@@ -70,7 +72,7 @@ export const useHeader = async () => {
   }))
 
   const logo = computed(() => ({
-    src: headerContent.value.logo.src,
+    src: localizedImageSource(headerContent.value.logo, languageStore.locale),
     alt: getLocalizedText(headerContent.value.logo.alt, languageStore.locale)
   }))
 

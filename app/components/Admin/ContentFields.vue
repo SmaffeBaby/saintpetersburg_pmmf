@@ -6,7 +6,7 @@ const labels: Record<string, string> = {
   successTitle: 'Заголовок успешной отправки', successMessage: 'Текст успешной отправки', savedTitle: 'Заголовок при ошибке почты', savedMessage: 'Текст при ошибке почты', errorTitle: 'Заголовок ошибки отправки', errorMessage: 'Текст ошибки отправки', submitterEmail: 'Письмо участнику', organizerEmail: 'Письмо организаторам', subject: 'Тема письма', message: 'Текст письма',
   title: 'Заголовок', city: 'Город', subtitle: 'Подзаголовок', mapLabel: 'Текст кнопки карты', date: 'Дата и время', place: 'Место проведения', firstParagraph: 'Первый абзац', secondParagraph: 'Второй абзац',
   description: 'Описание', speakers: 'Спикеры', fullName: 'Имя спикера', role: 'Должность и описание', button: 'Кнопка', label: 'Текст', href: 'Ссылка', image: 'Изображение', alt: 'Описание изображения',
-  logo: 'Логотип', partners: 'Партнеры', src: 'Путь к изображению', nav: 'Навигация', registration: 'Кнопка регистрации', languages: 'Языки',
+  logo: 'Логотип', partners: 'Партнеры', src: 'Основное изображение (RU)', srcEn: 'Изображение для английской версии (EN)', organizers: 'Организаторы в белой плашке', width: 'Ширина логотипа', height: 'Высота логотипа', nav: 'Навигация', registration: 'Кнопка регистрации', languages: 'Языки',
   code: 'Код языка', email: 'Электронная почта', address: 'Адрес', contacts: 'Контакты в карточке', legal: 'Реквизиты (сохранены из прежнего подвала)', privacy: 'Политика конфиденциальности', fields: 'Поля формы', agreement: 'Согласие на обработку данных',
   submitLabel: 'Текст кнопки отправки', id: 'Идентификатор', name: 'Имя поля', type: 'Тип поля', placeholder: 'Подсказка', autocomplete: 'Автозаполнение', layout: 'Ширина поля'
 }
@@ -24,8 +24,14 @@ const add = () => {
     }])
     return
   }
+  if (props.path === 'organizers') {
+    emit('update:modelValue', [...props.modelValue, {
+      src: '/images/hero-committee.svg', srcEn: '', width: 200, height: 60, alt: { ru: '', en: '' }
+    }])
+    return
+  }
   const seed = props.modelValue[props.modelValue.length - 1] || (props.path === 'partners'
-    ? { src: '/images/partner-spbtv.svg', alt: { ru: '', en: '' } }
+    ? { src: '/images/partner-spbtv.svg', srcEn: '', alt: { ru: '', en: '' } }
     : { label: { ru: '', en: '' }, href: '/' })
   emit('update:modelValue', [...props.modelValue, structuredClone(toRaw(seed))])
 }
@@ -75,7 +81,8 @@ const fieldId = computed(() => `content-${props.path || 'root'}`)
   </div>
   <UFormField v-else :label="label" :name="path">
     <USelect v-if="path?.endsWith('.layout')" :model-value="modelValue" :items="[{label: 'Треть строки', value: 'third'}, {label: 'Половина строки', value: 'half'}]" class="w-full" @update:model-value="emit('update:modelValue', $event)" />
-    <AdminImageUpload v-else-if="path?.endsWith('.src')" :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)" />
+    <AdminImageUpload v-else-if="/\.(src|srcEn)$/.test(path || '')" :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)" />
+    <UInput v-else-if="typeof modelValue === 'number'" :model-value="modelValue" type="number" :min="1" :max="2000" class="w-full" @update:model-value="emit('update:modelValue', Number($event))" />
     <UInput v-else :id="fieldId" :model-value="modelValue" :disabled="immutable" class="w-full" @update:model-value="emit('update:modelValue', $event)" />
   </UFormField>
 </template>

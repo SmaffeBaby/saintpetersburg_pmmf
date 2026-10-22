@@ -1,16 +1,7 @@
 <script setup lang="ts">
-import heroLogo from '~/assets/images/hero-mmf-logo.png'
-
 const { registrationLink } = await useHeader()
-const { date, title } = await useHero()
+const { date, title, logo: heroLogo, organizerLogos } = await useHero()
 const words = computed(() => title.value.trim().split(/\s+/))
-const languageStore = useLanguageStore()
-const organizerLogos = computed(() => [
-  { src: '/images/hero-committee.svg', width: 272, height: 70, alt: languageStore.locale === 'ru' ? 'Комитет по молодежной политике и взаимодействию с общественными организациями Санкт-Петербурга' : 'Saint Petersburg Committee for Youth Policy' },
-  { src: '/images/hero-festival.svg', width: 54, height: 60, alt: languageStore.locale === 'ru' ? 'Всемирный фестиваль молодёжи' : 'World Youth Festival' },
-  { src: '/images/hero-university.svg', width: 206, height: 60, alt: languageStore.locale === 'ru' ? 'Санкт-Петербургский государственный университет' : 'Saint Petersburg State University' },
-  { src: '/images/hero-rosmolodezh.svg', width: 200, height: 32, alt: languageStore.locale === 'ru' ? 'Росмолодёжь' : 'Rosmolodezh' }
-])
 </script>
 
 <template>

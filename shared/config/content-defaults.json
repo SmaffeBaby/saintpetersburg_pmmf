@@ -145,10 +145,12 @@
     "partners": [
       {
         "src": "/images/partner-spbtv.svg",
+        "srcEn": "",
         "alt": { "ru": "Телеканал Санкт-Петербург", "en": "Saint Petersburg TV" }
       },
       {
         "src": "/images/partner-petersburg-diary.svg",
+        "srcEn": "",
         "alt": { "ru": "Петербургский дневник", "en": "Petersburg Diary" }
       }
     ]
@@ -215,6 +217,7 @@
   "header": {
     "logo": {
       "src": "/images/header-logo.svg",
+      "srcEn": "/images/header-logo-en.svg",
       "alt": {
         "ru": "Петербургский международный молодежный форум",
         "en": "Saint Petersburg International Youth Forum"
@@ -280,7 +283,53 @@
     "place": {
       "ru": "Санкт‑Петербург, Арсенальная наб, 1",
       "en": "Saint Petersburg, Arsenalnaya Emb, 1"
-    }
+    },
+    "logo": {
+      "src": "",
+      "srcEn": "/images/hero-logo-en.svg"
+    },
+    "organizers": [
+      {
+        "src": "/images/hero-committee.svg",
+        "srcEn": "",
+        "width": 272,
+        "height": 70,
+        "alt": {
+          "ru": "Комитет по молодежной политике и взаимодействию с общественными организациями Санкт-Петербурга",
+          "en": "Saint Petersburg Committee for Youth Policy"
+        }
+      },
+      {
+        "src": "/images/hero-festival.svg",
+        "srcEn": "",
+        "width": 54,
+        "height": 60,
+        "alt": {
+          "ru": "Всемирный фестиваль молодёжи",
+          "en": "World Youth Festival"
+        }
+      },
+      {
+        "src": "/images/hero-university.svg",
+        "srcEn": "",
+        "width": 206,
+        "height": 60,
+        "alt": {
+          "ru": "Санкт-Петербургский государственный университет",
+          "en": "Saint Petersburg State University"
+        }
+      },
+      {
+        "src": "/images/hero-rosmolodezh.svg",
+        "srcEn": "",
+        "width": 200,
+        "height": 32,
+        "alt": {
+          "ru": "Росмолодёжь",
+          "en": "Rosmolodezh"
+        }
+      }
+    ]
   },
   "registration-form": {
     "title": {

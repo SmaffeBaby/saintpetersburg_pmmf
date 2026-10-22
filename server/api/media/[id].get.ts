@@ -10,6 +10,9 @@ export default defineEventHandler(event => {
     'Content-Type': row.mimeType,
     'Content-Length': String(row.data.length),
     'X-Content-Type-Options': 'nosniff',
+    ...(row.mimeType === 'image/svg+xml' ? {
+      'Content-Security-Policy': "sandbox; default-src 'none'; style-src 'unsafe-inline'"
+    } : {}),
     'Cache-Control': 'public, max-age=31536000, immutable'
   })
   return Buffer.from(row.data)

@@ -80,6 +80,7 @@ onBeforeRouteUpdate(() => !dirty.value || window.confirm('Покинуть ре�
       </div>
       <p v-if="section === 'schedule'" class="mb-6 text-sm text-slate-500">В поле «Кнопка → Ссылка» укажите адрес страницы или файла расписания. Пока ссылка пустая, кнопка на сайте неактивна.</p>
       <p v-if="section === 'registration-messages'" class="mb-6 text-sm text-slate-500">Редактируйте уведомления после отправки формы и темы, заголовки и тексты обоих писем. Таблица с данными заявки добавляется автоматически. В письмах доступны подстановки: <span v-pre>{{lastName}}, {{firstName}}, {{middleName}}, {{birthDate}}, {{region}}, {{email}}, {{phone}}, {{createdAt}}</span>.</p>
+      <p v-if="['header', 'hero', 'information-partners'].includes(section)" class="mb-6 text-sm text-slate-500">Загружайте отдельные логотипы для RU и EN. Пустое поле EN использует основное изображение. В разделе «Первый экран» доступны большой логотип и логотипы организаторов в нижней белой плашке. Пустое основное изображение большого логотипа возвращает исходный логотип сайта.</p>
       <AdminContentFields v-model="contentFields" />
     </UCard>
   </div>

@@ -1,9 +1,10 @@
 import defaults from '#shared/config/content-defaults.json'
+import { localizedImageSource } from '#shared/utils/localizedImage'
 import type { LocalizedText } from '~/composables/useHeader'
 
 interface InformationPartnersContent {
   title: LocalizedText
-  partners: { src: string; alt: LocalizedText }[]
+  partners: { src: string; srcEn?: string; alt: LocalizedText }[]
 }
 
 export const useInformationPartners = async () => {
@@ -16,7 +17,7 @@ export const useInformationPartners = async () => {
   return {
     title: computed(() => localize(content.value.title)),
     partners: computed(() => content.value.partners.map(partner => ({
-      src: partner.src,
+      src: localizedImageSource(partner, languageStore.locale),
       alt: localize(partner.alt)
     })))
   }
