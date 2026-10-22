@@ -1,4 +1,7 @@
 {
+  "favicon": {
+    "image": { "src": "/images/favicon.svg" }
+  },
   "speakers": {
     "title": {
       "ru": "Наши спикеры",

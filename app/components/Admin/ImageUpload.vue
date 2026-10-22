@@ -35,7 +35,7 @@ const upload = async (event: Event) => {
       {{ uploading ? 'Загружаем…' : 'Загрузить изображение' }}
       <input type="file" accept="image/svg+xml,.svg,image/jpeg,image/png,image/webp,image/gif" :disabled="uploading" class="sr-only" @change="upload">
     </label>
-    <p class="text-xs text-slate-500">SVG, JPEG, PNG, WebP или GIF, до 5 МБ. Для EN можно оставить поле пустым — тогда используется основное изображение. Файл сохраняется в базе данных. Нажмите «Сохранить», чтобы применить изображение на сайте.</p>
+    <p class="text-xs text-slate-500">SVG, JPEG, PNG, WebP или GIF, до 5 МБ. Файл сохраняется в базе данных. Нажмите «Сохранить», чтобы применить изображение на сайте.</p>
     <p v-if="error" role="alert" class="text-sm text-red-600">{{ error }}</p>
   </div>
 </template>

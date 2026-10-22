@@ -42,6 +42,12 @@ try {
   assert.equal(save.status, 200)
   const publicContent = await (await fetch(`${base}/api/content/registration-messages`)).json()
   assert.equal(publicContent.successTitle.ru, record.content.successTitle.ru)
+  const initialPage = await (await fetch(`${base}/`)).text()
+  assert.match(initialPage, /rel="icon"[^>]*href="\/images\/favicon\.svg"/)
+  assert.doesNotMatch(initialPage, /href="\/Favicon\.svg"/)
+  const defaultFavicon = await fetch(`${base}/images/favicon.svg`)
+  assert.equal(defaultFavicon.status, 200)
+  assert.deepEqual(Buffer.from(await defaultFavicon.arrayBuffer()), await readFile(new URL('../public/images/favicon.svg', import.meta.url)))
   const image = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aZ1sAAAAASUVORK5CYII=', 'base64')
   const form = new FormData()
   form.append('file', new Blob([image], { type: 'image/png' }), 'test.png')
@@ -53,7 +59,7 @@ try {
   assert.equal(downloaded.headers.get('content-type'), 'image/png')
   assert.deepEqual(Buffer.from(await downloaded.arrayBuffer()), image)
   let svgMedia
-  for (const filename of ['header-logo-en.svg', 'hero-logo-en.svg']) {
+  for (const filename of ['header-logo-en.svg', 'hero-logo-en.svg', 'favicon.svg']) {
     const svg = await readFile(new URL(`../public/images/${filename}`, import.meta.url))
     const svgForm = new FormData()
     svgForm.append('file', new Blob([svg], { type: 'image/svg+xml' }), filename)
@@ -65,6 +71,16 @@ try {
     assert.match(asset.headers.get('content-security-policy'), /sandbox/)
     assert.deepEqual(Buffer.from(await asset.arrayBuffer()), svg)
   }
+  const faviconRecord = await (await fetch(`${base}/api/admin/content/favicon`, { headers })).json()
+  faviconRecord.content.image.src = svgMedia.src
+  const saveFavicon = await fetch(`${base}/api/admin/content/favicon`, {
+    method: 'PUT', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify(faviconRecord)
+  })
+  assert.equal(saveFavicon.status, 200, await saveFavicon.clone().text())
+  const updatedPage = await (await fetch(`${base}/`)).text()
+  const iconLinks = updatedPage.match(/<link\b[^>]*rel="(?:icon|shortcut icon)"[^>]*>/g)
+  assert.equal(iconLinks.length, 2)
+  assert.ok(iconLinks.every(link => link.includes(`href="${svgMedia.src}"`)))
   const localizedSections = {
     header: content => [content.logo],
     hero: content => [content.logo, ...content.organizers],
@@ -119,7 +135,9 @@ try {
     assert.ok(images(published).every(image => image.srcEn === svgMedia.src))
   }
   assert.equal((await fetch(`${base}${svgMedia.src}`)).headers.get('content-type'), 'image/svg+xml')
-  console.log('HTTP integration passed: authentication, editable content, localized logos, raster/SVG uploads, active SVG rejection, CSRF, homepage and persistence after restart.')
+  assert.equal((await (await fetch(`${base}/api/content/favicon`)).json()).image.src, svgMedia.src)
+  assert.ok((await (await fetch(`${base}/`)).text()).includes(`href="${svgMedia.src}"`))
+  console.log('HTTP integration passed: authentication, editable content, favicon replacement in HTML, localized logos, raster/SVG uploads, active SVG rejection, CSRF and persistence after restart.')
 } finally {
   await stop()
   await rm(directory, { recursive: true, force: true })

@@ -20,6 +20,7 @@ const emailTemplate = z.object({ subject: localized, title: localized, message: 
 const visibility = { visible: z.boolean().default(true) }
 
 export const contentSchemas = {
+  favicon: z.object({ image: z.object({ src: imagePath }).strict() }).strict(),
   header: z.object({
     ...visibility,
     logo: localizedImage.extend({ srcEn: optionalImagePath.default(defaults.header.logo.srcEn) }),
@@ -85,6 +86,7 @@ export type ContentSection = keyof typeof contentSchemas
 export type SectionVisibility = Record<ContentSection, boolean>
 
 export const contentSections: { id: ContentSection; label: string; icon: string }[] = [
+  { id: 'favicon', label: 'Favicon / Иконка сайта', icon: 'i-lucide-image' },
   { id: 'header', label: 'Шапка сайта', icon: 'i-lucide-panel-top' },
   { id: 'hero', label: 'Первый экран', icon: 'i-lucide-layout-template' },
   { id: 'about', label: 'О форуме', icon: 'i-lucide-info' },

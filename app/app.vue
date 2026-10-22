@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import defaults from '#shared/config/content-defaults.json'
+
+const { data: favicon } = await useAsyncData('favicon-content', () =>
+  $fetch<{ image: { src: string } }>('/api/content/favicon'))
+const faviconSrc = computed(() => favicon.value?.image.src || defaults.favicon.image.src)
+
 const languageStore = useLanguageStore()
 const { locale: i18nLocale, setLocale: setI18nLocale } = useI18n()
 
@@ -17,7 +23,11 @@ const siteTitle = computed(() => languageStore.locale === 'en'
   : 'Петербургский международный молодежный форум')
 
 useHead({
-  title: siteTitle
+  title: siteTitle,
+  link: [
+    { key: 'site-favicon', rel: 'icon', href: faviconSrc },
+    { key: 'site-shortcut-icon', rel: 'shortcut icon', href: faviconSrc }
+  ]
 })
 </script>
 
