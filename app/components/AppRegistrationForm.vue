@@ -165,6 +165,15 @@ const submitForm = async () => {
           <span>{{ agreement }}</span>
         </label>
 
+        <div class="mt-4 flex flex-col items-start gap-3 pl-[55px] font-montserrat text-sm leading-relaxed text-white sm:text-base">
+          <NuxtLink to="/personal-data-consent" target="_blank" rel="noopener noreferrer" class="underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+            {{ languageStore.locale === 'en' ? 'Consent to Personal Data Processing' : 'Согласие на обработку персональных данных' }}
+          </NuxtLink>
+          <NuxtLink to="/privacy-policy" target="_blank" rel="noopener noreferrer" class="underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+            {{ languageStore.locale === 'en' ? 'Privacy Policy' : 'Политика конфиденциальности' }}
+          </NuxtLink>
+        </div>
+
         <button
           class="mt-11 flex h-14 w-full items-center justify-center rounded-[20px] bg-white px-5 font-days-one text-sm uppercase leading-[1.3] text-[#892AF0] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white lg:mt-[58px] lg:h-20"
           type="submit"

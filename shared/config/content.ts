@@ -18,8 +18,17 @@ const field = z.object({
 const emailTemplate = z.object({ subject: localized, title: localized, message: localized }).strict()
 
 const visibility = { visible: z.boolean().default(true) }
+const legalDocument = z.object({
+  title: localized,
+  body: z.object({ ru: z.string().max(100000), en: z.string().max(100000) }).strict()
+}).strict()
+
+export type LegalSection = 'privacy-policy' | 'personal-data-consent'
+export type LegalContent = z.infer<typeof legalDocument>
 
 export const contentSchemas = {
+  'privacy-policy': legalDocument,
+  'personal-data-consent': legalDocument,
   favicon: z.object({ image: z.object({ src: imagePath }).strict() }).strict(),
   header: z.object({
     ...visibility,
@@ -98,6 +107,8 @@ export const contentSections: { id: ContentSection; label: string; icon: string 
   { id: 'registration-messages', label: 'Уведомления и письма', icon: 'i-lucide-mail' },
   { id: 'registration-form', label: 'Форма регистрации', icon: 'i-lucide-clipboard-list' },
   { id: 'alternative-forum', label: 'Альтернативная регистрация', icon: 'i-lucide-external-link' },
+  { id: 'privacy-policy', label: 'Политика конфиденциальности', icon: 'i-lucide-file-text' },
+  { id: 'personal-data-consent', label: 'Согласие на обработку ПДн', icon: 'i-lucide-file-check' },
   { id: 'footer', label: 'Подвал', icon: 'i-lucide-panel-bottom' }
 ]
 export const isContentSection = (value: string): value is ContentSection => Object.hasOwn(contentSchemas, value)

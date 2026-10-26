@@ -45,6 +45,40 @@ try {
   const initialPage = await (await fetch(`${base}/`)).text()
   assert.match(initialPage, /rel="icon"[^>]*href="\/images\/favicon\.svg"/)
   assert.doesNotMatch(initialPage, /href="\/Favicon\.svg"/)
+  for (const route of ['privacy-policy', 'personal-data-consent']) {
+    assert.match(initialPage, new RegExp(`href="/${route}"[^>]*target="_blank"`))
+  }
+  const legalDefaults = JSON.parse(await readFile(new URL('../shared/config/legal-defaults.json', import.meta.url), 'utf8'))
+  const savedLegal = {}
+  for (const [section, expected] of Object.entries(legalDefaults)) {
+    const contentRecord = await (await fetch(`${base}/api/admin/content/${section}`, { headers })).json()
+    assert.deepEqual(contentRecord.content, expected)
+    const page = await fetch(`${base}/${section}`)
+    assert.equal(page.status, 200)
+    const html = await page.text()
+    assert.ok(html.includes(`<title>${expected.title.ru}</title>`))
+    assert.match(html, /<header\b/)
+    assert.match(html, /href="\/#registration"/)
+    assert.match(html, /href="\/#schedule"/)
+    assert.equal((html.match(/<h2\b/g) || []).length, section === 'privacy-policy' ? 17 : 12)
+    contentRecord.content.title = { ru: `Обновлённый документ ${section}`, en: `Updated document ${section}` }
+    contentRecord.content.body = {
+      ru: `## Проверка сохранения\n\n<script>alert(1)</script>\n\n${expected.body.ru}`,
+      en: `## Updated text\n\n${expected.body.en}`
+    }
+    assert.equal((await fetch(`${base}/api/admin/content/${section}`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(contentRecord)
+    })).status, 401)
+    const response = await fetch(`${base}/api/admin/content/${section}`, {
+      method: 'PUT', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify(contentRecord)
+    })
+    assert.equal(response.status, 200, await response.clone().text())
+    savedLegal[section] = contentRecord.content
+    const updated = await (await fetch(`${base}/${section}`)).text()
+    assert.ok(updated.includes(`<title>${contentRecord.content.title.ru}</title>`))
+    assert.ok(updated.includes('&lt;script&gt;alert(1)&lt;/script&gt;'))
+    assert.ok(!updated.includes('<script>alert(1)</script>'))
+  }
   const defaultFavicon = await fetch(`${base}/images/favicon.svg`)
   assert.equal(defaultFavicon.status, 200)
   assert.deepEqual(Buffer.from(await defaultFavicon.arrayBuffer()), await readFile(new URL('../public/images/favicon.svg', import.meta.url)))
@@ -137,6 +171,9 @@ try {
   assert.equal((await fetch(`${base}${svgMedia.src}`)).headers.get('content-type'), 'image/svg+xml')
   assert.equal((await (await fetch(`${base}/api/content/favicon`)).json()).image.src, svgMedia.src)
   assert.ok((await (await fetch(`${base}/`)).text()).includes(`href="${svgMedia.src}"`))
+  for (const [section, expected] of Object.entries(savedLegal)) {
+    assert.deepEqual(await (await fetch(`${base}/api/content/${section}`)).json(), expected)
+  }
   console.log('HTTP integration passed: authentication, editable content, favicon replacement in HTML, localized logos, raster/SVG uploads, active SVG rejection, CSRF and persistence after restart.')
 } finally {
   await stop()

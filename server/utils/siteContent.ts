@@ -1,14 +1,16 @@
 import defaults from '../../shared/config/content-defaults.json'
+import legalDefaults from '../../shared/config/legal-defaults.json'
 import { contentSchemas, type ContentSection } from '../../shared/config/content'
 import { getDatabase } from './database'
 import { cachedContent } from './contentCache'
 
 const initialized = new Set<ContentSection>()
+const sectionDefaults = { ...defaults, ...legalDefaults }
 const ensureContent = (section: ContentSection) => {
   const db = getDatabase()
   if (!initialized.has(section)) {
     db.prepare('INSERT OR IGNORE INTO site_content(section, content, updatedAt) VALUES (?, ?, ?)')
-      .run(section, JSON.stringify(contentSchemas[section].parse(defaults[section])), new Date().toISOString())
+      .run(section, JSON.stringify(contentSchemas[section].parse(sectionDefaults[section])), new Date().toISOString())
     if (section === 'header') {
       const row = db.prepare('SELECT content FROM site_content WHERE section = ?').get(section) as { content: string }
       const stored = JSON.parse(row.content)

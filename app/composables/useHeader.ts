@@ -36,6 +36,8 @@ const getLocalizedText = (value: LocalizedText, locale: AppLocale) => value[loca
 
 export const useHeader = async () => {
   const languageStore = useLanguageStore()
+  const route = useRoute()
+  const resolveHref = (href: string) => route.path !== '/' && href.startsWith('#') ? `/${href}` : href
   const { isLinkVisible } = useSiteVisibility()
   const { data } = await useAsyncData('header-content', () => $fetch<HeaderContent>('/api/content/header'))
 
@@ -62,12 +64,12 @@ export const useHeader = async () => {
   })
 
   const navItems = computed<HeaderLink[]>(() => headerContent.value.nav.filter(item => isLinkVisible(item.href)).map((item) => ({
-    href: item.href,
+    href: resolveHref(item.href),
     label: getLocalizedText(item.label, languageStore.locale)
   })))
 
   const registrationLink = computed<HeaderLink>(() => ({
-    href: headerContent.value.registration.href,
+    href: resolveHref(headerContent.value.registration.href),
     label: getLocalizedText(headerContent.value.registration.label, languageStore.locale)
   }))
 

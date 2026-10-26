@@ -89,6 +89,7 @@ onBeforeRouteUpdate(() => !dirty.value || window.confirm('Покинуть ре�
           <AdminImageUpload v-model="content.image.src" />
         </UFormField>
       </div>
+      <AdminLegalDocumentEditor v-else-if="section === 'privacy-policy' || section === 'personal-data-consent'" v-model="contentFields" :section="section" />
       <AdminContentFields v-else v-model="contentFields" />
     </UCard>
   </div>
