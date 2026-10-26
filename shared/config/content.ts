@@ -107,7 +107,7 @@ export const contentSections: { id: ContentSection; label: string; icon: string 
   { id: 'registration-messages', label: 'Уведомления и письма', icon: 'i-lucide-mail' },
   { id: 'registration-form', label: 'Форма регистрации', icon: 'i-lucide-clipboard-list' },
   { id: 'alternative-forum', label: 'Альтернативная регистрация', icon: 'i-lucide-external-link' },
-  { id: 'privacy-policy', label: 'Политика конфиденциальности', icon: 'i-lucide-file-text' },
+  { id: 'privacy-policy', label: 'Политика в отношении персональных данных', icon: 'i-lucide-file-text' },
   { id: 'personal-data-consent', label: 'Согласие на обработку ПДн', icon: 'i-lucide-file-check' },
   { id: 'footer', label: 'Подвал', icon: 'i-lucide-panel-bottom' }
 ]

@@ -27,7 +27,7 @@ useHead({ title, htmlAttrs: { lang: computed(() => languageStore.locale) } })
       </article>
 
       <nav :aria-label="isEnglish ? 'Legal documents' : 'Правовые документы'" class="flex flex-wrap gap-x-6 gap-y-3 px-2 py-6 font-montserrat text-sm text-white">
-        <NuxtLink to="/privacy-policy" class="underline underline-offset-4">{{ isEnglish ? 'Privacy Policy' : 'Политика конфиденциальности' }}</NuxtLink>
+        <NuxtLink to="/privacy-policy" class="underline underline-offset-4">{{ isEnglish ? 'Personal Data Policy' : 'Политика в отношении персональных данных' }}</NuxtLink>
         <NuxtLink to="/personal-data-consent" class="underline underline-offset-4">{{ isEnglish ? 'Consent to Personal Data Processing' : 'Согласие на обработку персональных данных' }}</NuxtLink>
         <NuxtLink to="/#registration" class="underline underline-offset-4">{{ isEnglish ? 'Back to registration' : 'Вернуться к регистрации' }}</NuxtLink>
       </nav>

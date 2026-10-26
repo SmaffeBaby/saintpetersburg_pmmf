@@ -2,6 +2,15 @@
 import defaultContent from '#shared/config/content-defaults.json'
 const { agreement, fields, submitLabel, title } = await useRegistrationForm()
 const languageStore = useLanguageStore()
+const agreementParts = computed(() => {
+  const match = /персональных\s+данных|personal\s+data/iu.exec(agreement.value)
+  if (!match) return { before: '', link: agreement.value, after: '' }
+  return {
+    before: agreement.value.slice(0, match.index),
+    link: match[0],
+    after: agreement.value.slice(match.index + match[0].length)
+  }
+})
 const isConsentAccepted = ref(false)
 const isSubmitting = ref(false)
 const form = reactive<Record<string, string>>({})
@@ -162,15 +171,12 @@ const submitForm = async () => {
               <path d="M2 8.5L8.5 15L22 2" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </span>
-          <span>{{ agreement }}</span>
+          <span>{{ agreementParts.before }}<NuxtLink to="/personal-data-consent" target="_blank" rel="noopener noreferrer" class="underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white" @click.stop>{{ agreementParts.link }}</NuxtLink>{{ agreementParts.after }}</span>
         </label>
 
         <div class="mt-4 flex flex-col items-start gap-3 pl-[55px] font-montserrat text-sm leading-relaxed text-white sm:text-base">
-          <NuxtLink to="/personal-data-consent" target="_blank" rel="noopener noreferrer" class="underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
-            {{ languageStore.locale === 'en' ? 'Consent to Personal Data Processing' : 'Согласие на обработку персональных данных' }}
-          </NuxtLink>
           <NuxtLink to="/privacy-policy" target="_blank" rel="noopener noreferrer" class="underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
-            {{ languageStore.locale === 'en' ? 'Privacy Policy' : 'Политика конфиденциальности' }}
+            {{ languageStore.locale === 'en' ? 'Personal Data Policy' : 'Политика в отношении персональных данных' }}
           </NuxtLink>
         </div>
 

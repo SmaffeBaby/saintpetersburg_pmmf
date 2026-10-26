@@ -7,7 +7,7 @@ const labels: Record<string, string> = {
   title: 'Заголовок', city: 'Город', subtitle: 'Подзаголовок', mapLabel: 'Текст кнопки карты', date: 'Дата и время', place: 'Место проведения', firstParagraph: 'Первый абзац', secondParagraph: 'Второй абзац',
   description: 'Описание', speakers: 'Спикеры', fullName: 'Имя спикера', role: 'Должность и описание', button: 'Кнопка', label: 'Текст', href: 'Ссылка', image: 'Изображение', alt: 'Описание изображения',
   logo: 'Логотип', partners: 'Партнеры', src: 'Основное изображение (RU)', srcEn: 'Изображение для английской версии (EN)', organizers: 'Организаторы в белой плашке', width: 'Ширина логотипа', height: 'Высота логотипа', nav: 'Навигация', registration: 'Кнопка регистрации', languages: 'Языки',
-  code: 'Код языка', email: 'Электронная почта', address: 'Адрес', contacts: 'Контакты в карточке', legal: 'Реквизиты (сохранены из прежнего подвала)', privacy: 'Политика конфиденциальности', fields: 'Поля формы', agreement: 'Согласие на обработку данных',
+  code: 'Код языка', email: 'Электронная почта', address: 'Адрес', contacts: 'Контакты в карточке', legal: 'Реквизиты (сохранены из прежнего подвала)', privacy: 'Политика в отношении персональных данных', fields: 'Поля формы', agreement: 'Согласие на обработку данных',
   submitLabel: 'Текст кнопки отправки', id: 'Идентификатор', name: 'Имя поля', type: 'Тип поля', placeholder: 'Подсказка', autocomplete: 'Автозаполнение', layout: 'Ширина поля'
 }
 const localized = computed(() => props.modelValue && !Array.isArray(props.modelValue) && typeof props.modelValue === 'object' && 'ru' in props.modelValue && 'en' in props.modelValue)

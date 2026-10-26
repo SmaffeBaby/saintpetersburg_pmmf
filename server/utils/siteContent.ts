@@ -29,6 +29,24 @@ const ensureContent = (section: ContentSection) => {
           .run(JSON.stringify(content), new Date().toISOString(), section)
       }
     }
+    if (section === 'privacy-policy' || section === 'footer') {
+      const row = db.prepare('SELECT content FROM site_content WHERE section = ?').get(section) as { content: string }
+      const stored = JSON.parse(row.content)
+      const label = section === 'privacy-policy' ? stored.title : stored.privacy.label
+      let renamed = false
+      if (label.ru === 'Политика конфиденциальности') {
+        label.ru = legalDefaults['privacy-policy'].title.ru
+        renamed = true
+      }
+      if (/^privacy policy$/i.test(label.en)) {
+        label.en = legalDefaults['privacy-policy'].title.en
+        renamed = true
+      }
+      if (renamed) {
+        db.prepare('UPDATE site_content SET content = ?, revision = revision + 1, updatedAt = ? WHERE section = ?')
+          .run(JSON.stringify(contentSchemas[section].parse(stored)), new Date().toISOString(), section)
+      }
+    }
     initialized.add(section)
   }
   return db

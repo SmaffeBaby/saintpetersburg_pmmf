@@ -48,6 +48,8 @@ try {
   for (const route of ['privacy-policy', 'personal-data-consent']) {
     assert.match(initialPage, new RegExp(`href="/${route}"[^>]*target="_blank"`))
   }
+  assert.match(initialPage, /href="\/personal-data-consent"[^>]*>[\s\S]*?персональных данных[\s\S]*?<\/a>/)
+  assert.ok(initialPage.includes('Политика в отношении персональных данных'))
   const legalDefaults = JSON.parse(await readFile(new URL('../shared/config/legal-defaults.json', import.meta.url), 'utf8'))
   const savedLegal = {}
   for (const [section, expected] of Object.entries(legalDefaults)) {
@@ -159,6 +161,18 @@ try {
     method: 'POST', headers: { ...headers, Origin: 'https://other.example' }, body: form
   })).status, 403)
   assert.equal((await fetch(`${base}/`)).status, 200)
+  // Existing saved labels are renamed without overwriting edited text or EN titles.
+  const legacyPolicy = await (await fetch(`${base}/api/admin/content/privacy-policy`, { headers })).json()
+  legacyPolicy.content.title.ru = 'Политика конфиденциальности'
+  assert.equal((await fetch(`${base}/api/admin/content/privacy-policy`, {
+    method: 'PUT', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify(legacyPolicy)
+  })).status, 200)
+  savedLegal['privacy-policy'].title.ru = legalDefaults['privacy-policy'].title.ru
+  const legacyFooter = await (await fetch(`${base}/api/admin/content/footer`, { headers })).json()
+  legacyFooter.content.privacy.label = { ru: 'Политика конфиденциальности', en: 'Privacy policy' }
+  assert.equal((await fetch(`${base}/api/admin/content/footer`, {
+    method: 'PUT', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify(legacyFooter)
+  })).status, 200)
   await stop()
   await start()
   assert.equal((await (await fetch(`${base}/api/content/registration-messages`)).json()).successTitle.ru, record.content.successTitle.ru)
@@ -174,6 +188,7 @@ try {
   for (const [section, expected] of Object.entries(savedLegal)) {
     assert.deepEqual(await (await fetch(`${base}/api/content/${section}`)).json(), expected)
   }
+  assert.deepEqual((await (await fetch(`${base}/api/content/footer`)).json()).privacy.label, legalDefaults['privacy-policy'].title)
   console.log('HTTP integration passed: authentication, editable content, favicon replacement in HTML, localized logos, raster/SVG uploads, active SVG rejection, CSRF and persistence after restart.')
 } finally {
   await stop()

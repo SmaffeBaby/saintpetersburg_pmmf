@@ -211,8 +211,8 @@
     },
     "privacy": {
       "label": {
-        "ru": "Политика конфиденциальности",
-        "en": "Privacy policy"
+        "ru": "Политика в отношении персональных данных",
+        "en": "Personal Data Policy"
       },
       "href": "/privacy-policy"
     }
