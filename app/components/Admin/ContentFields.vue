@@ -37,7 +37,9 @@ const add = () => {
 }
 const immutable = computed(() => /fields\.\d+\.(id|name|type)$/.test(props.path || ''))
 const fixedArray = computed(() => ['fields', 'languages'].includes(props.path || ''))
-const reorderable = computed(() => props.path === 'speakers')
+const reorderable = computed(() => ['speakers', 'organizers'].includes(props.path || ''))
+const reorderLabel = (item: any, index: number) => item.fullName?.ru || item.alt?.ru
+  || `${props.path === 'organizers' ? 'Организатор' : 'Спикер'} ${index + 1}`
 const move = (index: number, offset: number) => {
   const target = index + offset
   if (!reorderable.value || target < 0 || target >= props.modelValue.length) return
@@ -65,8 +67,8 @@ const fieldId = computed(() => `content-${props.path || 'root'}`)
         <p class="min-w-0 break-words text-sm font-medium"><span v-if="reorderable" class="mr-2 text-slate-500">{{ index + 1 }}.</span>{{ item.fullName?.ru || item.alt?.ru || item.label?.ru || item.name || item.label || `Элемент ${index + 1}` }}</p>
         <div class="flex flex-wrap items-center gap-1">
           <template v-if="reorderable">
-            <UButton label="Выше" icon="i-lucide-arrow-up" :aria-label="`Переместить выше: ${item.fullName?.ru || `Спикер ${index + 1}`}`" color="neutral" variant="outline" size="xs" :disabled="index === 0" @click="move(index, -1)" />
-            <UButton label="Ниже" icon="i-lucide-arrow-down" :aria-label="`Переместить ниже: ${item.fullName?.ru || `Спикер ${index + 1}`}`" color="neutral" variant="outline" size="xs" :disabled="index === modelValue.length - 1" @click="move(index, 1)" />
+            <UButton label="Выше" icon="i-lucide-arrow-up" :aria-label="`Переместить выше: ${reorderLabel(item, index)}`" color="neutral" variant="outline" size="xs" :disabled="index === 0" @click="move(index, -1)" />
+            <UButton label="Ниже" icon="i-lucide-arrow-down" :aria-label="`Переместить ниже: ${reorderLabel(item, index)}`" color="neutral" variant="outline" size="xs" :disabled="index === modelValue.length - 1" @click="move(index, 1)" />
           </template>
           <UButton v-if="!fixedArray" label="Удалить" color="error" variant="ghost" size="xs" @click="emit('update:modelValue', modelValue.filter((_: any, i: number) => i !== index))" />
         </div>
