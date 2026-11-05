@@ -1,29 +1,34 @@
 <script setup lang="ts">
 import type { SectionVisibility } from '../../shared/config/content'
+import { pageBlocks, type PageBlock } from '#shared/config/layout'
+import { AppHero, AppAbout, AppLoftHall, AppSchedule, AppProgram, AppSpeakers, AppInformationPartners, AppRegistrationForm, AlternativeForum } from '#components'
 
 await useAsyncData('site-visibility', () => $fetch<SectionVisibility>('/api/content/visibility'))
+const { data: layout } = await useAsyncData('site-layout-content', () => $fetch<{ order: PageBlock[] }>('/api/content/site-layout'))
 const { isVisible } = useSiteVisibility()
+const components = { hero: AppHero, about: AppAbout, 'loft-hall': AppLoftHall, schedule: AppSchedule, program: AppProgram, speakers: AppSpeakers, 'information-partners': AppInformationPartners, 'registration-form': AppRegistrationForm, 'alternative-forum': AlternativeForum }
+// Keep the shared white background when partners and registration are adjacent.
+const groups = computed(() => {
+  const groups: { white: boolean; blocks: PageBlock[] }[] = []
+  for (const block of layout.value?.order || pageBlocks) {
+    if (!isVisible(block)) continue
+    const white = block === 'information-partners' || block === 'registration-form'
+    const previous = groups[groups.length - 1]
+    if (white && previous?.white) previous.blocks.push(block)
+    else groups.push({ white, blocks: [block] })
+  }
+  return groups
+})
 </script>
 
 <template>
   <main class="min-h-screen bg-[#8C64D8] text-black">
-    <section
-      v-if="isVisible('header') || isVisible('hero')"
-      class="relative overflow-hidden"
-    >
-      <AppHeader v-if="isVisible('header')" />
-      <AppHero v-if="isVisible('hero')" />
-    </section>
-    <AppAbout v-if="isVisible('about')" v-reveal class="mt-24 lg:mt-[120px]" />
-    <AppLoftHall v-if="isVisible('loft-hall')" v-reveal class="relative z-10" />
-    <AppSchedule v-if="isVisible('schedule')" v-reveal />
-    <AppProgram v-if="isVisible('program')" v-reveal />
-    <AppSpeakers v-if="isVisible('speakers')" v-reveal />
-    <div v-if="isVisible('information-partners') || isVisible('registration-form')" class="rounded-[40px] bg-white lg:rounded-[80px]">
-      <AppInformationPartners v-if="isVisible('information-partners')" v-reveal />
-      <AppRegistrationForm v-if="isVisible('registration-form')" v-reveal />
+    <AppHeader v-if="isVisible('header')" />
+    <div v-for="group in groups" :key="group.blocks.join(',')" :class="group.white ? 'rounded-[40px] bg-white lg:rounded-[80px]' : ''">
+      <div v-for="block in group.blocks" :key="block" v-reveal :data-site-block="block" :class="{ 'mt-24 lg:mt-[120px]': block === 'about', 'relative z-10': block === 'loft-hall' }">
+        <component :is="components[block]" />
+      </div>
     </div>
-    <AlternativeForum v-if="isVisible('alternative-forum')" v-reveal />
     <AppFooter v-if="isVisible('footer')" v-reveal />
   </main>
 </template>

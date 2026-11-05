@@ -1,0 +1,12 @@
+City directory derived from GeoNames cities500.zip, admin1CodesASCII.txt and alternateNamesV2.zip.
+Source: https://download.geonames.org/export/dump/
+Documentation: https://download.geonames.org/export/dump/readme.txt
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
+Downloaded: 2026-11-05.
+Changes: populated places selected; only ID, name, aliases, administrative region,
+country grouping, population and non-historic RU/EN names retained; ordered by population and compressed.
+England uses Great Britain records whose first administrative division is ENG.
+This directory includes populated places with more than 500 inhabitants and
+administrative seats. It does not claim to contain every settlement.
+Rebuild: python3 scripts/import-cities.py cities500.zip admin1CodesASCII.txt alternateNamesV2.zip

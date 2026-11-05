@@ -1,6 +1,9 @@
 import { saveRegistrationSubmission } from '../../utils/registrationStorage'
 import type { RegistrationSubmissionInput } from '../../../shared/types/registration'
 import { sendRegistrationEmails } from '../../utils/registrationMailer'
+import { countryName, resolveCountryCode, shouldSendParticipantEmail } from '../../../shared/utils/countries'
+import { contentSchemas } from '../../../shared/config/content'
+import { getContentRecord } from '../../utils/siteContent'
 
 const fields: Array<keyof RegistrationSubmissionInput> = [
   'lastName',
@@ -8,6 +11,7 @@ const fields: Array<keyof RegistrationSubmissionInput> = [
   'middleName',
   'birthDate',
   'region',
+  'city',
   'email',
   'phone'
 ]
@@ -44,6 +48,12 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  const countryCode = resolveCountryCode(input.region)
+  if (!countryCode) throw createError({ statusCode: 400, statusMessage: 'Please select a country from the list' })
+  // Preserve readable country names in existing exports and registration records.
+  input.region = countryName(countryCode, 'ru')
+  const delivery = contentSchemas['registration-delivery'].parse(JSON.parse(getContentRecord('registration-delivery').content))
+  const participantEmailSuppressed = !shouldSendParticipantEmail(countryCode, delivery)
   const submission = await saveRegistrationSubmission(input)
   let emailSent = true
 
@@ -57,6 +67,7 @@ export default defineEventHandler(async (event) => {
   return {
     ok: true,
     submissionId: submission.id,
-    emailSent
+    emailSent,
+    participantEmailSuppressed
   }
 })

@@ -36,13 +36,17 @@ export const openDatabase = (path: string) => {
     // Import once, transactionally. Keep the source file intact for recovery.
     db.exec('BEGIN IMMEDIATE')
     try {
+      const columns = db.prepare('PRAGMA table_info(registrations)').all() as { name: string }[]
+      if (!columns.some(column => column.name === 'city')) {
+        db.exec("ALTER TABLE registrations ADD COLUMN city TEXT NOT NULL DEFAULT ''")
+      }
       if (!db.prepare('SELECT name FROM migrations WHERE name = ?').get('registrations-json-v1')) {
         let raw: string | undefined
         try { raw = readFileSync(join(dirname(absolutePath), 'registrations.json'), 'utf8') }
         catch (error: any) { if (error.code !== 'ENOENT') throw error }
         if (raw !== undefined) {
           const entries = z.array(legacySubmission).parse(JSON.parse(raw))
-          const insert = db.prepare('INSERT INTO registrations VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
+          const insert = db.prepare('INSERT INTO registrations(id, createdAt, lastName, firstName, middleName, birthDate, region, email, phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
           for (const row of entries) insert.run(row.id, row.createdAt, row.lastName, row.firstName, row.middleName, row.birthDate, row.region, row.email, row.phone)
         }
         db.prepare('INSERT INTO migrations VALUES (?)').run('registrations-json-v1')

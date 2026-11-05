@@ -14,6 +14,7 @@ const agreementParts = computed(() => {
 const isConsentAccepted = ref(false)
 const isSubmitting = ref(false)
 const form = reactive<Record<string, string>>({})
+watch(() => form.region, () => { form.city = '' }, { flush: 'sync' })
 const popup = reactive({
   open: false,
   title: '',
@@ -29,6 +30,8 @@ watchEffect(() => {
   })
 })
 
+const displayFields = computed(() => fields.value.filter(field => field.name !== 'city' || !!form.region))
+const fieldLayout = (field: { name: string; layout: 'third' | 'half' }) => !form.region && ['birthDate', 'region'].includes(field.name) ? 'half' : field.layout
 const getFieldClass = (layout: 'third' | 'half') => layout === 'third'
   ? 'lg:col-span-4'
   : 'lg:col-span-6'
@@ -52,6 +55,7 @@ type RegistrationSubmitResponse = {
   ok: boolean
   submissionId: string
   emailSent: boolean
+  participantEmailSuppressed: boolean
 }
 
 const { data: messageContent } = await useAsyncData('registration-messages-content', () =>
@@ -88,6 +92,13 @@ const submitForm = async () => {
     })
     isConsentAccepted.value = false
 
+    if (response.participantEmailSuppressed) {
+      showPopup(messages.successTitle, submissionLocale === 'en'
+        ? 'Your registration has been received. Thank you!'
+        : 'Ваша заявка на регистрацию получена. Спасибо!')
+      return
+    }
+
     if (response.emailSent) {
       showPopup(
         messages.successTitle,
@@ -122,17 +133,20 @@ const submitForm = async () => {
       <form class="mt-14 lg:mt-[70px]" @submit.prevent="submitForm">
         <div class="grid gap-y-6 lg:grid-cols-12 lg:gap-x-[10px] lg:gap-y-[28px]">
           <label
-            v-for="field in fields"
+            v-for="field in displayFields"
             :key="field.id"
             class="flex flex-col gap-[15px]"
-            :class="getFieldClass(field.layout)"
+            :class="getFieldClass(fieldLayout(field))"
             :for="field.id"
           >
             <span class="font-montserrat text-xl font-semibold leading-[1.3] text-white sm:text-2xl">
               {{ field.label }}
             </span>
             <span class="relative block w-full min-w-0">
+              <CountrySelect v-if="field.name === 'region'" :id="field.id" v-model="form[field.name]" :name="field.name" :placeholder="field.placeholder" :locale="languageStore.locale" :disabled="isSubmitting" />
+              <CitySelect v-else-if="field.name === 'city'" :id="field.id" v-model="form[field.name]" :country="form.region" :name="field.name" :placeholder="field.placeholder" :locale="languageStore.locale" :disabled="isSubmitting" />
               <input
+                v-else
                 :id="field.id"
                 v-model="form[field.name]"
                 class="box-border h-[72px] w-full min-w-0 max-w-full rounded-[20px] border-2 border-white bg-transparent px-5 font-montserrat text-xl font-semibold leading-[1.3] text-white outline-none transition-colors placeholder:text-white/50 focus:border-white focus:bg-white/10 sm:text-2xl"

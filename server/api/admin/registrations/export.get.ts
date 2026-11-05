@@ -16,7 +16,8 @@ const matchesQuery = (submission: RegistrationSubmission, query: Record<string, 
       submission.middleName,
       submission.email,
       submission.phone,
-      submission.region
+      submission.region,
+      submission.city
     ].join(' ').toLowerCase()
 
     if (!haystack.includes(search)) {
@@ -50,7 +51,8 @@ export default defineEventHandler(async (event) => {
     'Имя': submission.firstName,
     'Отчество': submission.middleName,
     'Дата рождения': submission.birthDate,
-    'Регион': submission.region,
+    'Страна / регион': submission.region,
+    'Город': submission.city,
     'Email': submission.email,
     'Телефон': submission.phone,
     'ID': submission.id

@@ -29,7 +29,8 @@ const filteredSubmissions = computed(() => submissions.value.filter((submission)
       submission.middleName,
       submission.email,
       submission.phone,
-      submission.region
+      submission.region,
+      submission.city
     ].join(' ').toLowerCase()
 
     if (!haystack.includes(search)) {
@@ -129,7 +130,8 @@ onMounted(fetchSubmissions)
                 <th class="px-4 py-3">Дата</th>
                 <th class="px-4 py-3">ФИО</th>
                 <th class="px-4 py-3">Дата рождения</th>
-                <th class="px-4 py-3">Регион</th>
+                <th class="px-4 py-3">Страна / регион</th>
+                <th class="px-4 py-3">Город</th>
                 <th class="px-4 py-3">Email</th>
                 <th class="px-4 py-3">Телефон</th>
                 <th class="px-4 py-3 text-right">Действия</th>
@@ -137,7 +139,7 @@ onMounted(fetchSubmissions)
             </thead>
             <tbody>
               <tr v-if="!filteredSubmissions.length">
-                <td class="px-4 py-8 text-center text-[#6B6175]" colspan="7">
+                <td class="px-4 py-8 text-center text-[#6B6175]" colspan="8">
                   Заявок пока нет
                 </td>
               </tr>
@@ -146,6 +148,7 @@ onMounted(fetchSubmissions)
                 <td class="px-4 py-4 font-semibold">{{ submission.lastName }} {{ submission.firstName }} {{ submission.middleName }}</td>
                 <td class="px-4 py-4">{{ submission.birthDate }}</td>
                 <td class="px-4 py-4">{{ submission.region }}</td>
+                <td class="px-4 py-4">{{ submission.city || '—' }}</td>
                 <td class="px-4 py-4">{{ submission.email }}</td>
                 <td class="px-4 py-4">{{ submission.phone }}</td>
                 <td class="px-4 py-4 text-right">

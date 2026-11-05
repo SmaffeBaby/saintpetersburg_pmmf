@@ -1,5 +1,8 @@
 import { z } from 'zod'
 import defaults from './content-defaults.json'
+import { pageBlocks } from './layout'
+import { cityFormField } from './registration'
+import { countryCodes } from '../utils/countries'
 
 const text = z.string().max(20000)
 const localized = z.object({ ru: text, en: text }).strict()
@@ -8,7 +11,7 @@ const optionalImagePath = imagePath.or(z.literal(''))
 const localizedImage = z.object({ src: imagePath, srcEn: optionalImagePath.default(''), alt: localized }).strict()
 const safeHref = z.string().max(2048).refine(value => /^(https?:\/\/|\/(?!\/)|#[\w-])/.test(value), 'Укажите http(s), локальный путь или якорь')
 const link = z.object({ label: localized, href: safeHref }).strict()
-const fieldNames = ['lastName', 'firstName', 'middleName', 'birthDate', 'region', 'email', 'phone'] as const
+const fieldNames = ['lastName', 'firstName', 'middleName', 'birthDate', 'region', 'city', 'email', 'phone'] as const
 const field = z.object({
   id: z.enum(fieldNames), name: z.enum(fieldNames),
   type: z.enum(['text', 'date', 'email', 'tel']), label: localized, placeholder: localized,
@@ -27,6 +30,16 @@ export type LegalSection = 'privacy-policy' | 'personal-data-consent'
 export type LegalContent = z.infer<typeof legalDocument>
 
 export const contentSchemas = {
+  'site-layout': z.object({ order: z.array(z.enum(pageBlocks)).length(pageBlocks.length)
+    .refine(order => new Set(order).size === pageBlocks.length, 'Каждый блок должен присутствовать ровно один раз') }).strict(),
+  'registration-delivery': z.object({
+    organizerEmail: z.email().max(254),
+    participantEmailMode: z.enum(['all', 'except', 'only']).default('except'),
+    includedCountries: z.array(z.string().refine(code => countryCodes.includes(code), 'Неизвестная страна'))
+      .max(countryCodes.length).refine(codes => new Set(codes).size === codes.length).default([]),
+    excludedCountries: z.array(z.string().refine(code => countryCodes.includes(code), 'Неизвестная страна'))
+      .max(countryCodes.length).refine(codes => new Set(codes).size === codes.length)
+  }).strict(),
   'privacy-policy': legalDocument,
   'personal-data-consent': legalDocument,
   favicon: z.object({ image: z.object({ src: imagePath }).strict() }).strict(),
@@ -79,10 +92,16 @@ export const contentSchemas = {
   'registration-form': z.object({
     ...visibility,
     title: localized, agreement: localized, submitLabel: localized,
-    fields: z.array(field).length(7).refine(rows =>
+    fields: z.preprocess(value => {
+      if (!Array.isArray(value) || value.length !== 7 || value.some(row => row?.name === 'city')) return value
+      // Extend previously saved forms without discarding their edited labels.
+      return value.flatMap(row => row?.name === 'region'
+        ? [{ ...row, layout: 'third' }, cityFormField]
+        : [row?.name === 'birthDate' ? { ...row, layout: 'third' } : row])
+    }, z.array(field).length(8).refine(rows =>
       fieldNames.every(name => rows.filter(row => row.name === name && row.id === name).length === 1)
       && rows.every(row => row.type === (row.name === 'birthDate' ? 'date' : row.name === 'email' ? 'email' : row.name === 'phone' ? 'tel' : 'text')),
-    'Все семь полей должны присутствовать с исходными именами и типами')
+    'Все восемь полей должны присутствовать с исходными именами и типами'))
   }).strict(),
   'alternative-forum': z.object({ ...visibility, title: localized, description: localized, button: link, image: z.object({ alt: localized }).strict() }).strict(),
   footer: z.object({
@@ -95,6 +114,8 @@ export type ContentSection = keyof typeof contentSchemas
 export type SectionVisibility = Record<ContentSection, boolean>
 
 export const contentSections: { id: ContentSection; label: string; icon: string }[] = [
+  { id: 'site-layout', label: 'Порядок блоков', icon: 'i-lucide-grip-vertical' },
+  { id: 'registration-delivery', label: 'Отправка писем по странам', icon: 'i-lucide-mail-check' },
   { id: 'favicon', label: 'Favicon / Иконка сайта', icon: 'i-lucide-image' },
   { id: 'header', label: 'Шапка сайта', icon: 'i-lucide-panel-top' },
   { id: 'hero', label: 'Первый экран', icon: 'i-lucide-layout-template' },

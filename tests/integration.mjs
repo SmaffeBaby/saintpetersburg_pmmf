@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
+import { createServer } from 'node:net'
+import { DatabaseSync } from 'node:sqlite'
+import * as XLSX from 'xlsx'
 import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -7,12 +10,40 @@ import { join } from 'node:path'
 const directory = await mkdtemp(join(tmpdir(), 'mmf-http-test-'))
 const base = 'http://127.0.0.1:3097'
 let server
+const deliveries = []
+const messageBodies = []
+// Local SMTP sink: verify the actual recipient envelopes without sending real mail.
+const smtp = createServer(socket => {
+  socket.setEncoding('utf8')
+  socket.write('220 localhost test SMTP\r\n')
+  let buffer = '', data = false, recipients = [], message = []
+  socket.on('data', chunk => {
+    buffer += chunk
+    while (buffer.includes('\r\n')) {
+      const end = buffer.indexOf('\r\n')
+      const line = buffer.slice(0, end)
+      buffer = buffer.slice(end + 2)
+      if (data) {
+        if (line === '.') { deliveries.push([...recipients]); messageBodies.push(message.join('\n')); data = false; socket.write('250 accepted\r\n') }
+        else message.push(line)
+      } else if (/^EHLO|^HELO/.test(line)) socket.write('250-localhost\r\n250 AUTH PLAIN\r\n')
+      else if (/^AUTH/.test(line)) socket.write('235 authenticated\r\n')
+      else if (/^MAIL FROM:/.test(line)) { recipients = []; socket.write('250 ok\r\n') }
+      else if (/^RCPT TO:/.test(line)) { recipients.push(line.match(/<([^>]+)>/)[1]); socket.write('250 ok\r\n') }
+      else if (line === 'DATA') { data = true; message = []; socket.write('354 send data\r\n') }
+      else if (line === 'QUIT') socket.end('221 bye\r\n')
+      else socket.write('250 ok\r\n')
+    }
+  })
+})
+await new Promise(resolve => smtp.listen(0, '127.0.0.1', resolve))
 const start = async () => {
   server = spawn(process.execPath, ['.output/server/index.mjs'], {
     env: { ...process.env, NITRO_HOST: '127.0.0.1', NITRO_PORT: '3097',
       NUXT_DATABASE_PATH: join(directory, 'test.sqlite'), NUXT_REDIS_URL: '',
       NUXT_ADMIN_PASSWORD: 'integration-password', NUXT_ADMIN_SESSION_SECRET: 'integration-secret',
-      NUXT_SMTP_HOST: ' ', NUXT_SMTP_USER: ' ', NUXT_SMTP_PASS: ' ' },
+      NUXT_SMTP_HOST: '127.0.0.1', NUXT_SMTP_PORT: String(smtp.address().port), NUXT_SMTP_SECURE: 'false',
+      NUXT_SMTP_USER: 'test@example.org', NUXT_SMTP_PASS: 'test', NUXT_SMTP_FROM: 'test@example.org' },
     stdio: 'ignore'
   })
   for (let attempt = 0; attempt < 100; attempt++) {
@@ -27,6 +58,17 @@ const stop = async () => {
   await new Promise(resolve => { server.once('exit', resolve); server.kill('SIGTERM') })
 }
 try {
+  // Start from an actual pre-city database and pre-city saved form.
+  const legacy = new DatabaseSync(join(directory, 'test.sqlite'))
+  legacy.exec(`CREATE TABLE registrations (id TEXT PRIMARY KEY, createdAt TEXT NOT NULL, lastName TEXT NOT NULL, firstName TEXT NOT NULL, middleName TEXT NOT NULL, birthDate TEXT NOT NULL, region TEXT NOT NULL, email TEXT NOT NULL, phone TEXT NOT NULL) STRICT;
+    CREATE TABLE site_content(section TEXT PRIMARY KEY, content TEXT NOT NULL, revision INTEGER NOT NULL DEFAULT 1, updatedAt TEXT NOT NULL) STRICT;`)
+  legacy.prepare('INSERT INTO registrations VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)').run('legacy-record', '2026-01-01T00:00:00.000Z', 'Legacy', 'Person', 'Test', '2000-01-01', 'Old region', 'old@example.org', '+70000000000')
+  const defaults = JSON.parse(await readFile(new URL('../shared/config/content-defaults.json', import.meta.url), 'utf8'))
+  const legacyForm = defaults['registration-form']
+  legacyForm.fields = legacyForm.fields.filter(field => field.name !== 'city')
+  legacyForm.fields.find(field => field.name === 'region').label.ru = 'Ваш регион (из админки)'
+  legacy.prepare('INSERT INTO site_content(section, content, updatedAt) VALUES (?, ?, ?)').run('registration-form', JSON.stringify(legacyForm), '2026-01-01T00:00:00.000Z')
+  legacy.close()
   await start()
   assert.equal((await fetch(`${base}/api/admin/content/registration-messages`)).status, 401)
   const login = await fetch(`${base}/api/admin/login`, {
@@ -42,6 +84,97 @@ try {
   assert.equal(save.status, 200)
   const publicContent = await (await fetch(`${base}/api/content/registration-messages`)).json()
   assert.equal(publicContent.successTitle.ru, record.content.successTitle.ru)
+  const putContent = (section, record) => fetch(`${base}/api/admin/content/${section}`, {
+    method: 'PUT', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify(record)
+  })
+  assert.equal((await fetch(`${base}/api/admin/content/site-layout`)).status, 401)
+  const layout = await (await fetch(`${base}/api/admin/content/site-layout`, { headers })).json()
+  const originalOrder = [...layout.content.order]
+  const registrationIndex = layout.content.order.indexOf('registration-form')
+  const alternativeIndex = layout.content.order.indexOf('alternative-forum')
+  ;[layout.content.order[registrationIndex], layout.content.order[alternativeIndex]] = [layout.content.order[alternativeIndex], layout.content.order[registrationIndex]]
+  assert.equal((await putContent('site-layout', { ...layout, content: { order: ['hero', ...originalOrder.slice(1, -1), 'hero'] } })).status, 400)
+  const layoutSave = await putContent('site-layout', layout)
+  assert.equal(layoutSave.status, 200)
+  assert.equal((await putContent('site-layout', layout)).status, 409)
+  const reordered = await (await fetch(`${base}/`)).text()
+  assert.ok(reordered.indexOf('data-site-block="alternative-forum"') < reordered.indexOf('data-site-block="registration-form"'))
+  const delivery = await (await fetch(`${base}/api/admin/content/registration-delivery`, { headers })).json()
+  delivery.content = { organizerEmail: 'info.crbi@mail.ru', participantEmailMode: 'except', includedCountries: [], excludedCountries: ['GB-ENG', 'DE'] }
+  assert.equal((await putContent('registration-delivery', { ...delivery, content: { ...delivery.content, excludedCountries: ['INVALID'] } })).status, 400)
+  assert.equal((await putContent('registration-delivery', delivery)).status, 200)
+  const upgradedForm = await (await fetch(`${base}/api/content/registration-form`)).json()
+  assert.equal(upgradedForm.fields.length, 8)
+  assert.equal(upgradedForm.fields.find(field => field.name === 'city').label.ru, 'Ваш город')
+  assert.equal(upgradedForm.fields.find(field => field.name === 'region').label.ru, 'Ваш регион (из админки)')
+  const citySearch = async (country, q, locale = 'ru') => (await (await fetch(`${base}/api/locations/cities?${new URLSearchParams({ country, q, locale })}`)).json()).items
+  const moscow = await citySearch('RU', 'Москва')
+  assert.equal(moscow.find(city => city.id === '524901').label, 'Москва')
+  assert.equal(moscow.find(city => city.id === '524901').names.ru, 'Москва')
+  assert.equal((await citySearch('RU', 'Москва', 'en')).find(city => city.id === '524901').label, 'Moscow')
+  assert.equal((await citySearch('GB-ENG', 'Лондон')).find(city => city.id === '2643743').label, 'Лондон')
+  assert.equal((await citySearch('FR', 'Paris')).find(city => city.id === '2988507').label, 'Париж')
+  assert.ok(moscow.length <= 50)
+  assert.ok((await citySearch('GB-ENG', 'London')).some(city => city.id === '2643743'))
+  assert.ok(!(await citySearch('GB-ENG', 'Edinburgh')).some(city => city.id === '2650225'))
+  assert.ok((await citySearch('GB', 'Edinburgh')).some(city => city.id === '2650225'))
+  assert.ok(!(await citySearch('FR', 'London')).some(city => city.id === '2643743'))
+  assert.equal((await fetch(`${base}/api/locations/cities?country=../../etc/passwd`)).status, 400)
+  assert.equal((await fetch(`${base}/api/locations/cities?country=RU&q=${'a'.repeat(201)}`)).status, 400)
+  const applicant = { city: 'Test-City-123', lastName: 'Test', firstName: 'Participant', middleName: 'Test', birthDate: '2000-01-01', email: 'participant@example.org', phone: '+70000000000' }
+  const submit = (region, locale = 'ru') => fetch(`${base}/api/registration/submit`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...applicant, region, locale })
+  })
+  assert.equal((await submit('Invalid country')).status, 400)
+  assert.equal((await fetch(`${base}/api/registration/submit`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...applicant, region: 'RU', city: '' }) })).status, 400)
+  for (const region of ['GB-ENG', 'England', 'Англия', 'DE']) {
+    const result = await (await submit(region, 'en')).json()
+    assert.equal(result.emailSent, true)
+    assert.equal(result.participantEmailSuppressed, true)
+    assert.deepEqual(deliveries.splice(0), [['info.crbi@mail.ru']])
+  }
+  for (const region of ['RU', 'GB']) {
+    const result = await (await submit(region)).json()
+    assert.equal(result.participantEmailSuppressed, false)
+    assert.equal(result.emailSent, true)
+    assert.deepEqual(deliveries.splice(0), [['info.crbi@mail.ru'], ['participant@example.org']])
+  }
+  let deliveryRecord = await (await fetch(`${base}/api/admin/content/registration-delivery`, { headers })).json()
+  for (const includedCountries of [[], ['RU'], ['RU', 'DE']]) {
+    deliveryRecord.content.participantEmailMode = 'only'
+    deliveryRecord.content.includedCountries = includedCountries
+    const savedDelivery = await putContent('registration-delivery', deliveryRecord)
+    assert.equal(savedDelivery.status, 200)
+    deliveryRecord = await savedDelivery.json()
+    for (const region of ['RU', 'DE', 'GB-ENG']) {
+      const result = await (await submit(region)).json()
+      const allowed = includedCountries.includes(region)
+      assert.equal(result.emailSent, true)
+      assert.equal(result.participantEmailSuppressed, !allowed)
+      assert.deepEqual(deliveries.splice(0), allowed ? [['info.crbi@mail.ru'], ['participant@example.org']] : [['info.crbi@mail.ru']])
+    }
+  }
+  deliveryRecord.content.participantEmailMode = 'all'
+  const allSave = await putContent('registration-delivery', deliveryRecord)
+  assert.equal(allSave.status, 200)
+  const allResult = await (await submit('GB-ENG')).json()
+  assert.equal(allResult.participantEmailSuppressed, false)
+  assert.deepEqual(deliveries.splice(0), [['info.crbi@mail.ru'], ['participant@example.org']])
+  deliveryRecord = await allSave.json()
+  deliveryRecord.content = delivery.content
+  assert.equal((await putContent('registration-delivery', deliveryRecord)).status, 200)
+  const registrations = await (await fetch(`${base}/api/admin/registrations`, { headers })).json()
+  assert.equal(registrations.items.length, 17)
+  assert.ok(registrations.items.some(row => row.region === 'Англия'))
+  assert.equal(registrations.items.find(row => row.id === 'legacy-record').city, '')
+  assert.ok(registrations.items.filter(row => row.id !== 'legacy-record').every(row => row.city === applicant.city))
+  assert.ok(messageBodies.every(message => message.includes(applicant.city)))
+  const exportResponse = await fetch(`${base}/api/admin/registrations/export?search=${applicant.city}`, { headers })
+  assert.equal(exportResponse.status, 200)
+  const workbook = XLSX.read(new Uint8Array(await exportResponse.arrayBuffer()), { type: 'array' })
+  const exportedRows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]])
+  assert.equal(exportedRows.length, 16)
+  assert.ok(exportedRows.every(row => row['Город'] === applicant.city))
   const initialPage = await (await fetch(`${base}/`)).text()
   assert.match(initialPage, /rel="icon"[^>]*href="\/images\/favicon\.svg"/)
   assert.doesNotMatch(initialPage, /href="\/Favicon\.svg"/)
@@ -189,8 +322,11 @@ try {
     assert.deepEqual(await (await fetch(`${base}/api/content/${section}`)).json(), expected)
   }
   assert.deepEqual((await (await fetch(`${base}/api/content/footer`)).json()).privacy.label, legalDefaults['privacy-policy'].title)
-  console.log('HTTP integration passed: authentication, editable content, favicon replacement in HTML, localized logos, raster/SVG uploads, active SVG rejection, CSRF and persistence after restart.')
+  assert.deepEqual((await (await fetch(`${base}/api/content/site-layout`)).json()).order, layout.content.order)
+  assert.deepEqual((await (await fetch(`${base}/api/admin/content/registration-delivery`, { headers })).json()).content, delivery.content)
+  console.log('HTTP integration passed: country-scoped city search, old database/form migration, cities in mail/Excel, block order, country validation, SMTP recipient rules, settings persistence, authentication, editable content, favicon replacement in HTML, localized logos, raster/SVG uploads, active SVG rejection, CSRF and persistence after restart.')
 } finally {
   await stop()
+  await new Promise(resolve => smtp.close(resolve))
   await rm(directory, { recursive: true, force: true })
 }

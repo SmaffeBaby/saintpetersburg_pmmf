@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer'
+import { shouldSendParticipantEmail } from '../../shared/utils/countries'
 import { getContentRecord } from './siteContent'
 import { renderEmailTemplate } from '../../shared/utils/registrationMessages'
 import { contentSchemas } from '../../shared/config/content'
@@ -19,7 +20,8 @@ const labels: Record<RegistrationLocale, Record<RegistrationField, string>> = {
     firstName: 'Имя',
     middleName: 'Отчество',
     birthDate: 'Дата рождения',
-    region: 'Регион',
+    region: 'Страна',
+    city: 'Город',
     email: 'Email',
     phone: 'Телефон'
   },
@@ -28,7 +30,8 @@ const labels: Record<RegistrationLocale, Record<RegistrationField, string>> = {
     firstName: 'First name',
     middleName: 'Middle name',
     birthDate: 'Date of birth',
-    region: 'Region',
+    region: 'Country',
+    city: 'City',
     email: 'Email',
     phone: 'Phone'
   }
@@ -70,7 +73,9 @@ export const sendRegistrationEmails = async (submission: RegistrationSubmission,
   const config = useRuntimeConfig()
   const transporter = createTransporter()
   const from = String(config.smtpFrom || config.smtpUser).trim()
-  const notifyEmail = String(config.projectRequestNotifyEmail || config.smtpUser).trim()
+  const delivery = contentSchemas['registration-delivery'].parse(JSON.parse(getContentRecord('registration-delivery').content))
+  const notifyEmail = delivery.organizerEmail
+  const participantEmailSuppressed = !shouldSendParticipantEmail(submission.region, delivery)
   const messages = contentSchemas['registration-messages'].parse(JSON.parse(getContentRecord('registration-messages').content))
   const submitterContent = renderEmailTemplate(messages.submitterEmail, submission, locale)
   const organizerContent = renderEmailTemplate(messages.organizerEmail, submission, 'ru')
@@ -101,6 +106,8 @@ export const sendRegistrationEmails = async (submission: RegistrationSubmission,
     `
   })
 
+  if (participantEmailSuppressed) return { participantEmailSuppressed }
+
   await transporter.sendMail({
     from,
     to: submission.email,
@@ -116,4 +123,5 @@ export const sendRegistrationEmails = async (submission: RegistrationSubmission,
       </div>
     `
   })
+  return { participantEmailSuppressed }
 }

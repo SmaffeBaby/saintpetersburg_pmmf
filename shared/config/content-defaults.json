@@ -196,7 +196,7 @@
     }
   },
   "footer": {
-    "email": "info.crbi@yandex.ru",
+    "email": "info.crbi@mail.ru",
     "address": {
       "ru": "Санкт-Петербург, Арсенальная наб, 1",
       "en": "Saint Petersburg, Arsenalnaya Emb, 1"
@@ -398,7 +398,7 @@
           "en": "Select date"
         },
         "autocomplete": "bday",
-        "layout": "half"
+        "layout": "third"
       },
       {
         "id": "region",
@@ -413,7 +413,22 @@
           "en": "Your region"
         },
         "autocomplete": "address-level1",
-        "layout": "half"
+        "layout": "third"
+      },
+      {
+        "id": "city",
+        "name": "city",
+        "type": "text",
+        "label": {
+          "ru": "Ваш город",
+          "en": "Your city"
+        },
+        "placeholder": {
+          "ru": "Выберите город",
+          "en": "Select a city"
+        },
+        "autocomplete": "address-level2",
+        "layout": "third"
       },
       {
         "id": "email",
@@ -508,5 +523,7 @@
         "en": "Submitted: {{createdAt}}"
       }
     }
-  }
+  },
+  "site-layout": {"order": ["hero", "about", "loft-hall", "schedule", "program", "speakers", "information-partners", "registration-form", "alternative-forum"]},
+  "registration-delivery": {"organizerEmail": "info.crbi@mail.ru", "participantEmailMode": "except", "includedCountries": [], "excludedCountries": []}
 }

@@ -4,6 +4,7 @@ export interface RegistrationSubmissionInput {
   middleName: string
   birthDate: string
   region: string
+  city: string
   email: string
   phone: string
 }

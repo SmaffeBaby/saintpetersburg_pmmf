@@ -1,3 +1,4 @@
+import { cityFormField } from '#shared/config/registration'
 import type { AppLocale } from '~/stores/language'
 import type { LocalizedText } from '~/composables/useHeader'
 
@@ -70,7 +71,7 @@ const fallbackContent: RegistrationFormContent = {
       label: { ru: 'Ваша дата рождения', en: 'Your date of birth' },
       placeholder: { ru: 'Выберите дату', en: 'Select date' },
       autocomplete: 'bday',
-      layout: 'half'
+      layout: 'third'
     },
     {
       id: 'region',
@@ -79,8 +80,9 @@ const fallbackContent: RegistrationFormContent = {
       label: { ru: 'Ваш регион', en: 'Your region' },
       placeholder: { ru: 'Ваш регион', en: 'Your region' },
       autocomplete: 'address-level1',
-      layout: 'half'
+      layout: 'third'
     },
+    cityFormField,
     {
       id: 'email',
       name: 'email',

@@ -10,7 +10,7 @@ const escapeHtml = (value: string) => value.replace(/[&<>"']/g, char => ({
 export const renderEmailTemplate = (template: EmailTemplate, submission: RegistrationSubmission, locale: 'ru' | 'en') => {
   const values: Record<string, string> = {
     lastName: submission.lastName, firstName: submission.firstName, middleName: submission.middleName,
-    birthDate: submission.birthDate, region: submission.region, email: submission.email, phone: submission.phone,
+    birthDate: submission.birthDate, region: submission.region, city: submission.city, email: submission.email, phone: submission.phone,
     createdAt: new Date(submission.createdAt).toLocaleString(locale === 'ru' ? 'ru-RU' : 'en-GB', { timeZone: 'Europe/Moscow' })
   }
   const interpolate = (value: Localized) => (value[locale] || value.ru)

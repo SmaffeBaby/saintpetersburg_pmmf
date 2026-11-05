@@ -7,9 +7,9 @@ export const listRegistrationSubmissions = async () => getDatabase()
 
 export const saveRegistrationSubmission = async (input: RegistrationSubmissionInput) => {
   const submission: RegistrationSubmission = { ...input, id: randomUUID(), createdAt: new Date().toISOString() }
-  getDatabase().prepare('INSERT INTO registrations VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)').run(
+  getDatabase().prepare('INSERT INTO registrations(id, createdAt, lastName, firstName, middleName, birthDate, region, email, phone, city) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').run(
     submission.id, submission.createdAt, input.lastName, input.firstName, input.middleName,
-    input.birthDate, input.region, input.email, input.phone
+    input.birthDate, input.region, input.email, input.phone, input.city
   )
   return submission
 }
