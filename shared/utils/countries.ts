@@ -3,11 +3,9 @@ export const countryCodes = ("AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA
 const names = { ru: new Intl.DisplayNames(['ru'], { type: 'region' }), en: new Intl.DisplayNames(['en'], { type: 'region' }) }
 export const countryName = (code: string, locale: 'ru' | 'en' = 'ru') => code === 'GB-ENG'
   ? (locale === 'ru' ? 'Англия' : 'England') : names[locale].of(code) || code
-export const countryFlag = (code: string) => code === 'GB-ENG'
-  ? '🏴\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}'
-  : String.fromCodePoint(...[...code].map(letter => 127397 + letter.charCodeAt(0)))
+export const countryFlagSrc = (code: string) => countryCodes.includes(code) ? `/images/flags/${code.toLowerCase()}.svg` : undefined
 export const countryItems = (locale: 'ru' | 'en' = 'ru') => countryCodes.map(code => ({
-  code, label: countryName(code, locale), flag: countryFlag(code),
+  code, label: countryName(code, locale), flag: countryFlagSrc(code),
   search: `${countryName(code, 'ru')} ${countryName(code, 'en')} ${code}`
 })).sort((a, b) => a.label.localeCompare(b.label, locale))
 // Accept names for compatibility with existing clients, but resolve rules to a stable code.

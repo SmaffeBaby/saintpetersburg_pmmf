@@ -31,7 +31,7 @@ const descriptionParagraphs = computed(() => description.value.split('\n\n'))
           </div>
 
           <a
-            class="mt-10 flex h-[63px] w-full items-center justify-center rounded-[20px] border-2 border-white bg-white px-5 font-days-one text-sm uppercase leading-[1.3] text-[#892AF0] transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            class="mt-10 flex min-h-[63px] w-full items-center justify-center rounded-[20px] border-2 border-white bg-white px-5 py-4 font-days-one text-sm uppercase leading-[1.3] text-[#892AF0] transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             :href="button.href"
             target="_blank"
             rel="noopener noreferrer"

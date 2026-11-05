@@ -125,8 +125,8 @@ const submitForm = async () => {
 
 <template>
   <section id="registration" class="w-full overflow-hidden rounded-[40px] bg-[#B9C21F] py-16 text-white sm:py-20 lg:min-h-[1057px] lg:rounded-[80px] lg:pb-[120px] lg:pt-[120px]">
-    <div class="mx-auto w-full max-w-[1550px] px-4 sm:px-8">
-      <h2 class="font-days-one text-[42px] uppercase leading-none text-white sm:text-[56px] lg:text-[70px]">
+    <div class="mx-auto w-full registration-content max-w-[1550px] px-5 sm:px-8">
+      <h2 :lang="languageStore.locale" class="registration-title max-w-full font-days-one uppercase text-white">
         {{ title }}
       </h2>
 
@@ -185,7 +185,7 @@ const submitForm = async () => {
               <path d="M2 8.5L8.5 15L22 2" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </span>
-          <span>{{ agreementParts.before }}<NuxtLink to="/personal-data-consent" target="_blank" rel="noopener noreferrer" class="underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white" @click.stop>{{ agreementParts.link }}</NuxtLink>{{ agreementParts.after }}</span>
+          <span class="min-w-0 break-words">{{ agreementParts.before }}<NuxtLink to="/personal-data-consent" target="_blank" rel="noopener noreferrer" class="underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white" @click.stop>{{ agreementParts.link }}</NuxtLink>{{ agreementParts.after }}</span>
         </label>
 
         <div class="mt-4 flex flex-col items-start gap-3 pl-[55px] font-montserrat text-sm leading-relaxed text-white sm:text-base">
@@ -195,7 +195,7 @@ const submitForm = async () => {
         </div>
 
         <button
-          class="mt-11 flex h-14 w-full items-center justify-center rounded-[20px] bg-white px-5 font-days-one text-sm uppercase leading-[1.3] text-[#892AF0] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white lg:mt-[58px] lg:h-20"
+          class="mt-11 flex min-h-14 w-full items-center justify-center rounded-[20px] bg-white px-5 py-4 font-days-one text-sm uppercase leading-[1.3] text-[#892AF0] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white lg:mt-[58px] lg:h-20"
           type="submit"
           :disabled="!isConsentAccepted || isSubmitting"
         >
@@ -215,6 +215,15 @@ const submitForm = async () => {
 </template>
 
 <style scoped>
+.registration-content {
+  container-type: inline-size;
+}
+.registration-title {
+  font-size: clamp(22px, 7cqw, 70px);
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+
 .registration-date-input {
   appearance: none;
   -webkit-appearance: none;
