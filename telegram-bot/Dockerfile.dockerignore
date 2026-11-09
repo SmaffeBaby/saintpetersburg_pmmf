@@ -1,0 +1,13 @@
+**
+!telegram-bot/
+!telegram-bot/Dockerfile
+!telegram-bot/bot.mjs
+!telegram-bot/main.mjs
+!telegram-bot/i18n.mjs
+!telegram-bot/telegramApi.mjs
+!shared/
+!shared/utils/
+!shared/utils/telegramAccess.mjs
+!shared/utils/telegramSettings.mjs
+!shared/config/
+!shared/config/telegram-defaults.mjs

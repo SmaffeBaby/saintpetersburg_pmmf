@@ -6,10 +6,11 @@ const checking = ref(true)
 const password = ref('')
 const loggingIn = ref(false)
 const error = ref('')
-const section = computed(() => typeof route.query.section === 'string' && isContentSection(route.query.section) ? route.query.section as ContentSection : 'registrations')
-const title = computed(() => contentSections.find(item => item.id === section.value)?.label || 'Заявки')
+const section = computed(() => route.query.section === 'telegram' ? 'telegram' : typeof route.query.section === 'string' && isContentSection(route.query.section) ? route.query.section as ContentSection : 'registrations')
+const title = computed(() => section.value === 'telegram' ? 'Телеграмм-бот' : contentSections.find(item => item.id === section.value)?.label || 'Заявки')
 const navigation = computed(() => [
   { label: 'Заявки', icon: 'i-lucide-inbox', to: '/admin', exactQuery: true, active: section.value === 'registrations' },
+  { label: 'Телеграмм-бот', icon: 'i-lucide-bot', to: { path: '/admin', query: { section: 'telegram' } }, exactQuery: true, active: section.value === 'telegram' },
   ...contentSections.map(item => ({ label: item.label, icon: item.icon, to: { path: '/admin', query: { section: item.id } }, exactQuery: true, active: section.value === item.id }))
 ])
 useHead({ title: 'PMMF / Управление сайтом', meta: [{ name: 'robots', content: 'noindex, nofollow' }] })
@@ -58,6 +59,7 @@ onMounted(async () => {
         <template #body>
           <UAlert v-if="error" color="error" :description="error" />
           <AdminRegistrations v-if="section === 'registrations'" @unauthorized="authenticated = false" />
+          <AdminTelegramBot v-else-if="section === 'telegram'" @unauthorized="authenticated = false" />
           <AdminContentEditor v-else :key="section" :section="section" @unauthorized="authenticated = false" />
         </template>
       </UDashboardPanel>

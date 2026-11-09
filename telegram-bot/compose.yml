@@ -1,0 +1,17 @@
+services:
+  telegram-bot:
+    build:
+      context: ..
+      dockerfile: telegram-bot/Dockerfile
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 60s
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+      - ../data/telegram:/app/access
+    logging:
+      driver: local
+      options:
+        max-size: "5m"
+        max-file: "2"

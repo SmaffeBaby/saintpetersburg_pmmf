@@ -26,6 +26,7 @@ export default defineNuxtConfig({
     adminPassword: process.env.ADMIN_PASSWORD || '',
     adminSessionSecret: process.env.ADMIN_SESSION_SECRET || '',
     databasePath: process.env.DATABASE_PATH || './data/saint-mmf.sqlite',
+    telegramAccessPath: process.env.TELEGRAM_ACCESS_PATH || './data/telegram/access.sqlite',
     redisUrl: process.env.REDIS_URL || ''
   },
   experimental: {
