@@ -47,7 +47,7 @@ onMounted(load)
         <p class="text-sm text-slate-500">Изменения применяются после сохранения без перезапуска бота. Удаление ID отзовёт доступ. Пустой список отключит доступ к /admin для всех.</p>
         <UAlert v-if="error" color="error" :description="error" />
         <UAlert v-if="saved" color="success" description="Доступы сохранены." />
-        <div class="flex gap-3"><UButton type="submit" label="Сохранить" :loading="saving" :disabled="loading || !loaded" /><UButton label="Обновить список" color="neutral" variant="outline" :loading="loading" :disabled="saving" @click="load" /></div>
+        <div class="flex gap-3"><UButton type="submit" label="Сохранить доступы" :loading="saving" :disabled="loading || !loaded" /><UButton label="Обновить список" color="neutral" variant="outline" :loading="loading" :disabled="saving" @click="load" /></div>
       </form>
     </UCard>
     <AdminTelegramSettings @unauthorized="emit('unauthorized')" />

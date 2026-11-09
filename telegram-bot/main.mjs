@@ -46,7 +46,13 @@ async function poll() {
   }
 }
 async function worker() {
+  let heartbeat = 0;
   while (running) {
+    if (Date.now() - heartbeat > 10000) {
+      heartbeat = Date.now();
+      bot.set('heartbeat', heartbeat);
+      bot.set('config_revision', settings.read().revision);
+    }
     try { await bot.tick(); } catch { console.error('Ошибка очереди рассылки.'); }
     await delay(100);
   }

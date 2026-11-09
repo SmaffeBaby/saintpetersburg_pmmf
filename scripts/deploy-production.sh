@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 APP_DIR="${APP_DIR:-/opt/saint-mmf}"
-COMPOSE_SERVICES="${COMPOSE_SERVICES:-saint-mmf}"
+COMPOSE_SERVICES="${COMPOSE_SERVICES:-saint-mmf telegram-bot}"
 
 cd "$APP_DIR"
 
@@ -25,7 +25,7 @@ docker compose version >/dev/null 2>&1 || {
 
 # Read only the image tag; never execute the release file as shell code.
 IMAGE_TAG=$(sed -n 's/^IMAGE_TAG=//p' release.env)
-if [[ ! "$IMAGE_TAG" =~ ^[a-f0-9]{40}$ ]]; then
+if [[ ! "$IMAGE_TAG" =~ ^[a-f0-9]{40}(-[a-z0-9][a-z0-9.-]{0,40})?$ ]]; then
   echo "Invalid release image tag." >&2
   exit 1
 fi

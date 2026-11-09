@@ -1,3 +1,35 @@
 services:
   saint-mmf:
     image: saint-mmf-production:${IMAGE_TAG:?Set IMAGE_TAG to the release commit}
+    command: ["node", "--use-env-proxy", ".output/server/index.mjs"]
+    environment:
+      HTTPS_PROXY: ${TELEGRAM_HTTPS_PROXY:-}
+      NO_PROXY: localhost,127.0.0.1,redis
+
+  telegram-bot:
+    image: saint-mmf-production:${IMAGE_TAG:?Set IMAGE_TAG to the release commit}
+    command: ["node", "--use-env-proxy", "telegram-bot/main.mjs"]
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 60s
+    mem_limit: 192m
+    cpus: 0.5
+    environment:
+      TELEGRAM_DATABASE_PATH: /app/bot-data/bot.sqlite
+      TELEGRAM_ACCESS_PATH: /app/access/access.sqlite
+      HTTPS_PROXY: ${TELEGRAM_HTTPS_PROXY:-}
+      NO_PROXY: localhost,127.0.0.1
+    volumes:
+      - ./data/telegram-bot:/app/bot-data
+      - ./data/telegram:/app/access
+    healthcheck:
+      test: ["CMD", "node", "-e", "const {DatabaseSync}=require('node:sqlite');const d=new DatabaseSync(process.env.TELEGRAM_DATABASE_PATH,{readOnly:true});const h=Number(d.prepare(\"SELECT value FROM settings WHERE key='heartbeat'\").get()?.value||0);d.close();process.exit(Date.now()-h<90000?0:1)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    logging:
+      driver: local
+      options:
+        max-size: "5m"
+        max-file: "2"

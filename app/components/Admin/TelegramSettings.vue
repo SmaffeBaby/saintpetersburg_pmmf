@@ -11,9 +11,10 @@ const saving = ref(false)
 const loaded = ref(false)
 const error = ref('')
 const saved = ref(false)
+const dirty = ref(false)
 const search = ref('')
 const entries = computed(() => messageDefinitions.filter(d => `${d.label} ${d.en} ${d.id} ${content.value.messages[d.id]?.ru} ${content.value.messages[d.id]?.en}`.toLowerCase().includes(search.value.toLowerCase())).map(def => ({ ...def, value: content.value.messages[def.id]! })))
-watch(content, () => { saved.value = false }, { deep: true, flush: 'sync' })
+watch(content, () => { saved.value = false; dirty.value = true }, { deep: true, flush: 'sync' })
 const fail = (e: unknown) => {
   const status = (e as { statusCode?: number }).statusCode
   if (status === 401) emit('unauthorized')
@@ -23,7 +24,7 @@ const load = async () => {
   loading.value = true; loaded.value = false; error.value = ''; saved.value = false; newToken.value = ''
   try {
     const data = await $fetch('/api/admin/telegram-settings')
-    content.value = data.content; revision.value = data.revision; tokenConfigured.value = data.tokenConfigured; botId.value = data.botId; loaded.value = true
+    content.value = data.content; revision.value = data.revision; tokenConfigured.value = data.tokenConfigured; botId.value = data.botId; loaded.value = true; dirty.value = false
   } catch (e) { fail(e) }
   finally { loading.value = false }
 }
@@ -31,7 +32,7 @@ const save = async () => {
   saving.value = true; error.value = ''; saved.value = false
   try {
     const data = await $fetch('/api/admin/telegram-settings', { method: 'PUT', body: { content: content.value, revision: revision.value, ...(newToken.value.trim() ? { token: newToken.value.trim() } : {}) } })
-    content.value = data.content; revision.value = data.revision; tokenConfigured.value = data.tokenConfigured; botId.value = data.botId; newToken.value = ''; saved.value = true
+    content.value = data.content; revision.value = data.revision; tokenConfigured.value = data.tokenConfigured; botId.value = data.botId; newToken.value = ''; saved.value = true; dirty.value = false
   } catch (e) { fail(e) }
   finally { saving.value = false }
 }
@@ -73,14 +74,15 @@ onMounted(load)
         <div class="space-y-3">
           <UInput v-model="search" placeholder="Найти текст…" icon="i-lucide-search" class="w-full" />
           <details v-for="entry in entries" :key="entry.id" class="rounded-lg border border-slate-200 p-3">
-            <summary class="cursor-pointer text-sm font-medium">{{ entry.label }}</summary>
-            <div class="mt-4"><AdminBilingualFields :model-value="entry.value" :label="entry.button ? 'Кнопка' : 'Текст'" :rows="entry.button ? 1 : 3" :maxlength="entry.button ? 64 : 3500" @update:model-value="content.messages[entry.id] = $event" /></div>
+            <summary class="cursor-pointer text-sm font-medium">{{ entry.value.ru }}</summary>
+            <div class="mt-4 space-y-3"><AdminBilingualFields :model-value="entry.value" :label="entry.button ? 'Кнопка' : 'Текст'" :rows="entry.button ? 1 : 3" :maxlength="entry.button ? 64 : 3500" @update:model-value="content.messages[entry.id] = $event" /><UButton type="submit" label="Сохранить тексты и настройки" :loading="saving" :disabled="!loaded || loading" /><p v-if="saved" class="text-sm text-green-700">Изменения сохранены.</p><p v-else-if="dirty" class="text-sm text-amber-700">Есть несохранённые изменения.</p></div>
           </details>
         </div>
       </UCard>
     </fieldset>
     <div class="sticky bottom-0 space-y-3 border-t border-slate-200 bg-white/95 py-4">
       <UAlert v-if="error" color="error" :description="error" />
+      <UAlert v-if="dirty && !saving" color="warning" description="Есть несохранённые изменения в текстах или меню бота." />
       <UAlert v-if="saved" color="success" description="Настройки бота сохранены. Участники увидят обновлённые кнопки после /start или смены языка." />
       <div class="flex flex-wrap gap-3"><UButton type="submit" label="Сохранить настройки бота" :loading="saving" :disabled="!loaded || loading" /><UButton type="button" label="Обновить настройки" color="neutral" variant="outline" :loading="loading" :disabled="saving" @click="load" /></div>
     </div>
