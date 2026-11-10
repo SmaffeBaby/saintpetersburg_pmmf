@@ -71,6 +71,8 @@ try {
   const legacyOrder = defaults['site-layout'].order.filter(block => block !== 'packages')
   ;[legacyOrder[0], legacyOrder[1]] = [legacyOrder[1], legacyOrder[0]]
   legacy.prepare('INSERT INTO site_content(section, content, updatedAt) VALUES (?, ?, ?)').run('site-layout', JSON.stringify({ order: legacyOrder }), '2026-01-01T00:00:00.000Z')
+  const { title: packageTitle, ...legacyPackages } = defaults.packages
+  legacy.prepare('INSERT INTO site_content(section, content, updatedAt) VALUES (?, ?, ?)').run('packages', JSON.stringify(legacyPackages), '2026-01-01T00:00:00.000Z')
   legacy.close()
   await start()
   assert.equal((await fetch(`${base}/api/admin/content/registration-messages`)).status, 401)
@@ -108,8 +110,11 @@ try {
   assert.ok(reordered.indexOf('data-site-block="speakers"') < reordered.indexOf('data-site-block="packages"'))
   assert.ok(reordered.includes('Пакет «Участник»'))
   assert.ok(reordered.includes('Пакет «Гость»'))
+  assert.match(reordered, /id="packages-title"[^>]*>Варианты участия<\/h2>/)
   assert.equal((await fetch(`${base}/api/admin/content/packages`)).status, 401)
   let packages = await (await fetch(`${base}/api/admin/content/packages`, { headers })).json()
+  assert.deepEqual(packages.content.title, packageTitle)
+  packages.content.title = { ru: 'Выберите вариант участия', en: 'Choose your participation option' }
   packages.content.packages.reverse()
   packages.content.packages[0].title = { ru: 'Тестовый пакет', en: 'Test package' }
   packages.content.packages[0].description = { ru: 'Строка 1\nСтрока 2', en: 'Line 1\nLine 2' }
@@ -118,6 +123,7 @@ try {
   packages = await savedPackages.json()
   assert.deepEqual(await (await fetch(`${base}/api/content/packages`)).json(), packages.content)
   const packagePage = await (await fetch(`${base}/`)).text()
+  assert.match(packagePage, /id="packages-title"[^>]*>Выберите вариант участия<\/h2>/)
   assert.ok(packagePage.indexOf('Тестовый пакет') < packagePage.indexOf('Пакет «Участник»'))
   assert.ok(packagePage.includes('Строка 1\nСтрока 2'))
   packages.content.visible = false

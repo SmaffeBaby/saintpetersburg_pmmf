@@ -2,6 +2,7 @@ import defaults from '#shared/config/content-defaults.json'
 import type { LocalizedText } from '~/composables/useHeader'
 
 interface PackagesContent {
+  title: LocalizedText
   packages: { title: LocalizedText; description: LocalizedText }[]
 }
 
@@ -12,6 +13,7 @@ export const usePackages = async () => {
   const localize = (value: LocalizedText) => value[languageStore.locale] || value.ru
 
   return {
+    title: computed(() => localize(content.value.title)),
     packages: computed(() => content.value.packages.map(item => ({
       title: localize(item.title), description: localize(item.description)
     })))

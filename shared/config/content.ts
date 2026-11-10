@@ -87,6 +87,7 @@ export const contentSchemas = {
   }).strict(),
   packages: z.object({
     ...visibility,
+    title: localized.default(defaults.packages.title),
     packages: z.array(z.object({ title: localized, description: localized }).strict())
   }).strict(),
   'information-partners': z.object({

@@ -526,6 +526,7 @@
   },
   "packages": {
     "visible": true,
+    "title": { "ru": "Варианты участия", "en": "Participation options" },
     "packages": [
       {
         "title": { "ru": "Пакет «Участник»", "en": "Participant package" },
