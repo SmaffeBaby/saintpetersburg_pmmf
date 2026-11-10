@@ -30,8 +30,15 @@ export type LegalSection = 'privacy-policy' | 'personal-data-consent'
 export type LegalContent = z.infer<typeof legalDocument>
 
 export const contentSchemas = {
-  'site-layout': z.object({ order: z.array(z.enum(pageBlocks)).length(pageBlocks.length)
-    .refine(order => new Set(order).size === pageBlocks.length, 'Каждый блок должен присутствовать ровно один раз') }).strict(),
+  'site-layout': z.object({ order: z.preprocess(value => {
+    // Extend saved layouts while keeping their custom block order.
+    if (!Array.isArray(value) || value.length !== pageBlocks.length - 1 || value.includes('packages')
+      || new Set(value).size !== value.length || !value.every(block => pageBlocks.includes(block))) return value
+    const order = [...value]
+    order.splice(order.indexOf('speakers') + 1, 0, 'packages')
+    return order
+  }, z.array(z.enum(pageBlocks)).length(pageBlocks.length)
+    .refine(order => new Set(order).size === pageBlocks.length, 'Каждый блок должен присутствовать ровно один раз')) }).strict(),
   'registration-delivery': z.object({
     organizerEmail: z.email().max(254),
     participantEmailMode: z.enum(['all', 'except', 'only']).default('except'),
@@ -76,7 +83,11 @@ export const contentSchemas = {
     speakers: z.array(z.object({
       fullName: localized, role: localized,
       image: z.object({ src: z.string().regex(/^\/(?!\/)/).max(2048), alt: localized }).strict()
-    }).strict()).max(12)
+    }).strict())
+  }).strict(),
+  packages: z.object({
+    ...visibility,
+    packages: z.array(z.object({ title: localized, description: localized }).strict())
   }).strict(),
   'information-partners': z.object({
     ...visibility,
@@ -124,6 +135,7 @@ export const contentSections: { id: ContentSection; label: string; icon: string 
   { id: 'schedule', label: 'Расписание', icon: 'i-lucide-calendar-days' },
   { id: 'program', label: 'Программа', icon: 'i-lucide-list' },
   { id: 'speakers', label: 'Наши спикеры', icon: 'i-lucide-users' },
+  { id: 'packages', label: 'Пакеты', icon: 'i-lucide-package' },
   { id: 'information-partners', label: 'Информационные партнеры', icon: 'i-lucide-handshake' },
   { id: 'registration-messages', label: 'Уведомления и письма', icon: 'i-lucide-mail' },
   { id: 'registration-form', label: 'Форма регистрации', icon: 'i-lucide-clipboard-list' },

@@ -524,6 +524,19 @@
       }
     }
   },
-  "site-layout": {"order": ["hero", "about", "loft-hall", "schedule", "program", "speakers", "information-partners", "registration-form", "alternative-forum"]},
+  "packages": {
+    "visible": true,
+    "packages": [
+      {
+        "title": { "ru": "Пакет «Участник»", "en": "Participant package" },
+        "description": { "ru": "- бейдж участника;\n- фирменный мерч;\n- питание.", "en": "- participant badge;\n- branded merchandise;\n- meals." }
+      },
+      {
+        "title": { "ru": "Пакет «Гость»", "en": "Guest package" },
+        "description": { "ru": "- фирменный бейдж", "en": "- branded badge" }
+      }
+    ]
+  },
+  "site-layout": {"order": ["hero", "about", "loft-hall", "schedule", "program", "speakers", "packages", "information-partners", "registration-form", "alternative-forum"]},
   "registration-delivery": {"organizerEmail": "info.crbi@mail.ru", "participantEmailMode": "except", "includedCountries": [], "excludedCountries": []}
 }

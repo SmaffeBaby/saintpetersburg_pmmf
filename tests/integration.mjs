@@ -68,6 +68,9 @@ try {
   legacyForm.fields = legacyForm.fields.filter(field => field.name !== 'city')
   legacyForm.fields.find(field => field.name === 'region').label.ru = 'Ваш регион (из админки)'
   legacy.prepare('INSERT INTO site_content(section, content, updatedAt) VALUES (?, ?, ?)').run('registration-form', JSON.stringify(legacyForm), '2026-01-01T00:00:00.000Z')
+  const legacyOrder = defaults['site-layout'].order.filter(block => block !== 'packages')
+  ;[legacyOrder[0], legacyOrder[1]] = [legacyOrder[1], legacyOrder[0]]
+  legacy.prepare('INSERT INTO site_content(section, content, updatedAt) VALUES (?, ?, ?)').run('site-layout', JSON.stringify({ order: legacyOrder }), '2026-01-01T00:00:00.000Z')
   legacy.close()
   await start()
   assert.equal((await fetch(`${base}/api/admin/content/registration-messages`)).status, 401)
@@ -89,6 +92,9 @@ try {
   })
   assert.equal((await fetch(`${base}/api/admin/content/site-layout`)).status, 401)
   const layout = await (await fetch(`${base}/api/admin/content/site-layout`, { headers })).json()
+  const migratedOrder = [...legacyOrder]
+  migratedOrder.splice(migratedOrder.indexOf('speakers') + 1, 0, 'packages')
+  assert.deepEqual(layout.content.order, migratedOrder)
   const originalOrder = [...layout.content.order]
   const registrationIndex = layout.content.order.indexOf('registration-form')
   const alternativeIndex = layout.content.order.indexOf('alternative-forum')
@@ -99,6 +105,31 @@ try {
   assert.equal((await putContent('site-layout', layout)).status, 409)
   const reordered = await (await fetch(`${base}/`)).text()
   assert.ok(reordered.indexOf('data-site-block="alternative-forum"') < reordered.indexOf('data-site-block="registration-form"'))
+  assert.ok(reordered.indexOf('data-site-block="speakers"') < reordered.indexOf('data-site-block="packages"'))
+  assert.ok(reordered.includes('Пакет «Участник»'))
+  assert.ok(reordered.includes('Пакет «Гость»'))
+  assert.equal((await fetch(`${base}/api/admin/content/packages`)).status, 401)
+  let packages = await (await fetch(`${base}/api/admin/content/packages`, { headers })).json()
+  packages.content.packages.reverse()
+  packages.content.packages[0].title = { ru: 'Тестовый пакет', en: 'Test package' }
+  packages.content.packages[0].description = { ru: 'Строка 1\nСтрока 2', en: 'Line 1\nLine 2' }
+  const savedPackages = await putContent('packages', packages)
+  assert.equal(savedPackages.status, 200)
+  packages = await savedPackages.json()
+  assert.deepEqual(await (await fetch(`${base}/api/content/packages`)).json(), packages.content)
+  const packagePage = await (await fetch(`${base}/`)).text()
+  assert.ok(packagePage.indexOf('Тестовый пакет') < packagePage.indexOf('Пакет «Участник»'))
+  assert.ok(packagePage.includes('Строка 1\nСтрока 2'))
+  packages.content.visible = false
+  const hiddenPackages = await putContent('packages', packages)
+  assert.equal(hiddenPackages.status, 200)
+  packages = await hiddenPackages.json()
+  assert.equal((await (await fetch(`${base}/api/content/visibility`)).json()).packages, false)
+  assert.ok(!(await (await fetch(`${base}/`)).text()).includes('data-site-block="packages"'))
+  packages.content.visible = true
+  const visiblePackages = await putContent('packages', packages)
+  assert.equal(visiblePackages.status, 200)
+  packages = await visiblePackages.json()
   const delivery = await (await fetch(`${base}/api/admin/content/registration-delivery`, { headers })).json()
   delivery.content = { organizerEmail: 'info.crbi@mail.ru', participantEmailMode: 'except', includedCountries: [], excludedCountries: ['GB-ENG', 'DE'] }
   assert.equal((await putContent('registration-delivery', { ...delivery, content: { ...delivery.content, excludedCountries: ['INVALID'] } })).status, 400)
@@ -280,10 +311,15 @@ try {
   }
   const speakers = await (await fetch(`${base}/api/admin/content/speakers`, { headers })).json()
   speakers.content.speakers[0].image.src = media.src
+  speakers.content.speakers = Array.from({ length: 25 }, (_, index) => ({
+    ...speakers.content.speakers[0], fullName: { ru: `Тестовый спикер ${index + 1}`, en: `Test speaker ${index + 1}` }
+  }))
   assert.equal((await fetch(`${base}/api/admin/content/speakers`, {
     method: 'PUT', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify(speakers)
   })).status, 200)
   assert.equal((await (await fetch(`${base}/api/content/speakers`)).json()).speakers[0].image.src, media.src)
+  assert.equal((await (await fetch(`${base}/api/content/speakers`)).json()).speakers.length, 25)
+  assert.ok((await (await fetch(`${base}/`)).text()).includes('Тестовый спикер 25'))
   const largeImage = new FormData()
   largeImage.append('file', new Blob([image, Buffer.alloc(3 * 1024 * 1024)], { type: 'image/png' }), 'large.png')
   assert.equal((await fetch(`${base}/api/admin/media`, { method: 'POST', headers, body: largeImage })).status, 201)
@@ -308,6 +344,8 @@ try {
   })).status, 200)
   await stop()
   await start()
+  assert.deepEqual(await (await fetch(`${base}/api/content/packages`)).json(), packages.content)
+  assert.equal((await (await fetch(`${base}/api/content/speakers`)).json()).speakers.length, 25)
   assert.equal((await (await fetch(`${base}/api/content/registration-messages`)).json()).successTitle.ru, record.content.successTitle.ru)
   assert.equal((await (await fetch(`${base}/api/content/speakers`)).json()).speakers[0].image.src, media.src)
   assert.deepEqual(Buffer.from(await (await fetch(`${base}${media.src}`)).arrayBuffer()), image)
