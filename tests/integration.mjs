@@ -78,6 +78,8 @@ try {
   legacyHeader.nav.find(item => item.label.ru === 'Тематики').href = '#topics'
   legacyHeader.nav.find(item => item.href === '#schedule').label.ru = 'Моё расписание'
   legacy.prepare('INSERT INTO site_content(section, content, updatedAt) VALUES (?, ?, ?)').run('header', JSON.stringify(legacyHeader), '2026-01-01T00:00:00.000Z')
+  const { image: footerImage, ...legacyFooterSeed } = defaults.footer
+  legacy.prepare('INSERT INTO site_content(section, content, updatedAt) VALUES (?, ?, ?)').run('footer', JSON.stringify(legacyFooterSeed), '2026-01-01T00:00:00.000Z')
   legacy.close()
   await start()
   assert.equal((await fetch(`${base}/api/admin/content/registration-messages`)).status, 401)
@@ -303,6 +305,24 @@ try {
   const upload = await fetch(`${base}/api/admin/media`, { method: 'POST', headers, body: form })
   assert.equal(upload.status, 201, await upload.clone().text())
   const media = await upload.json()
+  let footerRecord = await (await fetch(`${base}/api/admin/content/footer`, { headers })).json()
+  assert.deepEqual(footerRecord.content.image, footerImage)
+  assert.match(await (await fetch(`${base}/`)).text(), /src="\/images\/footer-map.png"/)
+  const defaultFooterImage = await fetch(`${base}/images/footer-map.png`)
+  assert.equal(defaultFooterImage.status, 200)
+  assert.deepEqual(Buffer.from(await defaultFooterImage.arrayBuffer()), await readFile(new URL('../public/images/footer-map.png', import.meta.url)))
+  footerRecord.content.image = { src: media.src, srcEn: '', alt: { ru: 'Тестовая схема проезда', en: 'Test directions' } }
+  const footerImageSave = await putContent('footer', footerRecord)
+  assert.equal(footerImageSave.status, 200)
+  footerRecord = await footerImageSave.json()
+  assert.match(await (await fetch(`${base}/`)).text(), /aria-label="Открыть изображение: Тестовая схема проезда"/)
+  footerRecord.content.image.src = ''
+  const footerImageClear = await putContent('footer', footerRecord)
+  assert.equal(footerImageClear.status, 200)
+  footerRecord = await footerImageClear.json()
+  assert.doesNotMatch(await (await fetch(`${base}/`)).text(), /aria-label="Открыть изображение: Тестовая схема проезда"/)
+  footerRecord.content.image.src = media.src
+  assert.equal((await putContent('footer', footerRecord)).status, 200)
   hallPlan.content.image.src = media.src
   const hallImageSave = await putContent('hall-plan', hallPlan)
   assert.equal(hallImageSave.status, 200)
@@ -337,7 +357,11 @@ try {
   const iconLinks = updatedPage.match(/<link\b[^>]*rel="(?:icon|shortcut icon)"[^>]*>/g)
   assert.equal(iconLinks.length, 2)
   assert.ok(iconLinks.every(link => link.includes(`href="${svgMedia.src}"`)))
+  // Start the localization/persistence batch with a fresh request limit.
+  await stop()
+  await start()
   const localizedSections = {
+    footer: content => [content.image],
     'hall-plan': content => [content.image],
     header: content => [content.logo],
     hero: content => [content.logo, ...content.organizers],

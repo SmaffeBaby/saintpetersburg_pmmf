@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { email, address, contacts, privacyLink } = await useFooter()
+const { email, address, contacts, privacyLink, image } = await useFooter()
 const addressLines = computed(() => address.value
   .replace(/,\s*/, ',\n')
   .split(/\r?\n/)
@@ -22,6 +22,7 @@ const addressLines = computed(() => address.value
       <p class="mt-6 break-words font-days-one text-[clamp(11px,3.8vw,16px)] uppercase leading-[1.35] text-white/50 sm:text-xl lg:mt-8 lg:text-[30px]">
         <span v-for="(line, index) in addressLines" :key="index" class="block">{{ line }}</span>
       </p>
+      <AppFooterImage v-if="image.src" :src="image.src" :alt="image.alt" class="mt-10 lg:mt-[50px]" />
       <div class="mt-10 rounded-[28px] bg-[#9875DC] px-6 py-8 sm:rounded-[40px] sm:p-10 lg:mt-[50px] lg:rounded-[60px] lg:px-[64px] lg:py-[60px]">
         <p class="whitespace-pre-line break-words font-montserrat text-base leading-[1.25] text-white sm:text-xl lg:text-2xl">
           {{ contacts }}

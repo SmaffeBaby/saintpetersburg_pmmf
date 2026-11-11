@@ -125,6 +125,7 @@ export const contentSchemas = {
   'alternative-forum': z.object({ ...visibility, title: localized, description: localized, button: link, image: z.object({ alt: localized }).strict() }).strict(),
   footer: z.object({
     ...visibility,
+    image: localizedImage.extend({ src: optionalImagePath }).default(defaults.footer.image),
     email: z.email().max(254), address: localized, contacts: localized,
     legal: localized, privacy: link
   }).strict()

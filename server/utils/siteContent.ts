@@ -78,7 +78,7 @@ export const getContentRecord = (section: ContentSection) => {
 export const getPublicContent = async (section: ContentSection) => {
   const db = ensureContent(section)
   const row = db.prepare('SELECT revision, updatedAt FROM site_content WHERE section = ?').get(section)!
-  return cachedContent(`saint-mmf:content:v6:${section}:${row.revision}:${row.updatedAt}`, () => JSON.parse(getContentRecord(section).content))
+  return cachedContent(`saint-mmf:content:v7:${section}:${row.revision}:${row.updatedAt}`, () => JSON.parse(getContentRecord(section).content))
 }
 export const updateContent = (section: ContentSection, content: unknown, revision: number) => {
   const result = contentSchemas[section].safeParse(content)
