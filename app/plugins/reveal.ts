@@ -17,7 +17,9 @@ export default defineNuxtPlugin((nuxtApp) => {
       })
     }, {
       rootMargin: '0px 0px -12% 0px',
-      threshold: 0.12
+      // Long sections (for example, speakers on mobile) can be taller than
+      // the viewport, so a percentage of their full height may never fit.
+      threshold: 0
     })
 
     return observer
