@@ -77,7 +77,6 @@ const rays = Array.from({ length: 17 }, (_, index) => {
   .schedule-section {
     min-height: 1200px;
     margin-bottom: 0;
-    margin-top: -150px;
     padding-top: 460px;
     padding-bottom: 400px;
   }

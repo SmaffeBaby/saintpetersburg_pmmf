@@ -228,7 +228,7 @@
     },
     "nav": [
       {
-        "href": "#topics",
+        "href": "",
         "label": {
           "ru": "Тематики",
           "en": "Topics"
@@ -240,6 +240,10 @@
           "ru": "Расписание",
           "en": "Schedule"
         }
+      },
+      {
+        "href": "#hall-plan",
+        "label": { "ru": "Схема зала", "en": "Hall plan" }
       },
       {
         "href": "#speakers",
@@ -538,6 +542,16 @@
       }
     ]
   },
-  "site-layout": {"order": ["hero", "about", "loft-hall", "schedule", "program", "speakers", "packages", "information-partners", "registration-form", "alternative-forum"]},
+  "hall-plan": {
+    "visible": true,
+    "title": { "ru": "Схема зала", "en": "Hall plan" },
+    "description": {
+      "ru": "Форум «Петербургский Международный Молодежный Форум» пройдет на одной из самых современных и знаковых площадок Санкт-Петербурга — в Лофт-пространстве «LOFT HALL» по адресу: Санкт-Петербург, Арсенальная наб., 1",
+      "en": "The Saint Petersburg International Youth Forum will take place at one of the city's most modern and iconic venues, LOFT HALL, at 1 Arsenalnaya Embankment, Saint Petersburg."
+    },
+    "placeholder": { "ru": "Скоро будет", "en": "Coming soon" },
+    "image": { "src": "", "srcEn": "", "alt": { "ru": "Схема зала форума", "en": "Forum hall plan" } }
+  },
+  "site-layout": {"order": ["hero", "about", "loft-hall", "hall-plan", "schedule", "program", "speakers", "packages", "information-partners", "registration-form", "alternative-forum"]},
   "registration-delivery": {"organizerEmail": "info.crbi@mail.ru", "participantEmailMode": "except", "includedCountries": [], "excludedCountries": []}
 }

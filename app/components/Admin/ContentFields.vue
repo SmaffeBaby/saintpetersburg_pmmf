@@ -42,7 +42,7 @@ const add = () => {
 const immutable = computed(() => /fields\.\d+\.(id|name|type)$/.test(props.path || ''))
 const fixedArray = computed(() => ['fields', 'languages'].includes(props.path || ''))
 const reorderable = computed(() => ['speakers', 'organizers', 'packages'].includes(props.path || ''))
-const canAdd = computed(() => ['speakers', 'packages'].includes(props.path || '') || props.modelValue.length < 12)
+const canAdd = computed(() => ['speakers', 'packages'].includes(props.path || '') || props.modelValue.length < (props.path === 'nav' ? 20 : 12))
 const reorderLabel = (item: any, index: number) => item.fullName?.ru || item.alt?.ru || item.title?.ru
   || `${props.path === 'organizers' ? 'Организатор' : props.path === 'packages' ? 'Пакет' : 'Спикер'} ${index + 1}`
 const move = (index: number, offset: number) => {

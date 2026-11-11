@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type { SectionVisibility } from '../../shared/config/content'
 import { pageBlocks, type PageBlock } from '#shared/config/layout'
-import { AppHero, AppAbout, AppLoftHall, AppSchedule, AppProgram, AppSpeakers, AppPackages, AppInformationPartners, AppRegistrationForm, AlternativeForum } from '#components'
+import { AppHero, AppAbout, AppLoftHall, AppHallPlan, AppSchedule, AppProgram, AppSpeakers, AppPackages, AppInformationPartners, AppRegistrationForm, AlternativeForum } from '#components'
 
 await useAsyncData('site-visibility', () => $fetch<SectionVisibility>('/api/content/visibility'))
 const { data: layout } = await useAsyncData('site-layout-content', () => $fetch<{ order: PageBlock[] }>('/api/content/site-layout'))
 const { isVisible } = useSiteVisibility()
-const components = { hero: AppHero, about: AppAbout, 'loft-hall': AppLoftHall, schedule: AppSchedule, program: AppProgram, speakers: AppSpeakers, packages: AppPackages, 'information-partners': AppInformationPartners, 'registration-form': AppRegistrationForm, 'alternative-forum': AlternativeForum }
+const components = { hero: AppHero, about: AppAbout, 'loft-hall': AppLoftHall, 'hall-plan': AppHallPlan, schedule: AppSchedule, program: AppProgram, speakers: AppSpeakers, packages: AppPackages, 'information-partners': AppInformationPartners, 'registration-form': AppRegistrationForm, 'alternative-forum': AlternativeForum }
 // Keep the shared white background when partners and registration are adjacent.
 const groups = computed(() => {
   const groups: { white: boolean; blocks: PageBlock[] }[] = []

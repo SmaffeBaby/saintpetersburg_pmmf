@@ -88,14 +88,16 @@ const closeMenu = () => {
         </div>
 
         <nav ref="desktopNav" class="flex shrink-0 items-center justify-center gap-5 whitespace-nowrap font-montserrat text-sm uppercase leading-none text-black">
-          <NuxtLink
-            v-for="item in navItems"
-            :key="item.href"
-            class="transition-colors duration-200 hover:text-[#892AF0] focus-visible:text-[#892AF0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue"
-            :to="item.href"
-          >
-            {{ item.label }}
-          </NuxtLink>
+          <template v-for="(item, index) in navItems" :key="index">
+            <NuxtLink
+              v-if="item.href"
+              class="transition-colors duration-200 hover:text-[#892AF0] focus-visible:text-[#892AF0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue"
+              :to="item.href"
+            >
+              {{ item.label }}
+            </NuxtLink>
+            <span v-else>{{ item.label }}</span>
+          </template>
         </nav>
 
         <div ref="desktopActions" class="flex shrink-0 items-center justify-self-end gap-5 whitespace-nowrap">
@@ -113,15 +115,17 @@ const closeMenu = () => {
       >
         <div class="flex flex-col gap-5 pb-2 pt-5">
           <nav class="flex flex-col gap-4 font-montserrat text-sm uppercase leading-none text-black">
-            <NuxtLink
-              v-for="item in navItems"
-              :key="item.href"
-              class="transition-colors duration-200 hover:text-[#892AF0] focus-visible:text-[#892AF0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue"
-              :to="item.href"
-              @click="closeMenu"
-            >
-              {{ item.label }}
-            </NuxtLink>
+            <template v-for="(item, index) in navItems" :key="index">
+              <NuxtLink
+                v-if="item.href"
+                class="transition-colors duration-200 hover:text-[#892AF0] focus-visible:text-[#892AF0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue"
+                :to="item.href"
+                @click="closeMenu"
+              >
+                {{ item.label }}
+              </NuxtLink>
+              <span v-else>{{ item.label }}</span>
+            </template>
           </nav>
           <div class="flex items-center border-t border-black/10 pt-5">
             <AppRegistrationButton :href="registrationLink.href" :label="registrationLink.label" @click="closeMenu" />

@@ -1,7 +1,7 @@
 import type { ContentSection, SectionVisibility } from '../config/content'
 
 const anchorSections: Record<string, ContentSection> = {
-  about: 'about', 'loft-hall': 'loft-hall', schedule: 'schedule',
+  about: 'about', 'loft-hall': 'loft-hall', 'hall-plan': 'hall-plan', schedule: 'schedule',
   program: 'program', topics: 'program', speakers: 'speakers', packages: 'packages',
   'information-partners': 'information-partners', registration: 'registration-form',
   contacts: 'footer'

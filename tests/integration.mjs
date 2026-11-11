@@ -68,11 +68,16 @@ try {
   legacyForm.fields = legacyForm.fields.filter(field => field.name !== 'city')
   legacyForm.fields.find(field => field.name === 'region').label.ru = 'Ваш регион (из админки)'
   legacy.prepare('INSERT INTO site_content(section, content, updatedAt) VALUES (?, ?, ?)').run('registration-form', JSON.stringify(legacyForm), '2026-01-01T00:00:00.000Z')
-  const legacyOrder = defaults['site-layout'].order.filter(block => block !== 'packages')
+  const legacyOrder = defaults['site-layout'].order.filter(block => block !== 'packages' && block !== 'hall-plan')
   ;[legacyOrder[0], legacyOrder[1]] = [legacyOrder[1], legacyOrder[0]]
   legacy.prepare('INSERT INTO site_content(section, content, updatedAt) VALUES (?, ?, ?)').run('site-layout', JSON.stringify({ order: legacyOrder }), '2026-01-01T00:00:00.000Z')
   const { title: packageTitle, ...legacyPackages } = defaults.packages
   legacy.prepare('INSERT INTO site_content(section, content, updatedAt) VALUES (?, ?, ?)').run('packages', JSON.stringify(legacyPackages), '2026-01-01T00:00:00.000Z')
+  const legacyHeader = structuredClone(defaults.header)
+  legacyHeader.nav = legacyHeader.nav.filter(item => item.href !== '#hall-plan')
+  legacyHeader.nav.find(item => item.label.ru === 'Тематики').href = '#topics'
+  legacyHeader.nav.find(item => item.href === '#schedule').label.ru = 'Моё расписание'
+  legacy.prepare('INSERT INTO site_content(section, content, updatedAt) VALUES (?, ?, ?)').run('header', JSON.stringify(legacyHeader), '2026-01-01T00:00:00.000Z')
   legacy.close()
   await start()
   assert.equal((await fetch(`${base}/api/admin/content/registration-messages`)).status, 401)
@@ -96,6 +101,7 @@ try {
   const layout = await (await fetch(`${base}/api/admin/content/site-layout`, { headers })).json()
   const migratedOrder = [...legacyOrder]
   migratedOrder.splice(migratedOrder.indexOf('speakers') + 1, 0, 'packages')
+  migratedOrder.splice(migratedOrder.indexOf('loft-hall') + 1, 0, 'hall-plan')
   assert.deepEqual(layout.content.order, migratedOrder)
   const originalOrder = [...layout.content.order]
   const registrationIndex = layout.content.order.indexOf('registration-form')
@@ -111,6 +117,38 @@ try {
   assert.ok(reordered.includes('Пакет «Участник»'))
   assert.ok(reordered.includes('Пакет «Гость»'))
   assert.match(reordered, /id="packages-title"[^>]*>Варианты участия<\/h2>/)
+  assert.match(reordered, /id="hall-plan-title"[^>]*>Схема зала<\/h2>/)
+  assert.ok(reordered.includes('Скоро будет'))
+  assert.ok(reordered.indexOf('data-site-block="loft-hall"') < reordered.indexOf('data-site-block="hall-plan"'))
+  assert.match(reordered, /href="#hall-plan"/)
+  assert.match(reordered, /<span[^>]*>Тематики<\/span>/)
+  assert.ok(!reordered.includes('href="#topics"'))
+  const headerContent = await (await fetch(`${base}/api/content/header`)).json()
+  assert.equal(headerContent.nav.find(item => item.label.ru === 'Тематики').href, '')
+  assert.equal(headerContent.nav.find(item => item.href === '#schedule').label.ru, 'Моё расписание')
+  assert.equal(headerContent.nav.filter(item => item.href === '#hall-plan').length, 1)
+  assert.equal((await fetch(`${base}/api/admin/content/hall-plan`)).status, 401)
+  let hallPlan = await (await fetch(`${base}/api/admin/content/hall-plan`, { headers })).json()
+  hallPlan.content.title = { ru: 'План площадки', en: 'Venue plan' }
+  hallPlan.content.description = { ru: 'Описание схемы', en: 'Plan description' }
+  hallPlan.content.placeholder = { ru: 'Схема готовится', en: 'Plan coming soon' }
+  const hallSave = await putContent('hall-plan', hallPlan)
+  assert.equal(hallSave.status, 200)
+  hallPlan = await hallSave.json()
+  const hallPage = await (await fetch(`${base}/`)).text()
+  assert.match(hallPage, /id="hall-plan-title"[^>]*>План площадки<\/h2>/)
+  assert.ok(hallPage.includes('Схема готовится'))
+  hallPlan.content.visible = false
+  const hallHide = await putContent('hall-plan', hallPlan)
+  assert.equal(hallHide.status, 200)
+  hallPlan = await hallHide.json()
+  const hiddenHallPage = await (await fetch(`${base}/`)).text()
+  assert.ok(!hiddenHallPage.includes('data-site-block="hall-plan"'))
+  assert.ok(!hiddenHallPage.includes('href="#hall-plan"'))
+  hallPlan.content.visible = true
+  const hallShow = await putContent('hall-plan', hallPlan)
+  assert.equal(hallShow.status, 200)
+  hallPlan = await hallShow.json()
   assert.equal((await fetch(`${base}/api/admin/content/packages`)).status, 401)
   let packages = await (await fetch(`${base}/api/admin/content/packages`, { headers })).json()
   assert.deepEqual(packages.content.title, packageTitle)
@@ -136,6 +174,10 @@ try {
   const visiblePackages = await putContent('packages', packages)
   assert.equal(visiblePackages.status, 200)
   packages = await visiblePackages.json()
+  // Verify content migration across a restart and reset the production request
+  // limiter before the independent registration/media test batch.
+  await stop()
+  await start()
   const delivery = await (await fetch(`${base}/api/admin/content/registration-delivery`, { headers })).json()
   delivery.content = { organizerEmail: 'info.crbi@mail.ru', participantEmailMode: 'except', includedCountries: [], excludedCountries: ['GB-ENG', 'DE'] }
   assert.equal((await putContent('registration-delivery', { ...delivery, content: { ...delivery.content, excludedCountries: ['INVALID'] } })).status, 400)
@@ -261,6 +303,14 @@ try {
   const upload = await fetch(`${base}/api/admin/media`, { method: 'POST', headers, body: form })
   assert.equal(upload.status, 201, await upload.clone().text())
   const media = await upload.json()
+  hallPlan.content.image.src = media.src
+  const hallImageSave = await putContent('hall-plan', hallPlan)
+  assert.equal(hallImageSave.status, 200)
+  hallPlan = await hallImageSave.json()
+  const hallImagePage = await (await fetch(`${base}/`)).text()
+  assert.match(hallImagePage, new RegExp(`src="${media.src}"[^>]*alt="Схема зала форума"`))
+  assert.doesNotMatch(hallImagePage, /<p\b[^>]*>Схема готовится<\/p>/)
+  assert.equal((await putContent('hall-plan', { ...hallPlan, content: { ...hallPlan.content, image: { ...hallPlan.content.image, src: 'https://invalid.example/test.png' } } })).status, 400)
   const downloaded = await fetch(`${base}${media.src}`)
   assert.equal(downloaded.headers.get('content-type'), 'image/png')
   assert.deepEqual(Buffer.from(await downloaded.arrayBuffer()), image)
@@ -288,6 +338,7 @@ try {
   assert.equal(iconLinks.length, 2)
   assert.ok(iconLinks.every(link => link.includes(`href="${svgMedia.src}"`)))
   const localizedSections = {
+    'hall-plan': content => [content.image],
     header: content => [content.logo],
     hero: content => [content.logo, ...content.organizers],
     'information-partners': content => content.partners
@@ -350,6 +401,8 @@ try {
   })).status, 200)
   await stop()
   await start()
+  assert.equal((await (await fetch(`${base}/api/content/hall-plan`)).json()).title.ru, hallPlan.content.title.ru)
+  assert.equal((await (await fetch(`${base}/api/content/header`)).json()).nav.filter(item => item.href === '#hall-plan').length, 1)
   assert.deepEqual(await (await fetch(`${base}/api/content/packages`)).json(), packages.content)
   assert.equal((await (await fetch(`${base}/api/content/speakers`)).json()).speakers.length, 25)
   assert.equal((await (await fetch(`${base}/api/content/registration-messages`)).json()).successTitle.ru, record.content.successTitle.ru)

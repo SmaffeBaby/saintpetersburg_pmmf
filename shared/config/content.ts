@@ -32,10 +32,12 @@ export type LegalContent = z.infer<typeof legalDocument>
 export const contentSchemas = {
   'site-layout': z.object({ order: z.preprocess(value => {
     // Extend saved layouts while keeping their custom block order.
-    if (!Array.isArray(value) || value.length !== pageBlocks.length - 1 || value.includes('packages')
-      || new Set(value).size !== value.length || !value.every(block => pageBlocks.includes(block))) return value
+    if (!Array.isArray(value) || new Set(value).size !== value.length
+      || !value.every(block => pageBlocks.includes(block))
+      || !pageBlocks.filter(block => block !== 'packages' && block !== 'hall-plan').every(block => value.includes(block))) return value
     const order = [...value]
-    order.splice(order.indexOf('speakers') + 1, 0, 'packages')
+    if (!order.includes('packages')) order.splice(order.indexOf('speakers') + 1, 0, 'packages')
+    if (!order.includes('hall-plan')) order.splice(order.indexOf('loft-hall') + 1, 0, 'hall-plan')
     return order
   }, z.array(z.enum(pageBlocks)).length(pageBlocks.length)
     .refine(order => new Set(order).size === pageBlocks.length, 'Каждый блок должен присутствовать ровно один раз')) }).strict(),
@@ -53,7 +55,7 @@ export const contentSchemas = {
   header: z.object({
     ...visibility,
     logo: localizedImage.extend({ srcEn: optionalImagePath.default(defaults.header.logo.srcEn) }),
-    nav: z.array(link).max(12), registration: link,
+    nav: z.array(link.extend({ href: safeHref.or(z.literal('')) })).max(20), registration: link,
     languages: z.array(z.object({ code: z.enum(['ru', 'en']), label: z.string().min(1).max(20) }).strict()).min(1).max(2)
       .refine(rows => new Set(rows.map(row => row.code)).size === rows.length)
   }).strict(),
@@ -70,6 +72,11 @@ export const contentSchemas = {
     title: localized, city: localized, subtitle: localized, description: localized, date: localized,
     mapLabel: localized, registration: link,
     image: z.object({ src: z.string().regex(/^\/(?!\/)/).max(2048), alt: localized }).strict()
+  }).strict(),
+  'hall-plan': z.object({
+    ...visibility,
+    title: localized, description: localized, placeholder: localized,
+    image: localizedImage.extend({ src: optionalImagePath })
   }).strict(),
   schedule: z.object({
     ...visibility,
@@ -133,6 +140,7 @@ export const contentSections: { id: ContentSection; label: string; icon: string 
   { id: 'hero', label: 'Первый экран', icon: 'i-lucide-layout-template' },
   { id: 'about', label: 'О форуме', icon: 'i-lucide-info' },
   { id: 'loft-hall', label: 'LoftHall / Площадка', icon: 'i-lucide-map-pin' },
+  { id: 'hall-plan', label: 'Схема зала', icon: 'i-lucide-map' },
   { id: 'schedule', label: 'Расписание', icon: 'i-lucide-calendar-days' },
   { id: 'program', label: 'Программа', icon: 'i-lucide-list' },
   { id: 'speakers', label: 'Наши спикеры', icon: 'i-lucide-users' },
