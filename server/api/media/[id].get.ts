@@ -3,7 +3,7 @@ import { getDatabase } from '../../utils/database'
 export default defineEventHandler(event => {
   const id = getRouterParam(event, 'id') || ''
   if (!/^[0-9a-f-]{36}$/.test(id)) throw createError({ statusCode: 404, statusMessage: 'Image not found' })
-  const row = getDatabase().prepare('SELECT mimeType, data FROM media WHERE id = ?').get(id) as
+  const row = getDatabase().prepare("SELECT mimeType, data FROM media WHERE id = ? AND mimeType LIKE 'image/%'").get(id) as
     { mimeType: string; data: Uint8Array } | undefined
   if (!row) throw createError({ statusCode: 404, statusMessage: 'Image not found' })
   setHeaders(event, {

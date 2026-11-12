@@ -14,6 +14,10 @@ export const useProgram = async () => {
 
   return {
     title: computed(() => localize(content.value.title)),
-    button: computed(() => ({ label: localize(content.value.button.label), href: localize(content.value.button.href) }))
+    button: computed(() => ({
+      label: localize(content.value.button.label),
+      href: content.value.button.href[languageStore.locale]
+        ? `${content.value.button.href[languageStore.locale]}?lang=${languageStore.locale}&view=1` : ''
+    }))
   }
 }

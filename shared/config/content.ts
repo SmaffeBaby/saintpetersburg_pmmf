@@ -86,13 +86,25 @@ export const contentSchemas = {
   program: z.preprocess(value => {
     // Replace the legacy placeholder while preserving the saved title and visibility.
     if (!value || typeof value !== 'object' || Array.isArray(value)) return value
-    const { description, ...content } = value as Record<string, unknown>
+    const { description, ...content } = value as Record<string, any>
+    if (content.button?.href && typeof content.button.href === 'object') {
+      content.button = { ...content.button, href: { ...content.button.href }, label: { ...content.button.label } }
+      for (const locale of ['ru', 'en'] as const) {
+        if (/^https?:\/\//.test(content.button.href[locale])) content.button.href[locale] = ''
+        if ([locale === 'ru' ? 'Открыть программу' : 'View program', locale === 'ru' ? 'Скачать программу' : 'Download program'].includes(content.button.label[locale])) {
+          content.button.label[locale] = defaults.program.button.label[locale]
+        }
+      }
+    }
     return content
   }, z.object({
     ...visibility, title: localized,
     button: z.object({
       label: localized,
-      href: z.object({ ru: safeHref, en: safeHref }).strict()
+      href: z.object({
+        ru: z.string().regex(/^\/api\/program-files\/[0-9a-f-]{36}$/).or(z.literal('')),
+        en: z.string().regex(/^\/api\/program-files\/[0-9a-f-]{36}$/).or(z.literal(''))
+      }).strict()
     }).strict().default(defaults.program.button)
   }).strict()),
   speakers: z.object({

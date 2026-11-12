@@ -108,18 +108,51 @@ try {
   assert.ok(!('description' in program.content))
   assert.deepEqual(program.content.button, defaults.program.button)
   const programPage = await (await fetch(`${base}/`)).text()
-  assert.match(programPage, /href="https:\/\/disk\.yandex\.ru\/d\/JMKcGbBlKT9_lg"[^>]*target="_blank"/)
+  assert.match(programPage, /<button[^>]*disabled[^>]*>Открыть программу<\/button>/)
   assert.ok(!programPage.includes('программа форума находится'))
   for (const locale of ['ru', 'en']) {
     const invalid = structuredClone(program)
     invalid.content.button.href[locale] = 'javascript:alert(1)'
     assert.equal((await putContent('program', invalid)).status, 400)
   }
-  program.content.button.href = { ru: 'https://example.org/program-ru', en: 'https://example.org/program-en' }
-  program.content.button.label = { ru: 'Смотреть программу', en: 'Explore program' }
+  const programPdfs = {}
+  for (const locale of ['ru', 'en']) {
+    const bytes = Buffer.from(`%PDF-1.7\n% Programme ${locale}\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF\n`)
+    const form = new FormData()
+    form.append('file', new Blob([bytes], { type: 'application/pdf' }), `programme-${locale}.pdf`)
+    assert.equal((await fetch(`${base}/api/admin/program-files`, { method: 'POST', body: form })).status, 401)
+    assert.equal((await fetch(`${base}/api/admin/program-files`, { method: 'POST', headers: { ...headers, Origin: 'https://other.example' }, body: form })).status, 403)
+    const response = await fetch(`${base}/api/admin/program-files`, { method: 'POST', headers, body: form })
+    assert.equal(response.status, 201)
+    const pdf = await response.json()
+    programPdfs[locale] = { ...pdf, bytes }
+    const download = await fetch(`${base}${pdf.src}?lang=${locale}`)
+    assert.equal(download.headers.get('content-type'), 'application/pdf')
+    assert.match(download.headers.get('content-disposition'), /^inline;/)
+    assert.ok(download.headers.get('content-disposition').includes(encodeURIComponent(locale === 'ru' ? 'ПММФ_Программа.pdf' : 'SPIYF_Programme_EN.pdf')))
+    assert.deepEqual(Buffer.from(await download.arrayBuffer()), bytes)
+    assert.equal((await fetch(`${base}/api/media/${pdf.id}`)).status, 404)
+  }
+  const fakePdf = new FormData()
+  fakePdf.append('file', new Blob(['<html>not a PDF</html>'], { type: 'application/pdf' }), 'fake.pdf')
+  assert.equal((await fetch(`${base}/api/admin/program-files`, { method: 'POST', headers, body: fakePdf })).status, 415)
+  const hugePdf = new FormData()
+  hugePdf.append('file', new Blob(['%PDF-1.7\n', Buffer.alloc(5 * 1024 * 1024), '\n%%EOF'], { type: 'application/pdf' }), 'huge.pdf')
+  assert.equal((await fetch(`${base}/api/admin/program-files`, { method: 'POST', headers, body: hugePdf })).status, 413)
+  assert.equal((await fetch(`${base}/api/program-files/00000000-0000-0000-0000-000000000000`)).status, 404)
+  program.content.button.href = { ru: programPdfs.ru.src, en: programPdfs.en.src }
+  program.content.button.label = { ru: 'Скачать программу форума', en: 'Download forum program' }
   assert.equal((await putContent('program', program)).status, 200)
   assert.deepEqual((await (await fetch(`${base}/api/content/program`)).json()).button, program.content.button)
-  assert.match(await (await fetch(`${base}/`)).text(), /href="https:\/\/example\.org\/program-ru"/)
+  const pdfPage = await (await fetch(`${base}/`)).text()
+  assert.ok(pdfPage.includes(`href="${programPdfs.ru.src}?lang=ru&amp;view=1" target="_blank" rel="noopener noreferrer"`))
+  // Exceed the old shared content quota. SSR must keep using saved content.
+  for (let index = 0; index < 130; index++) {
+    assert.equal((await fetch(`${base}/api/content/speakers`)).status, 200)
+  }
+  const afterContentTraffic = await (await fetch(`${base}/`)).text()
+  assert.ok(afterContentTraffic.includes(`href="${programPdfs.ru.src}?lang=ru&amp;view=1"`))
+  assert.ok(!afterContentTraffic.includes('Too Many Requests'))
   assert.equal((await fetch(`${base}/api/admin/content/site-layout`)).status, 401)
   const layout = await (await fetch(`${base}/api/admin/content/site-layout`, { headers })).json()
   const migratedOrder = [...legacyOrder]
@@ -202,6 +235,7 @@ try {
   await stop()
   await start()
   assert.deepEqual((await (await fetch(`${base}/api/content/program`)).json()).button, program.content.button)
+  assert.deepEqual(Buffer.from(await (await fetch(`${base}${programPdfs.en.src}?lang=en`)).arrayBuffer()), programPdfs.en.bytes)
   const delivery = await (await fetch(`${base}/api/admin/content/registration-delivery`, { headers })).json()
   delivery.content = { organizerEmail: 'info.crbi@mail.ru', participantEmailMode: 'except', includedCountries: [], excludedCountries: ['GB-ENG', 'DE'] }
   assert.equal((await putContent('registration-delivery', { ...delivery, content: { ...delivery.content, excludedCountries: ['INVALID'] } })).status, 400)
@@ -351,6 +385,7 @@ try {
   hallPlan = await hallImageSave.json()
   const hallImagePage = await (await fetch(`${base}/`)).text()
   assert.match(hallImagePage, new RegExp(`src="${media.src}"[^>]*alt="Схема зала форума"`))
+  assert.ok(hallImagePage.includes('aria-label="Открыть изображение: Схема зала форума"'))
   assert.doesNotMatch(hallImagePage, /<p\b[^>]*>Схема готовится<\/p>/)
   assert.equal((await putContent('hall-plan', { ...hallPlan, content: { ...hallPlan.content, image: { ...hallPlan.content.image, src: 'https://invalid.example/test.png' } } })).status, 400)
   const downloaded = await fetch(`${base}${media.src}`)

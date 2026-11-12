@@ -80,10 +80,10 @@ onBeforeRouteUpdate(() => !dirty.value || window.confirm('Покинуть ре�
         <USwitch v-model="content.visible" label="Показывать на сайте" :disabled="saving" />
         <p class="text-sm text-slate-500">{{ content.visible ? 'Компонент виден на сайте.' : 'Компонент скрыт на сайте. Его содержимое сохранено.' }} Нажмите «Сохранить», чтобы применить изменения для обоих языков.</p>
       </div>
-      <p v-if="section === 'program'" class="mb-6 text-sm text-slate-500">В полях «Кнопка → Ссылка → Русский / English» укажите отдельные адреса программы для каждого языка. Текст кнопки также можно изменить для RU и EN.</p>
+      <p v-if="section === 'program'" class="mb-6 text-sm text-slate-500">Загрузите отдельный PDF для RU и EN. Кнопка на сайте открывает PDF выбранного языка в новой вкладке. Скачать файл можно в просмотрщике браузера. После загрузки или замены нажмите «Сохранить».</p>
       <p v-if="section === 'schedule'" class="mb-6 text-sm text-slate-500">В поле «Кнопка → Ссылка» укажите адрес страницы или файла расписания. Пока ссылка пустая, кнопка на сайте неактивна.</p>
       <p v-if="section === 'header'" class="mb-6 text-sm text-slate-500">Оставьте ссылку пункта навигации пустой, чтобы показывать только текст без перехода.</p>
-      <p v-if="section === 'hall-plan'" class="mb-6 text-sm text-slate-500">Загрузите схему зала в поле «Основное изображение (RU)». Пока изображения нет, на сайте отображается текст заглушки. Для английской версии можно загрузить отдельную схему; пустое поле EN использует основное изображение. Очистите пути изображений, чтобы вернуть заглушку.</p>
+      <p v-if="section === 'hall-plan'" class="mb-6 text-sm text-slate-500">Загрузите схему зала в поле «Основное изображение (RU)». Пока изображения нет, на сайте отображается текст заглушки. Нажатие на схему открывает просмотр с увеличением. Для английской версии можно загрузить отдельную схему; пустое поле EN использует основное изображение. Очистите пути изображений, чтобы вернуть заглушку.</p>
       <p v-if="section === 'footer'" class="mb-6 text-sm text-slate-500">Изображение отображается между адресом и контактами и открывается по нажатию в режиме просмотра с увеличением. Загрузите основное изображение и при необходимости отдельную версию EN. Пустое поле EN использует основное изображение. Очистите оба пути, чтобы убрать изображение из подвала.</p>
       <p v-if="section === 'registration-messages'" class="mb-6 text-sm text-slate-500">Редактируйте уведомления после отправки формы и темы, заголовки и тексты обоих писем. Таблица с данными заявки добавляется автоматически. В письмах доступны подстановки: <span v-pre>{{lastName}}, {{firstName}}, {{middleName}}, {{birthDate}}, {{region}}, {{city}}, {{email}}, {{phone}}, {{createdAt}}</span>.</p>
       <p v-if="['header', 'hero', 'information-partners'].includes(section)" class="mb-6 text-sm text-slate-500">Загружайте отдельные логотипы для RU и EN. Пустое поле EN использует основное изображение. В разделе «Первый экран» доступны большой логотип и логотипы организаторов в нижней белой плашке. Пустое основное изображение большого логотипа возвращает исходный логотип сайта.</p>
@@ -94,6 +94,7 @@ onBeforeRouteUpdate(() => !dirty.value || window.confirm('Покинуть ре�
         </UFormField>
       </div>
       <AdminBlockOrder v-else-if="section === 'site-layout'" v-model="contentFields" />
+      <AdminProgramEditor v-else-if="section === 'program'" v-model="contentFields" />
       <AdminRegistrationDelivery v-else-if="section === 'registration-delivery'" v-model="contentFields" />
       <AdminLegalDocumentEditor v-else-if="section === 'privacy-policy' || section === 'personal-data-consent'" v-model="contentFields" :section="section" />
       <AdminContentFields v-else v-model="contentFields" />

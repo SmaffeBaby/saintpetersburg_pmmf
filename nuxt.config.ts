@@ -43,6 +43,10 @@ export default defineNuxtConfig({
     '/api/admin/**': { headers: { 'cache-control': 'no-store' } },
     '/_nuxt/**': { security: { rateLimiter: false } },
     '/images/**': { security: { rateLimiter: false } },
+    // SSR fetches share an internal IP and must not exhaust the content quota.
+    '/api/content/**': { security: { rateLimiter: false } },
+    '/api/media/**': { security: { rateLimiter: false } },
+    '/api/program-files/**': { security: { rateLimiter: false } },
     '/api/admin/login': { security: { rateLimiter: { tokensPerInterval: 10, interval: 300000 } } }
   },
   css: ['~/assets/css/main.css'],

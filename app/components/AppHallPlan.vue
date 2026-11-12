@@ -10,7 +10,7 @@ const { title, description, placeholder, image } = await useHallPlan()
         <p class="mt-8 whitespace-pre-line break-words font-montserrat text-lg leading-[1.3] sm:text-xl lg:mt-10 lg:text-2xl">{{ description }}</p>
       </div>
       <div class="flex aspect-[770/500] min-w-0 items-center justify-center overflow-hidden rounded-[28px] bg-white sm:rounded-[40px]">
-        <img v-if="image.src" :src="image.src" :alt="image.alt" width="770" height="500" class="h-full w-full object-contain" loading="lazy" decoding="async">
+        <AppImageViewer v-if="image.src" :key="image.src" :src="image.src" :alt="image.alt" contained class="h-full w-full" />
         <p v-else class="px-6 text-center font-montserrat text-xl leading-[1.3] text-[#8C64D8] lg:text-2xl">{{ placeholder }}</p>
       </div>
     </div>

@@ -12,6 +12,7 @@ const { title, button } = await useProgram()
       </div>
       <h2 id="program-title" class="max-w-full break-words font-days-one text-[clamp(28px,5vw,70px)] uppercase leading-[1.15]">{{ title }}</h2>
       <a
+        v-if="button.href"
         :href="button.href"
         target="_blank"
         rel="noopener noreferrer"
@@ -19,6 +20,7 @@ const { title, button } = await useProgram()
       >
         {{ button.label }}
       </a>
+      <button v-else type="button" disabled class="mt-7 inline-flex min-h-[62px] max-w-full cursor-not-allowed items-center justify-center rounded-[20px] bg-[#8C64D8] px-6 py-4 font-days-one text-sm uppercase leading-[1.3] text-white opacity-50 lg:mt-9">{{ button.label }}</button>
     </div>
   </section>
 </template>
