@@ -114,9 +114,12 @@
   },
   "program": {
     "title": { "ru": "Программа", "en": "Program" },
-    "description": {
-      "ru": "программа форума находится\nв разработке",
-      "en": "The forum program is currently\nunder development"
+    "button": {
+      "label": { "ru": "Открыть программу", "en": "View program" },
+      "href": {
+        "ru": "https://disk.yandex.ru/d/JMKcGbBlKT9_lg",
+        "en": "https://disk.yandex.ru/d/8falBjyLsH8tjw"
+      }
     }
   },
   "schedule": {

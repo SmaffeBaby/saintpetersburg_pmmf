@@ -83,7 +83,18 @@ export const contentSchemas = {
     title: localized, description: localized,
     button: z.object({ label: localized, href: safeHref.or(z.literal('')) }).strict()
   }).strict(),
-  program: z.object({ ...visibility, title: localized, description: localized }).strict(),
+  program: z.preprocess(value => {
+    // Replace the legacy placeholder while preserving the saved title and visibility.
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return value
+    const { description, ...content } = value as Record<string, unknown>
+    return content
+  }, z.object({
+    ...visibility, title: localized,
+    button: z.object({
+      label: localized,
+      href: z.object({ ru: safeHref, en: safeHref }).strict()
+    }).strict().default(defaults.program.button)
+  }).strict()),
   speakers: z.object({
     ...visibility,
     title: localized,

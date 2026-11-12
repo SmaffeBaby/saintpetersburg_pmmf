@@ -80,6 +80,10 @@ try {
   legacy.prepare('INSERT INTO site_content(section, content, updatedAt) VALUES (?, ?, ?)').run('header', JSON.stringify(legacyHeader), '2026-01-01T00:00:00.000Z')
   const { image: footerImage, ...legacyFooterSeed } = defaults.footer
   legacy.prepare('INSERT INTO site_content(section, content, updatedAt) VALUES (?, ?, ?)').run('footer', JSON.stringify(legacyFooterSeed), '2026-01-01T00:00:00.000Z')
+  legacy.prepare('INSERT INTO site_content(section, content, updatedAt) VALUES (?, ?, ?)').run('program', JSON.stringify({
+    title: { ru: 'Программа форума', en: 'Forum program' },
+    description: { ru: 'программа форума находится\nв разработке', en: 'Under development' }
+  }), '2026-01-01T00:00:00.000Z')
   legacy.close()
   await start()
   assert.equal((await fetch(`${base}/api/admin/content/registration-messages`)).status, 401)
@@ -99,6 +103,23 @@ try {
   const putContent = (section, record) => fetch(`${base}/api/admin/content/${section}`, {
     method: 'PUT', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify(record)
   })
+  const program = await (await fetch(`${base}/api/admin/content/program`, { headers })).json()
+  assert.equal(program.content.title.ru, 'Программа форума')
+  assert.ok(!('description' in program.content))
+  assert.deepEqual(program.content.button, defaults.program.button)
+  const programPage = await (await fetch(`${base}/`)).text()
+  assert.match(programPage, /href="https:\/\/disk\.yandex\.ru\/d\/JMKcGbBlKT9_lg"[^>]*target="_blank"/)
+  assert.ok(!programPage.includes('программа форума находится'))
+  for (const locale of ['ru', 'en']) {
+    const invalid = structuredClone(program)
+    invalid.content.button.href[locale] = 'javascript:alert(1)'
+    assert.equal((await putContent('program', invalid)).status, 400)
+  }
+  program.content.button.href = { ru: 'https://example.org/program-ru', en: 'https://example.org/program-en' }
+  program.content.button.label = { ru: 'Смотреть программу', en: 'Explore program' }
+  assert.equal((await putContent('program', program)).status, 200)
+  assert.deepEqual((await (await fetch(`${base}/api/content/program`)).json()).button, program.content.button)
+  assert.match(await (await fetch(`${base}/`)).text(), /href="https:\/\/example\.org\/program-ru"/)
   assert.equal((await fetch(`${base}/api/admin/content/site-layout`)).status, 401)
   const layout = await (await fetch(`${base}/api/admin/content/site-layout`, { headers })).json()
   const migratedOrder = [...legacyOrder]
@@ -180,6 +201,7 @@ try {
   // limiter before the independent registration/media test batch.
   await stop()
   await start()
+  assert.deepEqual((await (await fetch(`${base}/api/content/program`)).json()).button, program.content.button)
   const delivery = await (await fetch(`${base}/api/admin/content/registration-delivery`, { headers })).json()
   delivery.content = { organizerEmail: 'info.crbi@mail.ru', participantEmailMode: 'except', includedCountries: [], excludedCountries: ['GB-ENG', 'DE'] }
   assert.equal((await putContent('registration-delivery', { ...delivery, content: { ...delivery.content, excludedCountries: ['INVALID'] } })).status, 400)

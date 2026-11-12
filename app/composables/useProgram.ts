@@ -3,7 +3,7 @@ import type { LocalizedText } from '~/composables/useHeader'
 
 interface ProgramContent {
   title: LocalizedText
-  description: LocalizedText
+  button: { label: LocalizedText; href: LocalizedText }
 }
 
 export const useProgram = async () => {
@@ -14,6 +14,6 @@ export const useProgram = async () => {
 
   return {
     title: computed(() => localize(content.value.title)),
-    description: computed(() => localize(content.value.description))
+    button: computed(() => ({ label: localize(content.value.button.label), href: localize(content.value.button.href) }))
   }
 }

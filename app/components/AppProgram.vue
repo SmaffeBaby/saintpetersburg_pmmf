@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { title, description } = await useProgram()
+const { title, button } = await useProgram()
 </script>
 
 <template>
@@ -11,7 +11,14 @@ const { title, description } = await useProgram()
         <img data-hover-parallax="-20" data-parallax-pin-bottom src="/images/program-right-arch.svg" alt="" width="286" height="222" class="program-right-arch absolute h-auto" loading="lazy" decoding="async">
       </div>
       <h2 id="program-title" class="max-w-full break-words font-days-one text-[clamp(28px,5vw,70px)] uppercase leading-[1.15]">{{ title }}</h2>
-      <p class="mt-7 max-w-[640px] whitespace-pre-line break-words font-montserrat text-lg leading-[1.3] sm:text-xl lg:mt-9 lg:text-2xl">{{ description }}</p>
+      <a
+        :href="button.href"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="mt-7 inline-flex min-h-[62px] max-w-full items-center justify-center break-words rounded-[20px] bg-[#8C64D8] px-6 py-4 font-days-one text-sm uppercase leading-[1.3] text-white transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#8C64D8] lg:mt-9"
+      >
+        {{ button.label }}
+      </a>
     </div>
   </section>
 </template>
