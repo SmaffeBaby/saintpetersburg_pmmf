@@ -7,6 +7,7 @@ const revision = ref(0)
 const saved = ref('')
 const loading = ref(false)
 const saving = ref(false)
+const transferring = ref(false)
 const error = ref('')
 const success = ref('')
 const dirty = computed(() => content.value !== null && JSON.stringify(content.value) !== saved.value)
@@ -68,14 +69,15 @@ onBeforeRouteUpdate(() => !dirty.value || window.confirm('Покинуть ре�
     <div class="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white/95 p-4 backdrop-blur">
       <p class="text-sm text-slate-500">{{ dirty ? 'Есть несохранённые изменения' : section === 'favicon' ? 'Иконка сайта для обоих языков' : 'Контент на русском и английском' }}</p>
       <div class="flex gap-2">
-        <UButton label="Обновить" color="neutral" variant="outline" :disabled="saving || loading" @click="load" />
-        <UButton label="Сохранить" icon="i-lucide-check" :loading="saving" :disabled="!dirty || loading" @click="save" />
+        <UButton label="Обновить" color="neutral" variant="outline" :disabled="saving || loading || transferring" @click="load" />
+        <UButton label="Сохранить" icon="i-lucide-check" :loading="saving" :disabled="!dirty || loading || transferring" @click="save" />
       </div>
     </div>
     <UAlert v-if="error" color="error" :description="error" role="alert" />
     <UAlert v-if="success" color="success" :description="success" role="status" />
     <p v-if="loading" role="status" class="py-12 text-center text-slate-500">Загружаем раздел…</p>
     <UCard v-else-if="content">
+      <AdminSpeakersTransfer v-if="section === 'speakers'" :dirty="dirty" :disabled="saving || loading" @busy="transferring = $event" @unauthorized="emit('unauthorized')" @imported="content = $event; error = ''; success = ''" />
       <div v-if="hasVisibility" class="mb-6 space-y-2 border-b border-slate-200 pb-6">
         <USwitch v-model="content.visible" label="Показывать на сайте" :disabled="saving" />
         <p class="text-sm text-slate-500">{{ content.visible ? 'Компонент виден на сайте.' : 'Компонент скрыт на сайте. Его содержимое сохранено.' }} Нажмите «Сохранить», чтобы применить изменения для обоих языков.</p>

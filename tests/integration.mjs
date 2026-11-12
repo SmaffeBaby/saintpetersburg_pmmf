@@ -502,6 +502,75 @@ try {
   assert.deepEqual((await (await fetch(`${base}/api/content/footer`)).json()).privacy.label, legalDefaults['privacy-policy'].title)
   assert.deepEqual((await (await fetch(`${base}/api/content/site-layout`)).json()).order, layout.content.order)
   assert.deepEqual((await (await fetch(`${base}/api/admin/content/registration-delivery`, { headers })).json()).content, delivery.content)
+  // Portable speaker exports embed uploaded and bundled images and never
+  // overwrite source media IDs or publish imported drafts automatically.
+  let transferRecord = await (await fetch(`${base}/api/admin/content/speakers`, { headers })).json()
+  transferRecord.content.speakers.at(-1).image.src = '/images/speaker-chechina.png'
+  const transferSave = await putContent('speakers', transferRecord)
+  assert.equal(transferSave.status, 200)
+  transferRecord = await transferSave.json()
+  assert.equal((await fetch(`${base}/api/admin/speakers/export`)).status, 401)
+  const exportedSpeakers = await fetch(`${base}/api/admin/speakers/export`, { headers })
+  assert.equal(exportedSpeakers.status, 200)
+  assert.match(exportedSpeakers.headers.get('content-disposition'), /^attachment;.*\.json/)
+  assert.equal(exportedSpeakers.headers.get('cache-control'), 'no-store')
+  const bundle = await exportedSpeakers.json()
+  assert.equal(bundle.format, 'saint-mmf-speakers')
+  assert.equal(bundle.version, 1)
+  assert.deepEqual(bundle.content, transferRecord.content)
+  assert.equal(bundle.assets.length, 2)
+  const importBundle = (data, extraHeaders = headers) => fetch(`${base}/api/admin/speakers/import`, {
+    method: 'POST', headers: { ...extraHeaders, 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+  })
+  assert.equal((await importBundle(bundle, {})).status, 401)
+  assert.equal((await importBundle(bundle, { ...headers, Origin: 'https://other.example' })).status, 403)
+  const mediaCount = () => {
+    const db = new DatabaseSync(join(directory, 'test.sqlite'), { readOnly: true })
+    try { return db.prepare('SELECT COUNT(*) AS total FROM media').get().total } finally { db.close() }
+  }
+  const largeBundle = structuredClone(bundle)
+  largeBundle.assets[0].data = Buffer.concat([image, Buffer.alloc(2 * 1024 * 1024)]).toString('base64')
+  assert.ok(Buffer.byteLength(JSON.stringify(largeBundle)) > 2 * 1024 * 1024)
+  assert.equal((await importBundle(largeBundle)).status, 200)
+  const beforeInvalidImport = mediaCount()
+  const brokenBundle = structuredClone(bundle)
+  brokenBundle.assets.at(-1).data = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>').toString('base64')
+  brokenBundle.assets.at(-1).mimeType = 'image/svg+xml'
+  assert.equal((await importBundle(brokenBundle)).status, 400)
+  assert.equal((await importBundle({ ...bundle, version: 99 })).status, 400)
+  assert.equal((await importBundle({ ...bundle, assets: [] })).status, 400)
+  assert.equal((await importBundle({ ...bundle, assets: [...bundle.assets, bundle.assets[0]] })).status, 400)
+  const externalImage = structuredClone(bundle)
+  externalImage.content.speakers[0].image.src = 'https://other.example/photo.png'
+  assert.equal((await importBundle(externalImage)).status, 400)
+  assert.equal(mediaCount(), beforeInvalidImport)
+  const importedResponse = await importBundle(bundle)
+  assert.equal(importedResponse.status, 200)
+  const importedSpeakers = (await importedResponse.json()).content
+  assert.equal(importedSpeakers.speakers.length, 25)
+  assert.equal(mediaCount(), beforeInvalidImport + 2)
+  assert.deepEqual(await (await fetch(`${base}/api/content/speakers`)).json(), transferRecord.content)
+  const otherBeforeImport = await (await fetch(`${base}/api/content/program`)).json()
+  for (let index = 0; index < bundle.content.speakers.length; index++) {
+    const source = bundle.content.speakers[index]
+    const target = importedSpeakers.speakers[index]
+    assert.deepEqual({ ...target, image: { ...target.image, src: source.image.src } }, source)
+    assert.notEqual(target.image.src, source.image.src)
+    const asset = bundle.assets.find(asset => asset.src === source.image.src)
+    assert.deepEqual(Buffer.from(await (await fetch(`${base}${target.image.src}`)).arrayBuffer()), Buffer.from(asset.data, 'base64'))
+  }
+  assert.equal(new Set(importedSpeakers.speakers.map(s => s.image.src)).size, 2)
+  const importSave = await putContent('speakers', { ...transferRecord, content: importedSpeakers })
+  assert.equal(importSave.status, 200)
+  assert.equal((await putContent('speakers', transferRecord)).status, 409)
+  assert.deepEqual(await (await fetch(`${base}/api/content/program`)).json(), otherBeforeImport)
+  assert.deepEqual(Buffer.from(await (await fetch(`${base}${media.src}`)).arrayBuffer()), image)
+  await stop()
+  await start()
+  assert.deepEqual(await (await fetch(`${base}/api/content/speakers`)).json(), importedSpeakers)
+  const exportedAgain = await (await fetch(`${base}/api/admin/speakers/export`, { headers })).json()
+  assert.deepEqual(exportedAgain.content, importedSpeakers)
+  assert.deepEqual(exportedAgain.assets.map(a => a.data).sort(), bundle.assets.map(a => a.data).sort())
   console.log('HTTP integration passed: country-scoped city search, old database/form migration, cities in mail/Excel, block order, country validation, SMTP recipient rules, settings persistence, authentication, editable content, favicon replacement in HTML, localized logos, raster/SVG uploads, active SVG rejection, CSRF and persistence after restart.')
 } finally {
   await stop()

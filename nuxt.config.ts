@@ -47,6 +47,7 @@ export default defineNuxtConfig({
     '/api/content/**': { security: { rateLimiter: false } },
     '/api/media/**': { security: { rateLimiter: false } },
     '/api/program-files/**': { security: { rateLimiter: false } },
+    '/api/admin/speakers/import': { security: { requestSizeLimiter: { maxRequestSizeInBytes: 300 * 1024 * 1024 + 1 } } },
     '/api/admin/login': { security: { rateLimiter: { tokensPerInterval: 10, interval: 300000 } } }
   },
   css: ['~/assets/css/main.css'],
