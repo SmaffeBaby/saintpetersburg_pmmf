@@ -7,9 +7,12 @@ services:
     init: true
     stop_grace_period: 60s
     env_file: .env
+    environment:
+      TELEGRAM_SITE_DATABASE_PATH: /app/site-data/saint-mmf.sqlite
     volumes:
       - ./data:/app/data
       - ../data/telegram:/app/access
+      - ../data:/app/site-data:ro
     logging:
       driver: local
       options:

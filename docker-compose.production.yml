@@ -15,6 +15,7 @@ services:
     mem_limit: 192m
     cpus: 0.5
     environment:
+      TELEGRAM_SITE_DATABASE_PATH: /app/site-data/saint-mmf.sqlite
       TELEGRAM_DATABASE_PATH: /app/bot-data/bot.sqlite
       TELEGRAM_ACCESS_PATH: /app/access/access.sqlite
       HTTPS_PROXY: ${TELEGRAM_HTTPS_PROXY:-}
@@ -22,6 +23,7 @@ services:
     volumes:
       - ./data/telegram-bot:/app/bot-data
       - ./data/telegram:/app/access
+      - ./data:/app/site-data:ro
     healthcheck:
       test: ["CMD", "node", "-e", "const {DatabaseSync}=require('node:sqlite');const d=new DatabaseSync(process.env.TELEGRAM_DATABASE_PATH,{readOnly:true});const h=Number(d.prepare(\"SELECT value FROM settings WHERE key='heartbeat'\").get()?.value||0);d.close();process.exit(Date.now()-h<90000?0:1)"]
       interval: 30s

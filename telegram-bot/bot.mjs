@@ -6,7 +6,7 @@ import { translate, localizeMarkup, russianMenuText, languagePrompt, participant
 
 export const menu = { keyboard: [['📄 Программа', '🔗 Ресурсы ПММФ'], ['🤝 Партнёры'], ['🔔 Подписаться', '🔕 Отписаться'], ['🌐 Язык / Language']], resize_keyboard: true };
 const buttons = rows => ({ inline_keyboard: rows.map(row => row.map(([text, callback_data]) => ({ text, callback_data }))) });
-const adminMenu = buttons([[['✍️ Создать пост', 'new']], [['📅 Запланированные', 'queue']], [['📄 Загрузить программу', 'pdf']], [['📊 Статистика', 'stats']]]);
+const adminMenu = buttons([[['✍️ Создать пост', 'new']], [['📅 Запланированные', 'queue']], [['📊 Статистика', 'stats']]]);
 export function parseDate(text, now = Date.now()) {
   const m = /^(\d{2})\.(\d{2})\.(\d{4}) (\d{2}):(\d{2})$/.exec(text);
   if (!m) return null;
@@ -26,7 +26,7 @@ export function content(message) {
   return null;
 }
 
-export function createBot({ path = ':memory:', adminIds = [], isAdmin = id => adminIds.includes(id), api, getContent = defaultBotContent, now = Date.now }) {
+export function createBot({ path = ':memory:', adminIds = [], isAdmin = id => adminIds.includes(id), api, getContent = defaultBotContent, getProgramPdf = () => null, now = Date.now }) {
   if (path !== ':memory:') mkdirSync(dirname(path), { recursive: true });
   const db = new DatabaseSync(path);
   db.exec(`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;
@@ -73,7 +73,7 @@ export function createBot({ path = ':memory:', adminIds = [], isAdmin = id => ad
       }
       if (!isAdmin(id)) return say(id, 'Доступ только для администраторов.');
       if (action === 'new') { session(id, 'post'); return say(id, 'Пришлите текст, одно фото или одно видео с подписью. Для отмены — /cancel.'); }
-      if (action === 'pdf') { session(id, 'pdf'); return say(id, 'Пришлите программу файлом PDF. Для отмены — /cancel.'); }
+      if (action === 'pdf') { clear(id); return say(id, 'PDF программы загружаются на сайте: /admin?section=program. Сохраните отдельные файлы для RU и EN.'); }
       if (action === 'stats') return say(id, `Подписчиков: ${get('SELECT COUNT(*) AS n FROM subscribers WHERE active=1').n}`);
       if (action === 'queue') {
         const posts = all("SELECT * FROM posts WHERE status IN ('scheduled','queued') ORDER BY due LIMIT 30");
@@ -102,7 +102,10 @@ export function createBot({ path = ':memory:', adminIds = [], isAdmin = id => ad
     if (command === '/cancel') { clear(id); return say(id, 'Текущее действие отменено. Сохранённые посты доступны через /drafts и /admin.', currentMenu()); }
     if (text === '🔔 Подписаться' || command === '/subscribe') { run('INSERT OR REPLACE INTO subscribers VALUES (?,1)', id); return say(id, 'Вы подписались на новости. Отписаться: /unsubscribe.', currentMenu()); }
     if (text === '🔕 Отписаться' || command === '/unsubscribe' || command === '/stop') { run('UPDATE subscribers SET active=0 WHERE id=?', id); return say(id, 'Рассылка отключена.', currentMenu()); }
-    if (text === '📄 Программа') { const pdf = setting('pdf'); return pdf ? api('sendDocument', { chat_id: id, document: pdf, caption: translate('Актуальная программа ПММФ', language(id), getContent()) }) : say(id, 'Программа скоро появится.'); }
+    if (text === '📄 Программа') {
+      const pdf = await getProgramPdf(language(id));
+      return pdf ? api('sendDocument', { chat_id: id, document: pdf, caption: translate('Актуальная программа ПММФ', language(id), getContent()) }) : say(id, 'Программа скоро появится.');
+    }
     const page = getContent().pages.find(page => [page.title.ru, page.title.en].includes(m.text));
     if (page) return api('sendMessage', { chat_id: id, text: page.body[language(id)], reply_markup: { inline_keyboard: page.links.map(link => [{ text: link.label[language(id)], url: link.url }]) } });
     if (!isAdmin(id)) return say(id, 'Выберите раздел меню.', currentMenu());
@@ -115,8 +118,7 @@ export function createBot({ path = ':memory:', adminIds = [], isAdmin = id => ad
     }
     const s = get('SELECT * FROM sessions WHERE id=?', id);
     if (s?.state === 'pdf') {
-      if (!m.document || !/\.pdf$/i.test(m.document.file_name ?? '') || m.document.mime_type !== 'application/pdf') return say(id, 'Нужен документ в формате PDF.');
-      set('pdf', m.document.file_id); clear(id); return say(id, 'Программа обновлена. Участники получат её по кнопке «Программа».');
+      clear(id); return say(id, 'PDF программы загружаются на сайте: /admin?section=program. Сохраните отдельные файлы для RU и EN.');
     }
     if (s?.state === 'post') {
       const payload = content(m);

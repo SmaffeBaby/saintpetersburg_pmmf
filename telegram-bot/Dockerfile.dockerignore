@@ -11,3 +11,5 @@
 !shared/utils/telegramSettings.mjs
 !shared/config/
 !shared/config/telegram-defaults.mjs
+
+!telegram-bot/program.mjs

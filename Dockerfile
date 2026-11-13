@@ -22,7 +22,7 @@ ENV NITRO_HOST=0.0.0.0
 ENV NITRO_PORT=3000
 
 COPY --from=build /app/.output ./.output
-COPY --from=build /app/telegram-bot/bot.mjs /app/telegram-bot/main.mjs /app/telegram-bot/i18n.mjs /app/telegram-bot/telegramApi.mjs ./telegram-bot/
+COPY --from=build /app/telegram-bot/bot.mjs /app/telegram-bot/main.mjs /app/telegram-bot/i18n.mjs /app/telegram-bot/telegramApi.mjs /app/telegram-bot/program.mjs ./telegram-bot/
 COPY --from=build /app/shared/utils/telegramAccess.mjs /app/shared/utils/telegramSettings.mjs ./shared/utils/
 COPY --from=build /app/shared/config/telegram-defaults.mjs ./shared/config/
 

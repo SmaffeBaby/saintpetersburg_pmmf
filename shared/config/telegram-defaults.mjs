@@ -25,6 +25,7 @@ const staticTranslations = {
   'Пришлите текст, одно фото или одно видео с подписью. Альбомы пока не поддерживаются.': 'Send text, one photo or one video with a caption. Albums are not supported yet.',
   'Укажите существующую будущую дату: ДД.ММ.ГГГГ ЧЧ:ММ (Москва).': 'Enter a valid future date: DD.MM.YYYY HH:MM (Moscow time).',
   'Пост уже изменён. Откройте /admin.': 'The post has already changed. Open /admin.', 'Меню организатора: /admin': 'Organizer menu: /admin',
+  'PDF программы загружаются на сайте: /admin?section=program. Сохраните отдельные файлы для RU и EN.': 'Upload programme PDFs on the website: /admin?section=program. Save separate files for RU and EN.',
 };
 
 const dynamic = {

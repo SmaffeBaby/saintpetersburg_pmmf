@@ -67,7 +67,12 @@ export function openTelegramSettings(path) {
   const row = () => db.prepare('SELECT * FROM telegram_settings WHERE id=1').get();
   return {
     db,
-    read() { const r = row(); return { content: JSON.parse(r.content), revision: r.revision, tokenConfigured: Boolean(r.token), botId: this.token()?.split(':')[0] ?? null }; },
+    read() {
+      const r = row();
+      const content = JSON.parse(r.content);
+      content.messages = { ...defaultBotContent().messages, ...content.messages };
+      return { content, revision: r.revision, tokenConfigured: Boolean(r.token), botId: this.token()?.split(':')[0] ?? null };
+    },
     token() {
       const r = row();
       if (!r.token) return null;
