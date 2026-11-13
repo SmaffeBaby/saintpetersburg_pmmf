@@ -4,7 +4,7 @@ import { dirname } from 'node:path';
 import { defaultBotContent } from '../shared/config/telegram-defaults.mjs';
 import { translate, localizeMarkup, russianMenuText, languagePrompt, participantMenu } from './i18n.mjs';
 
-export const menu = { keyboard: [['📄 Программа', '🔗 Ресурсы ПММФ'], ['🤝 Партнёры'], ['🔔 Подписаться', '🔕 Отписаться'], ['🌐 Язык / Language']], resize_keyboard: true };
+export const menu = { keyboard: [['📄 Программа'], ['🗺 Схема зала'], ['🅿️ Парковка'], ['🔗 Ресурсы ПММФ'], ['🤝 Партнёры'], ['🔔 Подписаться', '🔕 Отписаться'], ['🌐 Язык / Language']], resize_keyboard: true };
 const buttons = rows => ({ inline_keyboard: rows.map(row => row.map(([text, callback_data]) => ({ text, callback_data }))) });
 const adminMenu = buttons([[['✍️ Создать пост', 'new']], [['📅 Запланированные', 'queue']], [['📊 Статистика', 'stats']]]);
 export function parseDate(text, now = Date.now()) {
@@ -26,7 +26,7 @@ export function content(message) {
   return null;
 }
 
-export function createBot({ path = ':memory:', adminIds = [], isAdmin = id => adminIds.includes(id), api, getContent = defaultBotContent, getProgramPdf = () => null, now = Date.now }) {
+export function createBot({ path = ':memory:', adminIds = [], isAdmin = id => adminIds.includes(id), api, getContent = defaultBotContent, getProgramPdf = () => null, getSitePhoto = () => null, now = Date.now }) {
   if (path !== ':memory:') mkdirSync(dirname(path), { recursive: true });
   const db = new DatabaseSync(path);
   db.exec(`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;
@@ -105,6 +105,11 @@ export function createBot({ path = ':memory:', adminIds = [], isAdmin = id => ad
     if (text === '📄 Программа') {
       const pdf = await getProgramPdf(language(id));
       return pdf ? api('sendDocument', { chat_id: id, document: pdf, caption: translate('Актуальная программа ПММФ', language(id), getContent()) }) : say(id, 'Программа скоро появится.');
+    }
+    if (text === '🗺 Схема зала' || text === '🅿️ Парковка') {
+      const photo = await getSitePhoto(text === '🗺 Схема зала' ? 'hall-plan' : 'footer');
+      return photo ? api('sendPhoto', { chat_id: id, photo, caption: translate(text, language(id), getContent()), reply_markup: markup(currentMenu(), id) })
+        : say(id, text === '🗺 Схема зала' ? 'Схема зала скоро появится.' : 'Схема парковки скоро появится.', currentMenu());
     }
     const page = getContent().pages.find(page => [page.title.ru, page.title.en].includes(m.text));
     if (page) return api('sendMessage', { chat_id: id, text: page.body[language(id)], reply_markup: { inline_keyboard: page.links.map(link => [{ text: link.label[language(id)], url: link.url }]) } });

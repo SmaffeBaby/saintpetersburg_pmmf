@@ -37,7 +37,7 @@ export function validateBotContent(value) {
     if (label.startsWith('/') || (routes.has(label) && routes.get(label) !== action)) throw new Error('Menu button names must be unique and cannot start with /');
     routes.set(label, action);
   };
-  const systemButtons = ['📄 Программа', '🔔 Подписаться', '🔕 Отписаться', '🌐 Язык / Language'];
+  const systemButtons = ['🗺 Схема зала', '🅿️ Парковка', '📄 Программа', '🔔 Подписаться', '🔕 Отписаться', '🌐 Язык / Language'];
   for (const def of messageDefinitions.filter(d => systemButtons.includes(d.ru))) {
     for (const label of [def.ru, def.en, messages[def.id].ru, messages[def.id].en]) reserve(label, def.id);
   }

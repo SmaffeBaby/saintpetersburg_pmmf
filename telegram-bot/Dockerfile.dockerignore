@@ -13,3 +13,8 @@
 !shared/config/telegram-defaults.mjs
 
 !telegram-bot/program.mjs
+
+!shared/config/content-defaults.json
+!public/
+!public/images/
+!public/images/**

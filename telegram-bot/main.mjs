@@ -1,4 +1,4 @@
-import { readProgramPdf } from './program.mjs';
+import { readProgramPdf, readSitePhoto } from './program.mjs';
 import { createBot } from './bot.mjs';
 import { openTelegramAccess } from '../shared/utils/telegramAccess.mjs';
 import { openTelegramSettings, validToken } from '../shared/utils/telegramSettings.mjs';
@@ -28,7 +28,7 @@ const access = openTelegramAccess(process.env.TELEGRAM_ACCESS_PATH ?? './data/te
 const settings = openTelegramSettings(process.env.TELEGRAM_ACCESS_PATH ?? './data/telegram/access.sqlite');
 settings.bootstrap(bootstrapToken);
 const api = createTelegramApi(() => settings.token());
-const bot = createBot({ path, adminIds, isAdmin: id => access.read().adminIds.includes(String(id)), getContent: () => settings.read().content, getProgramPdf: locale => readProgramPdf(process.env.TELEGRAM_SITE_DATABASE_PATH ?? './data/saint-mmf.sqlite', locale), api });
+const bot = createBot({ path, adminIds, isAdmin: id => access.read().adminIds.includes(String(id)), getContent: () => settings.read().content, getProgramPdf: locale => readProgramPdf(process.env.TELEGRAM_SITE_DATABASE_PATH ?? './data/saint-mmf.sqlite', locale), getSitePhoto: section => readSitePhoto(process.env.TELEGRAM_SITE_DATABASE_PATH ?? './data/saint-mmf.sqlite', section, process.env.TELEGRAM_SITE_PUBLIC_PATH ?? './public'), api });
 async function poll() {
   while (running) {
     try {

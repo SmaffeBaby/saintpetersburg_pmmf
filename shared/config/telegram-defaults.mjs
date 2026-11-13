@@ -42,6 +42,10 @@ const dynamic = {
   unknown: { ru: 'Доставка не подтверждена: {{count}}', en: 'Delivery unconfirmed: {{count}}' },
   skipped: { ru: 'Пропущено: {{count}}', en: 'Skipped: {{count}}' },
   no_subscribers: { ru: 'Подписчиков нет.', en: 'No subscribers.' },
+  hall_plan_button: { ru: '🗺 Схема зала', en: '🗺 Hall plan' },
+  parking_button: { ru: '🅿️ Парковка', en: '🅿️ Parking' },
+  hall_plan_unavailable: { ru: 'Схема зала скоро появится.', en: 'The hall plan will be available soon.' },
+  parking_unavailable: { ru: 'Схема парковки скоро появится.', en: 'The parking map will be available soon.' },
   language_prompt: { ru: 'Язык / Language', en: 'Язык / Language' },
   language_ru: { ru: 'Русский', en: 'Русский' },
   language_en: { ru: 'English', en: 'English' },
@@ -50,7 +54,7 @@ const pageTexts = ['🔗 Ресурсы ПММФ', '🤝 Партнёры', 'С�
 const buttonTexts = ['📄 Программа', '🔗 Ресурсы ПММФ', '🤝 Партнёры', '🔔 Подписаться', '🔕 Отписаться', '🌐 Язык / Language', '✍️ Создать пост', '📅 Запланированные', '📄 Загрузить программу', '📊 Статистика', '👁 Предпросмотр', '📤 Отправить сейчас', '🕒 Запланировать', '🗑 Отменить пост', 'Отменить', 'Да, отправить', 'Вернуться'];
 export const messageDefinitions = [
   ...Object.entries(staticTranslations).map(([ru, en], i) => ({ id: `text_${String(i + 1).padStart(3, '0')}`, label: ru, ru, en, button: buttonTexts.includes(ru) })).filter(item => !pageTexts.includes(item.ru)),
-  ...Object.entries(dynamic).map(([id, value]) => ({ id, label: value.ru, ...value, button: id === 'language_ru' || id === 'language_en' })),
+  ...Object.entries(dynamic).map(([id, value]) => ({ id, label: value.ru, ...value, button: ['language_ru', 'language_en', 'hall_plan_button', 'parking_button'].includes(id) })),
 ];
 export const defaultMessages = Object.fromEntries(messageDefinitions.map(({ id, ru, en }) => [id, { ru, en }]));
 export const defaultPages = [

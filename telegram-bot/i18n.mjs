@@ -35,5 +35,5 @@ export function localizeMarkup(markup, lang, config = defaults) {
 export const russianMenuText = (text, config = defaults) => messageDefinitions.find(def => def.button && [def.ru, def.en, config.messages[def.id]?.ru, config.messages[def.id]?.en].includes(text))?.ru ?? text;
 export const languagePrompt = { inline_keyboard: [[{ text: 'Русский', callback_data: 'language:ru' }, { text: 'English', callback_data: 'language:en' }]] };
 export function participantMenu(config = defaults) {
-  return { keyboard: [['📄 Программа'], ...config.pages.map(page => [page.title.ru]), ['🔔 Подписаться', '🔕 Отписаться'], ['🌐 Язык / Language']], resize_keyboard: true };
+  return { keyboard: [['📄 Программа'], ['🗺 Схема зала'], ['🅿️ Парковка'], ...config.pages.map(page => [page.title.ru]), ['🔔 Подписаться', '🔕 Отписаться'], ['🌐 Язык / Language']], resize_keyboard: true };
 }

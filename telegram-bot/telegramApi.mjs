@@ -4,7 +4,7 @@ export function createTelegramApi(getToken, fetchImpl = fetch) {
     if (!token) throw Object.assign(new Error('Telegram token is not configured'), { code: 401 });
     let body;
     let headers;
-    if (payload.document instanceof Blob) {
+    if (Object.values(payload).some(value => value instanceof Blob)) {
       body = new FormData();
       for (const [key, value] of Object.entries(payload)) {
         if (value === undefined) continue;

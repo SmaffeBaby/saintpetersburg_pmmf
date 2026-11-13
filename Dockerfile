@@ -26,6 +26,9 @@ COPY --from=build /app/telegram-bot/bot.mjs /app/telegram-bot/main.mjs /app/tele
 COPY --from=build /app/shared/utils/telegramAccess.mjs /app/shared/utils/telegramSettings.mjs ./shared/utils/
 COPY --from=build /app/shared/config/telegram-defaults.mjs ./shared/config/
 
+COPY --from=build /app/shared/config/content-defaults.json ./shared/config/
+COPY --from=build /app/.output/public/images ./public/images
+
 RUN node -e "const fs = require('node:fs'); for (const p of ['.output/server/index.mjs', '.output/server/chunks/nitro/nitro.mjs', '.output/server/package.json']) { if (!fs.statSync(p).size) throw new Error('Empty runtime file: ' + p) }"
 
 EXPOSE 3000
