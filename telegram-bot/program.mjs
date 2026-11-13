@@ -15,7 +15,7 @@ export function readProgramPdf(path, locale) {
     if (!id) return null;
     const pdf = db.prepare("SELECT data FROM media WHERE id=? AND mimeType='application/pdf'").get(id);
     if (!pdf) return null;
-    return new File([pdf.data], locale === 'en' ? 'SPIYF_Programme_EN.pdf' : 'ПММФ_Программа_RU.pdf', { type: 'application/pdf' });
+    return new File([pdf.data], locale === 'en' ? 'SPIYF_Program_EN.pdf' : 'ПММФ_Программа_RU.pdf', { type: 'application/pdf' });
   } finally {
     db.close();
   }
