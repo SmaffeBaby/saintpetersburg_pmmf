@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import alternativeForumImage from '~/assets/images/alternative-forum.png'
 
-const { button, description, imageAlt, title } = await useAlternativeForum()
+const { description, imageAlt, title } = await useAlternativeForum()
 const descriptionParagraphs = computed(() => description.value.split('\n\n'))
 </script>
 
@@ -12,7 +12,7 @@ const descriptionParagraphs = computed(() => description.value.split('\n\n'))
         {{ title }}
       </h2>
 
-      <div class="mt-12 grid items-center gap-10 lg:mt-[60px] xl:grid-cols-[minmax(0,1fr)_510px] xl:gap-10 2xl:grid-cols-[770px_510px] 2xl:gap-[140px]">
+      <div class="mt-12 grid items-center gap-10 md:grid-cols-2 lg:mt-[60px] xl:grid-cols-[minmax(0,1fr)_510px] xl:gap-10 2xl:grid-cols-[770px_510px] 2xl:gap-[140px]">
         <img
           class="h-auto w-full max-w-[770px] rounded-[28px] object-cover sm:rounded-[40px] xl:h-auto 2xl:h-[628px]"
           :src="alternativeForumImage"
@@ -23,21 +23,12 @@ const descriptionParagraphs = computed(() => description.value.split('\n\n'))
           decoding="async"
         >
 
-        <div class="w-full max-w-[510px] xl:mt-[132px] xl:self-start">
+        <div class="min-w-0 w-full max-w-[510px]">
           <div class="space-y-[31px] font-montserrat text-xl font-semibold leading-[1.3] text-white sm:text-2xl">
             <p v-for="paragraph in descriptionParagraphs" :key="paragraph">
               {{ paragraph }}
             </p>
           </div>
-
-          <a
-            class="mt-10 flex min-h-[63px] w-full items-center justify-center rounded-[20px] border-2 border-white bg-white px-5 py-4 font-days-one text-sm uppercase leading-[1.3] text-[#892AF0] transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
-            :href="button.href"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {{ button.label }}
-          </a>
         </div>
       </div>
     </div>
