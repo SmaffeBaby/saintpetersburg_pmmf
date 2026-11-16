@@ -4,6 +4,7 @@ import { localizedImageSource } from '#shared/utils/localizedImage'
 
 export interface FooterContent {
   image: { src: string; srcEn: string; alt: LocalizedText }
+  secondImage: { src: string; srcEn: string; alt: LocalizedText }
   email: string
   address: LocalizedText
   contacts: LocalizedText
@@ -21,6 +22,10 @@ export const useFooter = async () => {
     image: computed(() => ({
       src: localizedImageSource(content.value.image, languageStore.locale),
       alt: localize(content.value.image.alt)
+    })),
+    secondImage: computed(() => ({
+      src: localizedImageSource(content.value.secondImage, languageStore.locale),
+      alt: localize(content.value.secondImage.alt)
     })),
     email: computed(() => content.value.email),
     address: computed(() => localize(content.value.address)),

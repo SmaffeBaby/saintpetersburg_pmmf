@@ -204,6 +204,11 @@
       "srcEn": "",
       "alt": { "ru": "Схема проезда и парковок LOFT HALL", "en": "LOFT HALL directions and parking map" }
     },
+    "secondImage": {
+      "src": "/images/footer-vip-parking.png",
+      "srcEn": "",
+      "alt": { "ru": "Схема VIP-парковки LOFT HALL", "en": "LOFT HALL VIP parking map" }
+    },
     "email": "info.crbi@mail.ru",
     "address": {
       "ru": "Санкт-Петербург, Арсенальная наб, 1",

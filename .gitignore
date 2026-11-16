@@ -36,3 +36,5 @@ pnpm-debug.log*
 /deploy/local/
 /docker-compose.https.yml
 /docker-compose.override.yml
+
+/output/

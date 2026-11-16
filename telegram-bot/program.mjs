@@ -22,13 +22,13 @@ export function readProgramPdf(path, locale) {
 }
 
 // Both bot languages share the primary image saved for the website section.
-export function readSitePhoto(path, section, publicPath = './public') {
-  if (!['hall-plan', 'footer'].includes(section) || !existsSync(path)) return null;
+export function readSitePhoto(path, section, publicPath = './public', imageKey = 'image') {
+  if (!['hall-plan', 'footer'].includes(section) || !['image', 'secondImage'].includes(imageKey) || !existsSync(path)) return null;
   const db = new DatabaseSync(path, { readOnly: true });
   try {
     db.exec('PRAGMA busy_timeout=5000');
     const row = db.prepare('SELECT content FROM site_content WHERE section=?').get(section);
-    const image = (row ? JSON.parse(row.content).image : undefined) ?? defaults[section].image;
+    const image = (row ? JSON.parse(row.content)[imageKey] : undefined) ?? defaults[section][imageKey];
     const src = image?.src;
     if (!src) return null;
     const id = /^\/api\/media\/([0-9a-f-]{36})$/.exec(src)?.[1];
@@ -50,4 +50,10 @@ export function readSitePhoto(path, section, publicPath = './public') {
   } finally {
     db.close();
   }
+}
+
+export function readParkingPhotos(path, publicPath = './public') {
+  return ['image', 'secondImage']
+    .map(key => readSitePhoto(path, 'footer', publicPath, key))
+    .filter(Boolean);
 }

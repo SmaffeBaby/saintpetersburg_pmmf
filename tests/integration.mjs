@@ -78,7 +78,7 @@ try {
   legacyHeader.nav.find(item => item.label.ru === 'Тематики').href = '#topics'
   legacyHeader.nav.find(item => item.href === '#schedule').label.ru = 'Моё расписание'
   legacy.prepare('INSERT INTO site_content(section, content, updatedAt) VALUES (?, ?, ?)').run('header', JSON.stringify(legacyHeader), '2026-01-01T00:00:00.000Z')
-  const { image: footerImage, ...legacyFooterSeed } = defaults.footer
+  const { image: footerImage, secondImage: footerSecondImage, ...legacyFooterSeed } = defaults.footer
   legacy.prepare('INSERT INTO site_content(section, content, updatedAt) VALUES (?, ?, ?)').run('footer', JSON.stringify(legacyFooterSeed), '2026-01-01T00:00:00.000Z')
   legacy.prepare('INSERT INTO site_content(section, content, updatedAt) VALUES (?, ?, ?)').run('program', JSON.stringify({
     title: { ru: 'Программа форума', en: 'Forum program' },
@@ -363,6 +363,19 @@ try {
   const media = await upload.json()
   let footerRecord = await (await fetch(`${base}/api/admin/content/footer`, { headers })).json()
   assert.deepEqual(footerRecord.content.image, footerImage)
+  assert.deepEqual(footerRecord.content.secondImage, footerSecondImage)
+  assert.match(await (await fetch(`${base}/`)).text(), /src="\/images\/footer-vip-parking.png"/)
+  footerRecord.content.secondImage = { src: media.src, srcEn: '', alt: { ru: 'Тестовая VIP-парковка', en: 'Test VIP parking' } }
+  const secondImageSave = await putContent('footer', footerRecord)
+  assert.equal(secondImageSave.status, 200)
+  footerRecord = await secondImageSave.json()
+  assert.match(await (await fetch(`${base}/`)).text(), /aria-label="Открыть изображение: Тестовая VIP-парковка"/)
+  footerRecord.content.secondImage.src = ''
+  const secondImageClear = await putContent('footer', footerRecord)
+  assert.equal(secondImageClear.status, 200)
+  footerRecord = await secondImageClear.json()
+  assert.doesNotMatch(await (await fetch(`${base}/`)).text(), /aria-label="Открыть изображение: Тестовая VIP-парковка"/)
+  assert.equal((await (await fetch(`${base}/api/content/footer`)).json()).secondImage.src, '')
   assert.match(await (await fetch(`${base}/`)).text(), /src="\/images\/footer-map.png"/)
   const defaultFooterImage = await fetch(`${base}/images/footer-map.png`)
   assert.equal(defaultFooterImage.status, 200)
@@ -418,7 +431,7 @@ try {
   await stop()
   await start()
   const localizedSections = {
-    footer: content => [content.image],
+    footer: content => [content.image, content.secondImage],
     'hall-plan': content => [content.image],
     header: content => [content.logo],
     hero: content => [content.logo, ...content.organizers],

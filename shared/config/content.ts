@@ -149,6 +149,7 @@ export const contentSchemas = {
   footer: z.object({
     ...visibility,
     image: localizedImage.extend({ src: optionalImagePath }).default(defaults.footer.image),
+    secondImage: localizedImage.extend({ src: optionalImagePath }).default(defaults.footer.secondImage),
     email: z.email().max(254), address: localized, contacts: localized,
     legal: localized, privacy: link
   }).strict()

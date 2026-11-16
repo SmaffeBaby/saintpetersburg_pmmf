@@ -26,7 +26,7 @@ export function content(message) {
   return null;
 }
 
-export function createBot({ path = ':memory:', adminIds = [], isAdmin = id => adminIds.includes(id), api, getContent = defaultBotContent, getProgramPdf = () => null, getSitePhoto = () => null, now = Date.now }) {
+export function createBot({ path = ':memory:', adminIds = [], isAdmin = id => adminIds.includes(id), api, getContent = defaultBotContent, getProgramPdf = () => null, getSitePhoto = () => null, getParkingPhotos = async () => [await getSitePhoto('footer')].filter(Boolean), now = Date.now }) {
   if (path !== ':memory:') mkdirSync(dirname(path), { recursive: true });
   const db = new DatabaseSync(path);
   db.exec(`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;
@@ -107,9 +107,12 @@ export function createBot({ path = ':memory:', adminIds = [], isAdmin = id => ad
       return pdf ? api('sendDocument', { chat_id: id, document: pdf, caption: translate('Актуальная программа ПММФ', language(id), getContent()) }) : say(id, 'Программа скоро появится.');
     }
     if (text === '🗺 Схема зала' || text === '🅿️ Парковка') {
-      const photo = await getSitePhoto(text === '🗺 Схема зала' ? 'hall-plan' : 'footer');
-      return photo ? api('sendPhoto', { chat_id: id, photo, caption: translate(text, language(id), getContent()), reply_markup: markup(currentMenu(), id) })
-        : say(id, text === '🗺 Схема зала' ? 'Схема зала скоро появится.' : 'Схема парковки скоро появится.', currentMenu());
+      const photos = text === '🅿️ Парковка' ? await getParkingPhotos() : [await getSitePhoto('hall-plan')].filter(Boolean);
+      if (!photos.length) return say(id, text === '🗺 Схема зала' ? 'Схема зала скоро появится.' : 'Схема парковки скоро появится.', currentMenu());
+      for (const photo of photos) {
+        await api('sendPhoto', { chat_id: id, photo, caption: translate(text, language(id), getContent()), reply_markup: markup(currentMenu(), id) });
+      }
+      return;
     }
     const page = getContent().pages.find(page => [page.title.ru, page.title.en].includes(m.text));
     if (page) return api('sendMessage', { chat_id: id, text: page.body[language(id)], reply_markup: { inline_keyboard: page.links.map(link => [{ text: link.label[language(id)], url: link.url }]) } });
